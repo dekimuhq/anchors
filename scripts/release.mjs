@@ -32,6 +32,11 @@ import { fileURLToPath } from 'node:url';
 import { REGISTRIES } from './registry-parity.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Run changesets with node directly, never through `npx`: npm exec drops the
+// scoped `npm_config_@dekimuhq:registry` (and `npm_config_provenance`) from the
+// child's env, so every leg silently fell back to the repo .npmrc → npmjs
+// (release run 39693683382: the github leg PUT to registry.npmjs.org).
+const CHANGESET_BIN = path.join(root, 'node_modules/@changesets/cli/bin.js');
 const legs = (process.env.RELEASE_REGISTRIES || 'npmjs,github').split(',').map((s) => s.trim());
 for (const leg of legs) if (!REGISTRIES[leg]) throw new Error(`unknown registry leg "${leg}"`);
 
@@ -39,12 +44,12 @@ if (process.env.RELEASE_SKIP_BUILD !== '1')
   execFileSync(process.execPath, [path.join(root, 'scripts/build-all.mjs')], { cwd: root, stdio: 'inherit' });
 
 for (const leg of legs) {
-  const args = ['changeset', 'publish', ...(leg === 'npmjs' ? process.argv.slice(2) : ['--no-git-tag'])];
+  const args = [CHANGESET_BIN, 'publish', ...(leg === 'npmjs' ? process.argv.slice(2) : ['--no-git-tag'])];
   console.log(`\n== publish → ${leg} (${REGISTRIES[leg]})`);
   const env = { ...process.env, npm_config_ignore_scripts: 'true', 'npm_config_@dekimuhq:registry': REGISTRIES[leg] };
   // Provenance needs a CI id-token, and GitHub Packages does not accept it.
   if (leg === 'npmjs' && process.env.GITHUB_ACTIONS === 'true') env.npm_config_provenance = 'true';
-  execFileSync('npx', args, { cwd: root, stdio: 'inherit', env });
+  execFileSync(process.execPath, args, { cwd: root, stdio: 'inherit', env });
 }
 
 if (legs.length === Object.keys(REGISTRIES).length) {
