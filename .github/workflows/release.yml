@@ -99,7 +99,9 @@ jobs:
         run: |
           [ -n "$GH_PACKAGES_TOKEN" ] || { echo "::error::GH_PACKAGES_TOKEN is not set on the release environment"; exit 1; }
           # npm expands ${GH_PACKAGES_TOKEN} at read time; the value never lands on disk.
-          echo '//npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}' >> "$NPM_CONFIG_USERCONFIG"
+          # Leading newline: setup-node writes its .npmrc WITHOUT a trailing EOL, so a
+          # bare append glues this line onto its last one and npm sees no auth (ENEEDAUTH).
+          printf '\n%s\n' '//npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}' >> "$NPM_CONFIG_USERCONFIG"
           npm whoami --registry=https://npm.pkg.github.com >/dev/null \
             || { echo "::error::GH_PACKAGES_TOKEN is rejected by npm.pkg.github.com"; exit 1; }
           # Least privilege, enforced: a classic PAT with `repo` reads and writes every

@@ -32,7 +32,9 @@ jobs:
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         run: |
           [ -n "$GH_PACKAGES_TOKEN" ] || { echo "::error::GH_PACKAGES_TOKEN is not set — GitHub Packages is unreadable"; exit 1; }
-          echo '//npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}' >> ~/.npmrc
+          # Leading newline: setup-node writes its .npmrc WITHOUT a trailing EOL, so a
+          # bare append glues this line onto its last one and npm sees no auth (ENEEDAUTH).
+          printf '\n%s\n' '//npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}' >> ~/.npmrc
 
       - name: Parity
         env:
