@@ -1,0 +1,60 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.tokenization.v1",
+  "acronym": "ATokR",
+  "name": "Anchored Tokenization Receipts",
+  "claim_types": ["ar.tokenization.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 14,
+  "status_list_slot": 13,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["token.issued", "token.redeemed", "token.revoked", "token.rotated"] },
+    "token_id": { "type": "string" },
+    "format_class": { "type": "enum", "enum_values": ["pan", "email", "iban", "phone", "national_id", "freeform"] },
+    "scope": {
+      "type": "object",
+      "fields": {
+        "audience": { "type": "string" },
+        "purpose": { "type": "string" },
+        "valid_from": { "type": "iso8601" },
+        "valid_until": { "type": "iso8601", "nullable": true },
+        "single_use": { "type": "boolean" }
+      }
+    },
+    "rotation_of": { "type": "string", "nullable": true, "description": "Token ID of the predecessor (for token.rotated)." },
+    "redemption_audit_ref": { "type": "string", "nullable": true },
+    "asr_ref": { "type": "string", "nullable": true, "description": "ASR receipt hash for subject-rights linkage." },
+    "arr_ref": { "type": "string", "nullable": true, "description": "ARR receipt hash for retention linkage." },
+    "alr_ref": { "type": "string", "nullable": true, "description": "ALR receipt hash for lineage linkage." },
+    "apur_ref": { "type": "string", "nullable": true, "description": "APuR receipt hash for purpose binding." },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["token.issued", "token.redeemed", "token.revoked", "token.rotated"],
+  "profiles": [
+    { "id": "tokenization.gdpr.art32", "regulation": "GDPR Art. 32 Security of Processing" },
+    { "id": "tokenization.gdpr.art4_5", "regulation": "GDPR Art. 4(5) Pseudonymisation" },
+    { "id": "tokenization.pci.dss_v4", "regulation": "PCI DSS v4.0" },
+    { "id": "tokenization.eudi.wallet_arf", "regulation": "EUDI Wallet ARF" },
+    { "id": "tokenization.sector.health", "regulation": "Health Data Space (EHDS)" }
+  ],
+  "compose": {
+    "links_to": ["ar.subject_rights.v1", "ar.erasure.v1", "ar.lineage.v1", "ar.purpose.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/atokr",
+  "packages": {
+    "verifier": "@dekimuhq/atokr",
+    "issuer_kit": "@dekimuhq/atokr/issue",
+    "profiles": "@dekimuhq/atokr-profiles"
+  }
+}

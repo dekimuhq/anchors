@@ -1,0 +1,40 @@
+{
+  "v": 1,
+  "id": "01J0TEST00000000000000A003",
+  "kind": "ar.provenance.v1",
+  "issuer": "test-issuer",
+  "subject": "artifact-01J0TEST00000000000000A003",
+  "iat": 1735862400,
+  "kid": "test-claim-2026",
+  "body": {
+    "artifact": {
+      "type": "commander.run.output",
+      "id": "artifact-01J0TEST00000000000000A003",
+      "hash": "0c6430aa47f3a22416f3bc227532f7c570d117ffebe3a67788fcb71bb70f0b30",
+      "hashAlgorithm": "sha256",
+      "contentType": "text/plain",
+      "sizeBytes": 12
+    },
+    "agent": {
+      "kind": "ai",
+      "model": "test-model",
+      "provider": "test-provider"
+    },
+    "authorization": {
+      "principalId": "principal-01J0TEST00000000000000A003"
+    },
+    "inputs": [
+      {
+        "kind": "prompt",
+        "hash": "deadbeef",
+        "source": "test"
+      }
+    ],
+    "startedAt": 1735862400,
+    "completedAt": 1735862401,
+    "durationMs": 1000,
+    "disclosure": "public_minimal",
+    "summary": "vector 01J0TEST00000000000000A003"
+  },
+  "sig": "9kS2I1ZkMdhADhqzcbRo86cSrBpeRpYFdYhJ8CPpCXe8TsOzmRD08VjfzLEjwsFIggPnFJUxPyFZC76Qfy4oBA"
+}

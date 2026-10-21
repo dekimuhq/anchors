@@ -1,0 +1,50 @@
+/**
+ * Deterministic v=2 APR provenance envelope fixture for dispatch tests.
+ *
+ * Exports: { envelope, publicKey, privateKey }
+ *   envelope  — signed Envelope with claim_type "ar.provenance.v1"
+ *   publicKey — Uint8Array of the SPKI DER-encoded public key (for verifyEnvelopeSignature)
+ *   privateKey — KeyObject (for test mutation helpers)
+ */
+
+import * as crypto from "node:crypto";
+import { signEnvelope, base64UrlEncode } from "@dekimuhq/anchors-envelope";
+import type { Envelope } from "@dekimuhq/anchors-envelope";
+
+const { privateKey, publicKey } = crypto.generateKeyPairSync("ed25519");
+
+const pkDer = publicKey.export({ format: "der", type: "spki" }) as Buffer;
+// Last 32 bytes of the SPKI DER are the raw public key.
+const pkRaw = pkDer.subarray(-32);
+const issKey = `ed25519:${base64UrlEncode(new Uint8Array(pkRaw))}` as const;
+
+const unsigned: Envelope = {
+  v: 2,
+  id: "01HXX0000000000000000APRTEST",
+  claim_type: "ar.provenance.v1",
+  iss: "did:web:commander.example",
+  iss_key: issKey,
+  subject: "sha256:" + "a".repeat(64),
+  iat: "2026-05-17T00:00:00Z",
+  exp: null,
+  prev: null,
+  // APR forbids envelope-level policy_* fields (Phase C Task 14 matrix).
+  policy_uri: null,
+  policy_hash: null,
+  policy_version: null,
+  tsa: null,
+  credentialStatus: null,
+  anchor: null as unknown as Envelope["anchor"], // anchor is null before log submission
+  sig: "",
+  countersig: null,
+  body: { artifact_type: "commander.run.output", agent_kind: "ai" },
+};
+
+// Top-level await is fine — file loads as ESM in Node 22+.
+const signed = await signEnvelope(unsigned, privateKey);
+
+export default {
+  envelope: signed,
+  publicKey: new Uint8Array(pkDer),
+  privateKey,
+};

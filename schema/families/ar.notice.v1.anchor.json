@@ -1,0 +1,56 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.notice.v1",
+  "acronym": "ANR",
+  "name": "Anchored Notice Receipts",
+  "claim_types": ["ar.notice.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 10,
+  "status_list_slot": 4,
+  "subject_presence": "either",
+  "subject_presence_overrides": [
+    { "event_type": "notice.acknowledged", "subject_presence": "must-be-present", "description": "Acknowledgement is per-subject; sha256 commit." },
+    { "event_type": "notice.presented", "subject_presence": "either", "description": "sha256 default OR null for jurisdiction-level." },
+    { "event_type": "notice.re_presented", "subject_presence": "either" },
+    { "event_type": "notice.withdrawn", "subject_presence": "either" },
+    { "event_type": "notice.translated", "subject_presence": "must-be-null" },
+    { "event_type": "notice.joint_controller_essence", "subject_presence": "must-be-null" }
+  ],
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "notice.aiact.art50_transparency": "mandatory",
+    "*": "recommended"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["notice.presented", "notice.re_presented", "notice.acknowledged", "notice.withdrawn", "notice.translated", "notice.joint_controller_essence"] },
+    "profile": { "type": "enum", "enum_values": ["notice.art13.collected_direct", "notice.art14.collected_indirect", "notice.art26.joint_controller_essence", "notice.layered_transparency", "notice.aiact.art50_transparency"] },
+    "notice_hash": { "type": "sha256", "description": "SHA-256 of the notice document content." },
+    "notice_version": { "type": "string" },
+    "delivery_channel": { "type": "enum", "enum_values": ["web", "email", "in_app", "paper_qr", "api"] },
+    "ack_method": { "type": "enum", "enum_values": ["checkbox", "double_opt_in", "paper_signed"], "required": false },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["notice.presented", "notice.re_presented", "notice.acknowledged", "notice.withdrawn", "notice.translated", "notice.joint_controller_essence"],
+  "profiles": [
+    { "id": "notice.art13.collected_direct", "regulation": "GDPR Art. 13" },
+    { "id": "notice.art14.collected_indirect", "regulation": "GDPR Art. 14" },
+    { "id": "notice.art26.joint_controller_essence", "regulation": "GDPR Art. 26(2)" },
+    { "id": "notice.layered_transparency", "regulation": "EDPB Transparency Guidelines" },
+    { "id": "notice.aiact.art50_transparency", "regulation": "AI Act Art. 50", "tsa_override": "mandatory" }
+  ],
+  "compose": {
+    "links_to": ["ar.consent.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/anr",
+  "packages": {
+    "verifier": "@dekimuhq/anr",
+    "issuer_kit": "@dekimuhq/anr/issue",
+    "profiles": "@dekimuhq/anr-profiles"
+  }
+}

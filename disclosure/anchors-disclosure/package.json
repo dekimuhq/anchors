@@ -1,0 +1,48 @@
+{
+  "name": "@dekimuhq/anchors-disclosure",
+  "version": "0.3.1",
+  "description": "Tier A selective field disclosure for the Anchored Receipts family — holder-produced ar.disclosure.v1 presentations over field_root, verified without the hidden body. Pure node:crypto.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "disclosure/anchors-disclosure"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/disclosure/anchors-disclosure#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@dekimuhq/acr": "^0.7.1"
+  }
+}

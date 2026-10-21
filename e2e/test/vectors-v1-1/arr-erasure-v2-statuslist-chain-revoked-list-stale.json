@@ -1,0 +1,105 @@
+{
+  "name": "arr-erasure-v2-statuslist-chain-revoked-list-stale",
+  "family": "arr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXARRSL12CHNREV000001",
+    "iat": "2026-05-17T00:00:00Z",
+    "claim_type": "ar.erasure.v1",
+    "iss": "did:web:processor-cross-v12.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": "sha256:a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3",
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://processor-cross-v12.example/p/v1",
+    "policy_hash": "sha256:b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3",
+    "policy_version": "1.0.0",
+    "tsa": null,
+    "credentialStatus": {
+      "id": "https://verify.dekimu.com/test/status/2026/05-v12#13",
+      "type": "StatusList2021Entry",
+      "statusPurpose": "revocation",
+      "statusListIndex": "13",
+      "statusListCredential": "https://verify.dekimu.com/test/status/2026/05-v12"
+    },
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "ctt6X2i4PUhGluq_Oq4Dx1WhCN_M_uXG8c4saVZq58AzCNXTi5VT_8lyw65bUBpIFw1ZzZ297zXsE3x7DV_dAw",
+    "countersig": null,
+    "body": {
+      "profile": "gdpr.art17",
+      "target_kind": "subject",
+      "target_commit": "sha256:a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3",
+      "salt_epoch": "2026Q2",
+      "policy_hash": "sha256:b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3",
+      "policy_uri": "https://processor-cross-v12.example/p/v1",
+      "policy_version": "1.0.0",
+      "trigger": "subject_request",
+      "trigger_receipt": "sha256:fcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfc",
+      "event_at": "2026-05-17T11:00:00Z",
+      "granted_at": "2026-05-17T11:02:00Z",
+      "effective_until": null,
+      "state_snapshot": {
+        "retention_status": "erased",
+        "current_policy_hash": "sha256:b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3",
+        "hold_active": false,
+        "hold_reason_commit": null,
+        "anonymized": false,
+        "archived": false
+      },
+      "field_root": "sha256:c5eb75c9ea34a4e67bbbb40c6c05d85d2321dd7791f5a1281fb111578aa70cca"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "verify_opts": {
+    "statusListRootKey": {
+      "kid": "did:web:verify.dekimu.com#root",
+      "publicKeyDer": "MCowBQYDK2VwAyEAIBLLkMpg6OXY2vZuInLSIz4EhtVX6MZhQe2JIBd9frc"
+    },
+    "statusCacheSeed": {
+      "url": "https://verify.dekimu.com/test/status/2026/05-v12",
+      "fresh": true,
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://w3id.org/vc/status-list/2021/v1"
+        ],
+        "id": "https://verify.dekimu.com/test/status/2026/05-v12",
+        "type": [
+          "VerifiableCredential",
+          "StatusList2021Credential"
+        ],
+        "issuer": "did:web:verify.dekimu.com",
+        "validFrom": "2026-05-01T00:00:00Z",
+        "credentialSubject": {
+          "id": "https://verify.dekimu.com/test/status/2026/05-v12#list",
+          "type": "StatusList2021",
+          "statusPurpose": "revocation",
+          "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAIC3AYbSVKsAQAAA"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-05-17T00:00:00Z",
+          "verificationMethod": "did:web:verify.dekimu.com#root",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "GAXwsle7LcNqds8kJyit0jhi0i7q_wfVCsRug5eP7NbyjLjJIdt1dD9KkzH6WQCgr8Pb_sVlTSzQW-Evt2lwDg"
+        }
+      }
+    },
+    "chainSuccessorExists": true
+  },
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_recommended",
+    "status_state": "revoked_by_chain",
+    "status_list_id": "https://verify.dekimu.com/test/status/2026/05-v12"
+  }
+}

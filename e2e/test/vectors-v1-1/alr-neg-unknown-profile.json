@@ -1,0 +1,61 @@
+{
+  "name": "alr-neg-unknown-profile",
+  "family": "alr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXALRNEGPROFILE00000001",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.lineage.v1",
+    "iss": "did:web:processor-alr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": null,
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://processor-alr.example/lineage-policy/v1",
+    "policy_hash": "sha256:cececececececececececececececececececececececececececececececece",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "p7ufwZZQQsRBP3q7MJBdGNz4V2J4hlf-pBMEldJ_nUtKlaxrSs5rpPba9ktZSuu5nMXaFSemVRKiSHsV8CclCA",
+    "countersig": null,
+    "body": {
+      "profile": "unknown.profile.v0",
+      "artifact_hash": "sha256:cacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaca",
+      "event_at": "2026-05-17T10:00:00Z",
+      "event_type": "derived_from",
+      "parents": [
+        {
+          "artifact_hash": "sha256:cbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcb",
+          "parent_apr_id": null,
+          "parent_alr_id": null,
+          "uri": null
+        }
+      ],
+      "successor": null,
+      "transform_claim": {
+        "summary": "Negative — unknown profile.",
+        "uri": null
+      },
+      "disclosure": null,
+      "field_root": "sha256:21ef8cfda2808dabefea57ce78825dd4829cab567df03bc6cc0e09ba3a6b3e42"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": false
+  }
+}

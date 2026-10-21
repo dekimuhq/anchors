@@ -1,0 +1,73 @@
+{
+  "name": "anr-neg-art50-no-tsa",
+  "family": "anr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXANRNEGART50NOTSA00001",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.notice.v1",
+    "iss": "did:web:controller-anr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": null,
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://controller-anr.example/notice-policy/v1",
+    "policy_hash": "sha256:babababababababababababababababababababababababababababababababa",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "tnmwCkkKbUO2VeMyZBNswRk6E0AFZzXQqZZySfwF2eiD165VBUdfXDWFiQXnYmWaL9O3Vw7MvKdFrPquk9npBw",
+    "countersig": null,
+    "body": {
+      "profile": "notice.aiact.art50_transparency",
+      "lang_tag": "en-GB",
+      "lang_inferred": null,
+      "event_type": "notice.presented",
+      "jurisdiction": "EU",
+      "delivery_channel": "web",
+      "render_uri": "https://controller-anr.example/notice/v1/en",
+      "rights_surface": [
+        "art15",
+        "art16",
+        "art17",
+        "art18",
+        "art20",
+        "art21"
+      ],
+      "subject_age_band": null,
+      "data_source": null,
+      "collection_horizon": null,
+      "data_acquired_at": null,
+      "layer_uris": null,
+      "ai_system_kind": "interaction",
+      "ai_system_provider_did": "did:web:ai-provider-anr.example",
+      "aer_id": null,
+      "supersedes_anr_id": null,
+      "base_anr_id": null,
+      "ack_method": null,
+      "joint_controllers": null,
+      "cessation_reason": null,
+      "translation_provenance_alr_id": null,
+      "field_root": "sha256:93b81a76d79eb029dd8fd06aa1264e6d579212edc5fb95e2867c1a5de829e844"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": false,
+    "tsa_state": "tsa_required"
+  }
+}

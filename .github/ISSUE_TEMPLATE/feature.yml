@@ -1,0 +1,42 @@
+name: Feature request
+description: Propose a small addition to the verifier (API, helper, test ergonomics).
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Large or scope-shaping proposals belong in [Discussions](https://github.com/dekimuhq/anchors/discussions) first.
+
+        Changes that affect what verification *means* belong in [`apr-spec`](https://github.com/dekimuhq/anchors-spec/tree/main/apr), not here.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: One paragraph describing the proposed addition.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: Use case. What does this enable that the current API doesn't?
+    validations:
+      required: true
+
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API (if applicable)
+      render: typescript
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not add a runtime npm dependency.
+        - label: This does not change the conformance result for any published v1 vector.
+        - label: This does not deviate from `apr-spec/v1.md`.

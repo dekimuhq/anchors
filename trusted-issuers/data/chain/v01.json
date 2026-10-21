@@ -1,0 +1,23 @@
+{
+  "kind": "ar.trusted_issuers.v1",
+  "version": 1,
+  "issued_at": "2026-05-19T00:00:00Z",
+  "valid_until": "2026-06-19T00:00:00Z",
+  "publisher": "did:web:test.example",
+  "publisher_key": "ed25519:ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ",
+  "previous_sha256": null,
+  "issuers": [
+    {
+      "iss": "did:web:test.example",
+      "added_at": "2026-05-01T00:00:00Z",
+      "revoked_at": null,
+      "families": [
+        "apr",
+        "acr"
+      ],
+      "profiles_pinned": null,
+      "notes": "genesis entry"
+    }
+  ],
+  "sig": "o4boTL-7AqRH-Pg5AEqEa12WBwoII5UwwIMEvvEC0ah31Q2azr4fIw3tK-xQj4stAoiNRZHbjSlMZfUmTK-GDw"
+}

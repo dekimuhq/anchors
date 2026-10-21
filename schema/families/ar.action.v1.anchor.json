@@ -1,0 +1,40 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.action.v1",
+  "acronym": "AActR",
+  "name": "Anchored Action Receipts",
+  "claim_types": ["ar.action.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 15,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["hub.automation"] },
+    "verb": { "type": "string" },
+    "rule_id": { "type": "string" },
+    "recipe_id": { "type": "string" },
+    "outcome": { "type": "enum", "enum_values": ["executed", "failed-gave-up"] },
+    "executed_at": { "type": "iso8601" },
+    "decision_commit": { "type": "sha256" },
+    "params_commit": { "type": "sha256" },
+    "request_id_commit": { "type": "sha256" }
+  },
+  "profiles": [
+    { "id": "hub.automation", "regulation": "Dekimu Hub Automations Engine (Plan 2)" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/action",
+  "packages": {
+    "verifier": "@dekimuhq/action",
+    "issuer_kit": "@dekimuhq/action/issue",
+    "profiles": "@dekimuhq/action-profiles"
+  }
+}

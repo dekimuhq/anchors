@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  # release.yml runs the full suite on the commit it publishes.
+  workflow_call:
+
+# Read-only token; no secrets are used anywhere in this workflow.
+permissions:
+  contents: read
+
+concurrency:
+  # github.workflow is the CALLER's name under workflow_call, so a release's
+  # suite never shares (and gets cancelled by) a push run's group.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Node >=24.6 is the engines floor; the ML-DSA (post-quantum) path
+          # needs the native ML-DSA binding that ships in Node 24.6.
+          node-version: '24'
+          cache: npm
+
+      # --ignore-scripts: never run install scripts from a PR-authored lockfile.
+      # Every @dekimuhq/* dependency is a workspace link; nothing is fetched
+      # from a private registry.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Envelope dependency ranges
+        run: node scripts/check-envelope-deps.mjs
+
+      # Packages import each other through their built dist/, so validate,
+      # typecheck and test all need a topological build first.
+      - name: Build packages (topological)
+        run: npm run build-all
+
+      # Manifest meta-schema + FAMILY-CONSISTENCY cross-checks (§1-§6) and
+      # manifest-roster coverage. §6 spawns every family's own `npm test` and
+      # counts real tests, so it must run AFTER build-all: on an unbuilt tree
+      # sibling suites fail to load and 13 families false-fail the floor.
+      - name: Validate family manifests
+        run: npm run validate
+
+      # e2e/test/conformance-vectors.test.ts reads ../anchors-spec/conformance
+      # (a sibling of this checkout). Clone the public spec repo there.
+      - name: Checkout anchors-spec (conformance vectors)
+        run: git clone --depth 1 https://github.com/dekimuhq/anchors-spec "$GITHUB_WORKSPACE/../anchors-spec"
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test

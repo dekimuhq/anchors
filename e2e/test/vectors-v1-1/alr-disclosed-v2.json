@@ -1,0 +1,57 @@
+{
+  "name": "alr-disclosed-v2",
+  "family": "alr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXALRDISCLOSEDV2CROSS1",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.lineage.v1",
+    "iss": "did:web:processor-alr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": null,
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://processor-alr.example/lineage-policy/v1",
+    "policy_hash": "sha256:cececececececececececececececececececececececececececececececece",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "gnNx8kIkLOrLw8NpPlTptipCIMt6oXmF2Xl7yNzk4Ef8pysaSmWpDHBuokCIbrnqagr_ikrKqqd1DBdMMxTdAw",
+    "countersig": null,
+    "body": {
+      "profile": "disclosure.recipients",
+      "artifact_hash": "sha256:cacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaca",
+      "event_at": "2026-05-17T10:00:00Z",
+      "event_type": "disclosed",
+      "parents": [],
+      "successor": null,
+      "transform_claim": null,
+      "disclosure": {
+        "recipient": "did:web:dpa-cross-test.example",
+        "recipient_role": "supervisory_authority",
+        "scope_hash": "sha256:dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+        "basis": "gdpr.art6.1.c"
+      },
+      "field_root": "sha256:6a65811adb216125c68347ea0cb2f5180557c650d1fccf17ca6d1ebc9d17d88b"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_absent"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://anchors.dekimu.com/ns/vc/v1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "AnchoredReceiptCredential"
+  ],
+  "issuer": "did:web:issuer.example",
+  "validFrom": "2026-06-30T12:00:00Z",
+  "credentialSubject": {
+    "id": "sha256:abababababababababababababababababababababababababababababababab"
+  },
+  "evidence": [
+    {
+      "type": [
+        "AnchoredReceipt"
+      ],
+      "envelope": {
+        "v": 2,
+        "id": "01JEXAMPLE0000000000000001",
+        "iat": "2026-06-30T12:00:00Z",
+        "iat_ms": 1782820800000,
+        "claim_type": "ar.consent.v1",
+        "iss": "did:web:issuer.example",
+        "iss_key": "ed25519:6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+        "subject": "sha256:abababababababababababababababababababababababababababababababab",
+        "exp": null,
+        "prev": null,
+        "policy_uri": null,
+        "policy_hash": null,
+        "policy_version": null,
+        "tsa": null,
+        "credentialStatus": {
+          "id": "https://verify.dekimu.com/status/acr/v1#42",
+          "type": "StatusList2021Entry",
+          "statusPurpose": "revocation",
+          "statusListIndex": "42",
+          "statusListCredential": "https://verify.dekimu.com/status/acr/v1"
+        },
+        "anchor": {
+          "log": "https://verify.dekimu.com/acr/v1",
+          "leaf_index": 3,
+          "inclusion_proof": [
+            "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+          ],
+          "tree_head_root": "sha256:efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+          "tree_size": 8,
+          "log_time": "2026-06-30T12:00:01Z"
+        },
+        "sig": "gpIaa0FXSTJWSYtA-oc3r82bfj7rXhS8S_KPmRX2VQDcAZFEyL3HbfeF6SDRbYe-cGIhoVYgEoXav2HGmOhRDg",
+        "countersig": null,
+        "body": {
+          "purpose": "marketing",
+          "consent_version": "1.0"
+        }
+      },
+      "anchorLog": "https://verify.dekimu.com/acr/v1",
+      "treeHeadRoot": "sha256:efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+    }
+  ],
+  "credentialStatus": {
+    "id": "https://verify.dekimu.com/status/acr/v1#42",
+    "type": "StatusList2021Entry",
+    "statusPurpose": "revocation",
+    "statusListIndex": "42",
+    "statusListCredential": "https://verify.dekimu.com/status/acr/v1"
+  },
+  "proof": {
+    "type": "DataIntegrityProof",
+    "cryptosuite": "eddsa-jcs-2022",
+    "created": "2026-06-30T12:00:00Z",
+    "verificationMethod": "did:web:issuer.example#ed25519-6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "rGx8QxCXbbuaqYbn6ITbndkrMIu0y5dXdPAh8O0fYb1UIibMA8geD7aA0flZKhB_6zt1Zr7eTE2EPyzc-4a3Dw"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.redaction.v1",
+  "acronym": "APIIR",
+  "name": "Anchored PII-Redaction Receipts",
+  "claim_types": ["ar.redaction.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 20,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": { "*": "optional" },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["redaction.prompt"], "description": "Discriminator. redaction.prompt proves which redaction pass ran over a prompt/content blob before model send." },
+    "counts": { "type": "object", "description": "Per-category PII removal counts (Partial<Record<RedactionCategory, number>>); categories EMAIL/IBAN/VAT/PHONE/CARD/CLIENT per @dekimuhq/redaction-profiles REDACTION_CATEGORIES." },
+    "ruleset_hash": { "type": "sha256", "description": "sha256 commit of the golden-pinned detector corpus+version used for this pass." },
+    "input_commit": { "type": "sha256", "description": "sha256 commit(salt, original_input) — salt never anchored." },
+    "output_commit": { "type": "sha256", "description": "sha256 commit(salt, sanitized_output) — salt never anchored." },
+    "commit_alg": { "type": "enum", "enum_values": ["sha256"], "description": "Commit algorithm identifier." },
+    "redactor": { "type": "string", "description": "Provenance string of the detector, e.g. \"@dekimuhq/ai@2.4.0\"." }
+  },
+  "profiles": [
+    { "id": "redaction.prompt", "regulation": "Dekimu Redaction — per-prompt PII-redaction-pass provenance (not a PII-free guarantee)" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/redaction",
+  "packages": {
+    "verifier": "@dekimuhq/redaction",
+    "issuer_kit": "@dekimuhq/redaction/issue",
+    "profiles": "@dekimuhq/redaction-profiles"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.subject_rights.v1",
+  "acronym": "ASR",
+  "name": "Anchored Subject-Rights Receipts",
+  "claim_types": ["ar.subject_rights.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 12,
+  "status_list_slot": 6,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "request.received": "recommended",
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["request.received", "request.identity_verified", "request.scope_clarified", "request.extended", "request.partially_honoured", "request.fulfilled", "request.refused", "request.escalated", "request.recipient_notified"] },
+    "profile": { "type": "enum", "enum_values": ["subject_rights.art15.access", "subject_rights.art16.rectification", "subject_rights.art17.erasure_request", "subject_rights.art18.restriction", "subject_rights.art20.portability", "subject_rights.art21.objection"] },
+    "channel": { "type": "enum", "enum_values": ["email", "web_form", "postal", "in_person", "phone", "api"] },
+    "request_hash": { "type": "sha256", "description": "SHA-256 of the original request document." },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["request.received", "request.identity_verified", "request.scope_clarified", "request.extended", "request.partially_honoured", "request.fulfilled", "request.refused", "request.escalated", "request.recipient_notified"],
+  "profiles": [
+    { "id": "subject_rights.art15.access", "regulation": "GDPR Art. 15 Right of Access" },
+    { "id": "subject_rights.art16.rectification", "regulation": "GDPR Art. 16 Right to Rectification" },
+    { "id": "subject_rights.art17.erasure_request", "regulation": "GDPR Art. 17 Right to Erasure" },
+    { "id": "subject_rights.art18.restriction", "regulation": "GDPR Art. 18 Right to Restriction" },
+    { "id": "subject_rights.art20.portability", "regulation": "GDPR Art. 20 Right to Data Portability" },
+    { "id": "subject_rights.art21.objection", "regulation": "GDPR Art. 21 Right to Object" }
+  ],
+  "compose": {
+    "links_to": ["ar.erasure.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/asr",
+  "packages": {
+    "verifier": "@dekimuhq/asr",
+    "issuer_kit": "@dekimuhq/asr/issue",
+    "profiles": "@dekimuhq/asr-profiles"
+  }
+}

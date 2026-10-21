@@ -1,0 +1,40 @@
+{
+  "name": "@dekimuhq/<member>-verifier",
+  "version": "0.1.0",
+  "description": "Verifier for Anchored <Noun> Receipts (<MEMBER>) v1. Stateless. Edge-runtime compatible.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git"
+  },
+  "keywords": [
+    "<member>",
+    "anchored-<noun>-receipts",
+    "ed25519",
+    "verifier"
+  ],
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

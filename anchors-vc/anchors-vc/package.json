@@ -1,0 +1,46 @@
+{
+  "name": "@dekimuhq/anchors-vc",
+  "version": "0.1.2",
+  "description": "W3C Verifiable Credential binding for the Anchored Receipts family — carries an anchored ar.* receipt verbatim inside a VC so VC-native consumers (A2A/AP2/MCP) can ingest it, while the embedded envelope stays the cryptographic root of trust. Additive, byte-equal, pure node:crypto.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "anchors-vc/anchors-vc"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/anchors-vc/anchors-vc#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/did-web-resolver": "^0.5.1"
+  }
+}

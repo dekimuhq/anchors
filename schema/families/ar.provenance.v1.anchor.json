@@ -1,0 +1,76 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.provenance.v1",
+  "acronym": "APR",
+  "name": "Agent Provenance Receipts",
+  "claim_types": ["ar.provenance.v1"],
+  "envelope": "v1",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 1,
+  "status_list_slot": null,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "artifact": {
+      "type": "object",
+      "fields": {
+        "type": { "type": "enum", "enum_values": ["commander.run.output", "commander.run.codeChange", "commander.run.email", "commander.run.message", "miniterms.document", "lethe.letter", "lethe.document", "hub.sign-offs.deliverable", "hub.time-clock.day"] },
+        "id": { "type": "string" },
+        "hash": { "type": "sha256" },
+        "hashAlgorithm": { "type": "enum", "enum_values": ["sha256"] },
+        "contentType": { "type": "string", "required": false },
+        "sizeBytes": { "type": "integer", "required": false }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "fields": {
+        "kind": { "type": "enum", "enum_values": ["human", "ai", "template", "hybrid"] },
+        "model": { "type": "string", "required": false },
+        "provider": { "type": "string", "required": false },
+        "humanRole": { "type": "enum", "enum_values": ["review", "edit", "draft", "approve", "none"], "required": false }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "fields": {
+        "principalId": { "type": "string" }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "required": false,
+      "items": {
+        "type": "object",
+        "fields": {
+          "kind": { "type": "enum", "enum_values": ["prompt", "file", "url", "claim", "schedule"] },
+          "hash": { "type": "string", "required": false },
+          "source": { "type": "string", "required": false },
+          "claimId": { "type": "string", "required": false }
+        }
+      }
+    },
+    "startedAt": { "type": "integer" },
+    "completedAt": { "type": "integer" },
+    "durationMs": { "type": "integer", "required": false },
+    "disclosure": { "type": "enum", "enum_values": ["public_minimal", "public_full", "metadata_only"] },
+    "summary": { "type": "string", "required": false },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "profiles": [],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/apr",
+  "packages": {
+    "verifier": "@dekimuhq/apr",
+    "issuer_kit": "@dekimuhq/apr/issue"
+  }
+}

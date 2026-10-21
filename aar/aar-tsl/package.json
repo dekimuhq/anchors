@@ -1,0 +1,50 @@
+{
+  "name": "@dekimuhq/aar-tsl",
+  "version": "0.2.8",
+  "description": "EU Trust List snapshot tooling for Anchored Attestation Receipts (AAR)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "aar/aar-tsl"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/aar/aar-tsl#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/aar": "^0.4.2",
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "fast-xml-parser": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

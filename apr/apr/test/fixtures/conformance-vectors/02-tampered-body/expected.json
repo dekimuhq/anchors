@@ -1,0 +1,6 @@
+{
+  "status": "tampered",
+  "reasons": [
+    "signature_invalid"
+  ]
+}

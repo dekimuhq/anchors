@@ -1,0 +1,53 @@
+{
+  "name": "@dekimuhq/did-web-resolver",
+  "version": "0.5.1",
+  "description": "did:web key resolver for the Anchored Receipts protocol family. Pure library, zero runtime npm dependencies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "did-web-resolver"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/did-web-resolver#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "did",
+    "did-web",
+    "key-resolution",
+    "anchored-receipts",
+    "ed25519"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-anchor-pkg.mjs",
+    "test": "node --test --experimental-strip-types --no-warnings test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "@types/node": "^24.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

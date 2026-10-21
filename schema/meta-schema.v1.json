@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anchors.dekimu.com/schema/meta-schema/v1",
+  "title": "Anchored Receipt Family Schema",
+  "description": "Declarative manifest for an Anchored Receipts family member. Feeds defineFamily() and validates against FAMILY-CONSISTENCY.md invariants.",
+  "type": "object",
+  "required": [
+    "id",
+    "acronym",
+    "name",
+    "claim_types",
+    "envelope",
+    "chip",
+    "subject_presence",
+    "body"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional pointer to this meta-schema for editor support."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^ar\\.[a-z_]+\\.v[0-9]+$",
+      "description": "Primary wire discriminator, e.g. ar.consent.v1. Must match one of claim_types."
+    },
+    "acronym": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z]{2,5}$",
+      "description": "Three-to-five-letter family acronym, e.g. APR, ACR, ATokR."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Full family name, e.g. Anchored Consent Receipts."
+    },
+    "claim_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ar\\.[a-z_]+\\.v[0-9]+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Owned claim_type discriminators. Most families own 1; ARR closure set owns 6."
+    },
+    "envelope": {
+      "type": "string",
+      "enum": ["v1", "v2"],
+      "description": "Target envelope version. v2 is default for all families authored post-v1.1."
+    },
+    "sign": {
+      "type": "string",
+      "enum": ["ed25519"],
+      "default": "ed25519",
+      "description": "Signature algorithm. Only ed25519 is supported in v1."
+    },
+    "canonicalize": {
+      "type": "string",
+      "enum": ["jcs"],
+      "default": "jcs",
+      "description": "Canonicalization scheme. Only RFC 8785 JCS is supported."
+    },
+    "chip": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99,
+      "description": "verify.dekimu.com/check chip position per FAMILY-CONSISTENCY section 1."
+    },
+    "status_list_slot": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "W3C Bitstring Status List 2021 consumer ordering. null = non-revocable (e.g. APR)."
+    },
+    "subject_presence": {
+      "type": "string",
+      "enum": ["must-be-present", "must-be-null", "either"],
+      "description": "Envelope subject field presence rule per FAMILY-CONSISTENCY section 3."
+    },
+    "subject_presence_overrides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/subject_override" },
+      "description": "Per-event overrides when subject_presence is 'either' or varies by event_type."
+    },
+    "tsa_upgrade_path": {
+      "type": "string",
+      "enum": ["free", "internal", "external"],
+      "default": "free",
+      "description": "How the family acquires RFC 3161 TSA tokens."
+    },
+    "tsa_mandate": {
+      "type": "object",
+      "description": "Per-event TSA mandate level. Keys = event_type or profile ID or '*'. Values = level.",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["mandatory", "recommended", "optional"]
+      }
+    },
+    "body": {
+      "type": "object",
+      "description": "Body field declarations. Keys are field names; values are type descriptors.",
+      "additionalProperties": { "$ref": "#/$defs/field" }
+    },
+    "event_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Wire-level event_type discriminators within the family."
+    },
+    "profiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/profile" },
+      "description": "Regulatory/sectoral profiles this family supports."
+    },
+    "compose": {
+      "$ref": "#/$defs/compose",
+      "description": "Cross-family composition metadata (declarative)."
+    },
+    "continuity": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this family supports envelope continuity attestations."
+    },
+    "status_list": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this family consumes W3C Bitstring Status List 2021."
+    },
+    "suspension": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this family supports the suspensionStatus two-way list."
+    },
+    "spec_path": {
+      "type": "string",
+      "description": "URL (or repository-relative path) of the family's design spec."
+    },
+    "packages": {
+      "$ref": "#/$defs/packages",
+      "description": "Published package names and versions for this family."
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "iso8601",
+            "did",
+            "uri",
+            "sha256",
+            "enum",
+            "array",
+            "object",
+            "union"
+          ],
+          "description": "Field type. sha256 = 'sha256:<hex>' commit. iso8601 = RFC 3339 timestamp."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the field is mandatory in the body."
+        },
+        "nullable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the field may be null."
+        },
+        "enum_values": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Closed set of allowed values when type is 'enum'."
+        },
+        "items": {
+          "$ref": "#/$defs/field",
+          "description": "Item schema when type is 'array'."
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/field" },
+          "description": "Nested fields when type is 'object'."
+        },
+        "variants": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/field" },
+          "description": "Variant schemas when type is 'union'."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this field."
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": ["id", "regulation"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Profile identifier, e.g. gdpr.art7, breach.gdpr.art33."
+        },
+        "regulation": {
+          "type": "string",
+          "description": "Regulation reference, e.g. GDPR Art. 7, NIS2 Art. 23."
+        },
+        "tsa_override": {
+          "type": "string",
+          "enum": ["mandatory", "recommended"],
+          "description": "If this profile overrides the default TSA mandate level."
+        },
+        "extra_fields": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/field" },
+          "description": "Additional body fields required when this profile is active."
+        }
+      }
+    },
+    "compose": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "walk_parents": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this family performs parent-graph walks (e.g. ALR)."
+        },
+        "links_to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^ar\\.[a-z_]+\\.v[0-9]+$"
+          },
+          "description": "Other families this family composes with."
+        },
+        "chain_predecessor": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this family uses prev-chain linkage."
+        }
+      }
+    },
+    "subject_override": {
+      "type": "object",
+      "required": ["event_type", "subject_presence"],
+      "additionalProperties": false,
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "description": "The event_type this override applies to."
+        },
+        "subject_presence": {
+          "type": "string",
+          "enum": ["must-be-present", "must-be-null", "either"]
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "packages": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verifier": {
+          "type": "string",
+          "description": "npm package name, e.g. @dekimuhq/apr"
+        },
+        "issuer_kit": {
+          "type": "string",
+          "description": "npm package name, e.g. @dekimuhq/apr/issue"
+        },
+        "profiles": {
+          "type": "string",
+          "description": "npm package name, e.g. @dekimuhq/acr-profiles"
+        }
+      }
+    }
+  }
+}

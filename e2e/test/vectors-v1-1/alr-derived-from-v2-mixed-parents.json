@@ -1,0 +1,68 @@
+{
+  "name": "alr-derived-from-v2-mixed-parents",
+  "family": "alr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXALRDERIVMIXEDCROSS01",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.lineage.v1",
+    "iss": "did:web:processor-alr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": null,
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://processor-alr.example/lineage-policy/v1",
+    "policy_hash": "sha256:cececececececececececececececececececececececececececececececece",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "CyL-mLF0WBeA1A1aXVm6DdRwYpOFNyiYmAfJDRnvhr564hnbv8N5k6OMbuD0-4Ts7aFpVkP98-GDk1Xu3A4JBw",
+    "countersig": null,
+    "body": {
+      "profile": "c2pa.non-media",
+      "artifact_hash": "sha256:cacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacaca",
+      "event_at": "2026-05-17T10:00:00Z",
+      "event_type": "derived_from",
+      "parents": [
+        {
+          "artifact_hash": "sha256:cbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcb",
+          "parent_apr_id": "01HXXAPRCOMPOSEDALR000001",
+          "parent_alr_id": null,
+          "uri": null
+        },
+        {
+          "artifact_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "parent_apr_id": null,
+          "parent_alr_id": null,
+          "uri": null
+        }
+      ],
+      "successor": null,
+      "transform_claim": {
+        "summary": "Composed APR-anchored asset with external one.",
+        "uri": null
+      },
+      "disclosure": null,
+      "field_root": "sha256:aa1a79ac2db1b14659cc8440f94ea55f215b9267e0c56879ac12f77d3f82987e"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_absent"
+  }
+}

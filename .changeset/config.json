@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [
+    ["@dekimuhq/apr"],
+    ["@dekimuhq/acr", "@dekimuhq/acr-profiles"],
+    ["@dekimuhq/arr", "@dekimuhq/arr-profiles"],
+    ["@dekimuhq/alr", "@dekimuhq/alr-profiles"],
+    ["@dekimuhq/anr", "@dekimuhq/anr-profiles"],
+    ["@dekimuhq/abr", "@dekimuhq/abr-profiles"],
+    ["@dekimuhq/asr", "@dekimuhq/asr-profiles"],
+    ["@dekimuhq/air", "@dekimuhq/air-profiles"],
+    ["@dekimuhq/atokr", "@dekimuhq/atokr-profiles"],
+    ["@dekimuhq/adr", "@dekimuhq/adr-profiles"],
+    ["@dekimuhq/aar", "@dekimuhq/aar-profiles"],
+    ["@dekimuhq/atr", "@dekimuhq/atr-profiles"],
+    ["@dekimuhq/apur", "@dekimuhq/apur-profiles"],
+    ["@dekimuhq/aer", "@dekimuhq/aer-profiles"],
+    ["@dekimuhq/action", "@dekimuhq/action-profiles"]
+  ],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": ["anchors-e2e"]
+}

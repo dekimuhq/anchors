@@ -1,0 +1,63 @@
+{
+  "name": "@dekimuhq/anchors-cli",
+  "version": "0.1.2",
+  "description": "Offline / third-party verifier CLI for the Anchored Receipts family — `anchors verify <file>` routes any receipt to its family verifier by claim_type, no trust in the Dekimu SaaS.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "anchors": "./dist/cli.js",
+    "anchors-cli": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/cli#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "anchored-receipts",
+    "verifier",
+    "cli",
+    "offline-verification",
+    "ed25519",
+    "merkle",
+    "gdpr"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors": "^0.12.3",
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

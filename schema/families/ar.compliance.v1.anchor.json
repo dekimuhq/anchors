@@ -1,0 +1,122 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.compliance.v1",
+  "acronym": "ACBR",
+  "name": "Anchored Compliance Bundle Receipts",
+  "claim_types": ["ar.compliance.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 21,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": { "*": "optional" },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["compliance.bundle"], "description": "Discriminator. compliance.bundle is the workspace-level Proof-of-Compliance bundle." },
+    "workspaceId": { "type": "string", "description": "Workspace this compliance bundle is scoped to." },
+    "controller": {
+      "type": "object",
+      "description": "Controller identity (GDPR Art. 4(7)).",
+      "fields": {
+        "entityName": { "type": "string" },
+        "registeredAddress": { "type": "string", "nullable": true },
+        "contactEmail": { "type": "string", "nullable": true }
+      }
+    },
+    "regulation": {
+      "type": "object",
+      "description": "Regulatory manifest this bundle is scored against.",
+      "fields": {
+        "manifestId": { "type": "enum", "enum_values": ["gdpr"] },
+        "manifestVersion": { "type": "string" },
+        "manifestHash": { "type": "sha256" }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "Applicable/satisfied obligation counts + ratio (derived).",
+      "fields": {
+        "applicable": { "type": "integer" },
+        "satisfied": { "type": "integer" },
+        "ratio": { "type": "number" }
+      }
+    },
+    "constituents": {
+      "type": "object",
+      "description": "References to the RoPA, DPIA(s), and obligation-satisfaction evidence this bundle bundles. References, not re-derivation.",
+      "fields": {
+        "ropa": {
+          "type": "union",
+          "description": "BundleRef (present) or GapDecl (declared gap).",
+          "variants": [
+            {
+              "type": "object",
+              "fields": {
+                "ref": { "type": "string" },
+                "contentHash": { "type": "sha256" },
+                "claimType": { "type": "string", "required": false },
+                "satisfiedObligations": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "status": { "type": "enum", "enum_values": ["gap"] },
+                "reason": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "dpia": {
+          "type": "union",
+          "description": "Array of BundleRef (one per completed DPIA) or a single NotApplicableDecl.",
+          "variants": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "ref": { "type": "string" },
+                  "contentHash": { "type": "sha256" },
+                  "claimType": { "type": "string", "required": false },
+                  "satisfiedObligations": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "status": { "type": "enum", "enum_values": ["not_applicable"] },
+                "reason": { "type": "string" },
+                "basis": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "obligations": {
+          "type": "object",
+          "description": "BundleRef pointing at the obligation-satisfaction evidence.",
+          "fields": {
+            "ref": { "type": "string" },
+            "contentHash": { "type": "sha256" },
+            "claimType": { "type": "string", "required": false },
+            "satisfiedObligations": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "generated_at": { "type": "iso8601", "description": "RFC 3339 time the bundle was generated (reproducible, injected clock)." }
+  },
+  "profiles": [
+    { "id": "compliance.bundle", "regulation": "Dekimu Proof-of-Compliance — workspace-level RoPA + DPIA + obligation-satisfaction bundle" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/compliance",
+  "packages": {
+    "verifier": "@dekimuhq/compliance",
+    "issuer_kit": "@dekimuhq/compliance/issue"
+  }
+}

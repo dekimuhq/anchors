@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrustServiceStatusList xmlns="http://uri.etsi.org/02231/v2#">
+  <SchemeInformation>
+    <PointersToOtherTSL>
+      <OtherTSLPointer>
+        <TSLLocation>https://sede.minetur.gob.es/Prestadores/TSL/TSL.xml</TSLLocation>
+        <AdditionalInformation>
+          <OtherInformation>
+            <SchemeTerritory>ES</SchemeTerritory>
+          </OtherInformation>
+        </AdditionalInformation>
+      </OtherTSLPointer>
+      <OtherTSLPointer>
+        <TSLLocation>https://www.bnetza.de/tsl/DE-TSL.xml</TSLLocation>
+        <AdditionalInformation>
+          <OtherInformation>
+            <SchemeTerritory>DE</SchemeTerritory>
+          </OtherInformation>
+        </AdditionalInformation>
+      </OtherTSLPointer>
+      <OtherTSLPointer>
+        <TSLLocation>https://www.agid.gov.it/tsl/IT-TSL.xml</TSLLocation>
+        <AdditionalInformation>
+          <OtherInformation>
+            <SchemeTerritory>IT</SchemeTerritory>
+          </OtherInformation>
+        </AdditionalInformation>
+      </OtherTSLPointer>
+    </PointersToOtherTSL>
+  </SchemeInformation>
+</TrustServiceStatusList>

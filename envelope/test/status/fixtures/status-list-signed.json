@@ -1,0 +1,26 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/vc/status-list/2021/v1"
+  ],
+  "id": "https://verify.dekimu.com/acr/v1/status/2026/05",
+  "type": [
+    "VerifiableCredential",
+    "StatusList2021Credential"
+  ],
+  "issuer": "did:web:verify.dekimu.com",
+  "validFrom": "2026-05-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "https://verify.dekimu.com/acr/v1/status/2026/05#list",
+    "type": "StatusList2021",
+    "statusPurpose": "revocation",
+    "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAIC3AYbSVKsAQAAA"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2026-05-17T00:00:00Z",
+    "verificationMethod": "did:web:verify.dekimu.com#root",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "h7KCtH_7lObx578bwSLMHBla4g1iKNgsW-LauqTd2AaLLV-s1G8s2Al2JMESFeukX4Vuvp8R7xD46xmPpm3YDA"
+  }
+}

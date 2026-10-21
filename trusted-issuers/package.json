@@ -1,0 +1,58 @@
+{
+  "name": "@dekimuhq/anchors-trusted-issuers",
+  "version": "1.0.1",
+  "description": "Signed allowlist + hash-chain governance for the Anchored Receipts protocol family. Default TrustedIssuersSource implementation backed by ar.trusted_issuers.v1 standalone-attestation. Pure library, zero runtime npm dependencies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "trusted-issuers"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/trusted-issuers#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "anchored-receipts",
+    "trust",
+    "allowlist",
+    "did-web",
+    "ed25519",
+    "governance"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-anchor-pkg.mjs",
+    "test": "node --test --experimental-strip-types --no-warnings test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/did-web-resolver": "^0.5.1",
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "@types/node": "^24.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

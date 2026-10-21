@@ -1,0 +1,21 @@
+{
+  "v": 2,
+  "id": "01HZ0000000000000000000011",
+  "iat": "2026-05-18T00:00:00Z",
+  "claim_type": "ar.consent.v1",
+  "iss": "did:key:z6MkTestIssuer",
+  "iss_key": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+  "subject": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "cause": "review_cycle",
+  "exp": null,
+  "prev": null,
+  "policy_uri": null,
+  "policy_hash": null,
+  "policy_version": null,
+  "tsa": null,
+  "credentialStatus": null,
+  "anchor": null,
+  "sig": null,
+  "countersig": null,
+  "body": {}
+}

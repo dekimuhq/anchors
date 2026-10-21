@@ -1,0 +1,54 @@
+{
+  "name": "apr-v2",
+  "family": "apr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXAPRV2CROSSFAMILY001",
+    "iat": "2026-05-17T00:00:00Z",
+    "claim_type": "ar.provenance.v1",
+    "iss": "did:web:test-issuer.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "exp": null,
+    "prev": null,
+    "policy_uri": null,
+    "policy_hash": null,
+    "policy_version": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "_2-hcXO8s-uUBGGxKvy25CAXChjDEDi7Iw2ysXd2xJyNaZGaEVO1LGPc7UkHkEfvhJ6CBJsY6pzbmIwKOqaWBA",
+    "countersig": null,
+    "body": {
+      "artifact": {
+        "type": "miniterms.document",
+        "id": "art-v2-cross-001",
+        "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "hashAlgorithm": "sha256"
+      },
+      "agent": {
+        "kind": "template"
+      },
+      "authorization": {
+        "principalId": "principal-cross-002"
+      },
+      "startedAt": 1747440000,
+      "completedAt": 1747440002,
+      "disclosure": "public_minimal"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_absent"
+  }
+}

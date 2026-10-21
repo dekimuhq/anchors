@@ -1,0 +1,66 @@
+{
+  "name": "@dekimuhq/abr",
+  "version": "0.6.2",
+  "description": "Anchored Breach Receipts (ABR) v1 — verify (default) + issue (./issue) for GDPR Art. 33/34, NIS2 Art. 23, DORA Art. 19 breach-notification receipts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./issue": {
+      "types": "./dist/issue/index.d.ts",
+      "default": "./dist/issue/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "abr/abr"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/abr/abr#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "abr",
+    "anchored-breach-receipts",
+    "verifier",
+    "issuer",
+    "ed25519",
+    "gdpr",
+    "nis2",
+    "dora",
+    "breach-notification"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/abr-profiles": "^0.6.3",
+    "@dekimuhq/anchors-disclosure": "*",
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

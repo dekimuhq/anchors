@@ -1,0 +1,72 @@
+{
+  "name": "@dekimuhq/acr-profiles",
+  "version": "0.7.3",
+  "description": "Regulation profiles for ACR v1 — gdpr.art7, aiact.art14, gdpr.train.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./body-types": {
+      "types": "./dist/body-types.d.ts",
+      "default": "./dist/body-types.js"
+    },
+    "./gdpr-art7": {
+      "types": "./dist/gdpr-art7.d.ts",
+      "default": "./dist/gdpr-art7.js"
+    },
+    "./gdpr-train": {
+      "types": "./dist/gdpr-train.d.ts",
+      "default": "./dist/gdpr-train.js"
+    },
+    "./aiact-art14": {
+      "types": "./dist/aiact-art14.d.ts",
+      "default": "./dist/aiact-art14.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "acr/acr-profiles"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/acr/acr-profiles#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "acr",
+    "gdpr",
+    "ai-act",
+    "compliance",
+    "profiles"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "apr-v1",
+  "family": "apr",
+  "envelope_version": 1,
+  "receipt": {
+    "v": 1,
+    "id": "01HXXAPRV1REGRESSION00001",
+    "kind": "ar.provenance.v1",
+    "issuer": "did:web:test-issuer.example",
+    "subject": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "iat": 1747440000,
+    "kid": "test-cross-kid-v1",
+    "body": {
+      "artifact": {
+        "type": "miniterms.document",
+        "id": "art-v1-cross-001",
+        "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "hashAlgorithm": "sha256"
+      },
+      "agent": {
+        "kind": "template"
+      },
+      "authorization": {
+        "principalId": "principal-cross-001"
+      },
+      "startedAt": 1747440000,
+      "completedAt": 1747440001,
+      "disclosure": "public_minimal"
+    },
+    "sig": "FNZXYFyH6e0B4-bEtpuGpKiBbMHbJfkp373W_OjGKytJ8JnnqSlg4vyvejbUv3ei5G-SiIyz5vRvCM54U5IuCA"
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 1,
+    "signature_valid": true
+  }
+}

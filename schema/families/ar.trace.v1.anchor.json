@@ -1,0 +1,64 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.trace.v1",
+  "acronym": "AgTR",
+  "name": "Anchored Agent-Trace Receipts",
+  "claim_types": ["ar.trace.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 19,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": { "*": "optional" },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["agent.trace"], "description": "Discriminator. Single profile in v1." },
+    "request_id_commit": { "type": "sha256", "description": "Salted commit of the run's request id — joins to the AActR/AQR for the same run." },
+    "capability": { "type": "string", "required": false, "description": "Plaintext capability verb, e.g. operator.draft-reminder." },
+    "stages": {
+      "type": "array",
+      "description": "Ordered plaintext pipeline-stage skeleton (stage names are fixed labels, non-PII).",
+      "items": {
+        "type": "object",
+        "fields": {
+          "stage": { "type": "string" },
+          "ms": { "type": "integer" },
+          "status": { "type": "enum", "enum_values": ["ok", "error", "skipped"] }
+        }
+      }
+    },
+    "outcome": { "type": "enum", "enum_values": ["ok", "error", "denied", "checkpoint"], "description": "Run terminal state." },
+    "error_stage": { "type": "string", "required": false, "description": "REQUIRED iff outcome=error: the stage label that errored." },
+    "trace_commit": { "type": "sha256", "description": "Salted commit over the full detailed trace (may carry PII)." },
+    "started_at": { "type": "iso8601", "description": "RFC 3339 run start time." },
+    "total_ms": { "type": "integer", "description": "Total run duration in ms." },
+    "policy_uri": { "type": "uri", "required": false },
+    "policy_hash": { "type": "sha256", "required": false },
+    "policy_version": { "type": "string", "required": false },
+    "credential_id": { "type": "string", "required": false, "description": "Set only if the run was a mandate-authorized capability." },
+    "caveats_consumed": {
+      "type": "object",
+      "required": false,
+      "description": "Only valid WITH credential_id: caveats the run consumed.",
+      "fields": {
+        "data_scope": { "type": "string" },
+        "spend_step": { "type": "number" },
+        "spend_currency": { "type": "string", "required": false },
+        "capability": { "type": "string" }
+      }
+    }
+  },
+  "profiles": [
+    { "id": "agent.trace", "regulation": "Dekimu Agent-Trace — per-run execution provenance" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/trace",
+  "packages": {
+    "verifier": "@dekimuhq/trace",
+    "issuer_kit": "@dekimuhq/trace/issue",
+    "profiles": "@dekimuhq/trace-profiles"
+  }
+}

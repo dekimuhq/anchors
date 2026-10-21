@@ -1,0 +1,38 @@
+{
+  "name": "@dekimuhq/<member>-profiles",
+  "version": "0.1.0",
+  "description": "Regulator-anchored profile descriptors for Anchored <Noun> Receipts (<MEMBER>) v1.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git"
+  },
+  "keywords": [
+    "<member>",
+    "anchored-<noun>-receipts",
+    "profiles",
+    "gdpr",
+    "compliance"
+  ],
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

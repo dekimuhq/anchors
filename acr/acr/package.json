@@ -1,0 +1,64 @@
+{
+  "name": "@dekimuhq/acr",
+  "version": "0.7.2",
+  "description": "Anchored Consent Receipts (ACR) v1 — verify (default) + issue (./issue) for GDPR Art. 7 / AI Act Art. 14 consent receipts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./issue": {
+      "types": "./dist/issue/index.d.ts",
+      "default": "./dist/issue/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "acr/acr"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/acr/acr#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "acr",
+    "anchored-consent-receipts",
+    "verifier",
+    "issuer",
+    "ed25519",
+    "gdpr",
+    "ai-act",
+    "consent"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/acr-profiles": "^0.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

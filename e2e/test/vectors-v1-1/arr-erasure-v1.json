@@ -1,0 +1,39 @@
+{
+  "name": "arr-erasure-v1",
+  "family": "arr",
+  "envelope_version": 1,
+  "receipt": {
+    "kind": "ar.erasure.v1",
+    "profile": "gdpr.art17",
+    "iss": "did:web:processor-cross-v1.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "target_kind": "subject",
+    "target_commit": "sha256:abababababababababababababababababababababababababababababababab",
+    "salt_epoch": "2026Q2",
+    "policy_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+    "policy_uri": "https://processor-cross-v1.example/p/v1",
+    "policy_version": "1.0.0",
+    "trigger": "subject_request",
+    "trigger_receipt": "sha256:efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+    "event_at": "2026-05-17T08:00:00Z",
+    "granted_at": "2026-05-17T08:02:00Z",
+    "effective_until": null,
+    "state_snapshot": {
+      "retention_status": "erased",
+      "current_policy_hash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "hold_active": false,
+      "hold_reason_commit": null,
+      "anonymized": false,
+      "archived": false
+    },
+    "prev": null,
+    "field_root": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "anchor": null,
+    "sig": "ed25519:hFECsJcUdOXtd6TnEQC-v5sJxpMWs6zjDGwVJhIPQZL4w6NKVzdiECd8e1FHyZTZDiqa3RNP6r2O_6tuHwcgAQ"
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 1,
+    "signature_valid": true
+  }
+}

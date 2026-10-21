@@ -1,0 +1,66 @@
+{
+  "name": "@dekimuhq/arr",
+  "version": "0.9.2",
+  "description": "Anchored Retention Receipts (ARR) v1 — verify (default) + issue (./issue) for GDPR Art.17 / HIPAA / SOX retention receipts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./issue": {
+      "types": "./dist/issue/index.d.ts",
+      "default": "./dist/issue/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "arr/arr"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/arr/arr#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "arr",
+    "anchored-retention-receipts",
+    "verifier",
+    "issuer",
+    "gdpr-art17",
+    "hipaa",
+    "sox",
+    "ed25519"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/acr": "^0.7.2",
+    "@dekimuhq/anchors-disclosure": "*",
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/arr-profiles": "^0.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

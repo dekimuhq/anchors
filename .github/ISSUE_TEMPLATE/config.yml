@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security disclosure
+    url: mailto:security@dekimu.com
+    about: Email security@dekimu.com for any suspected vulnerability — do NOT file a public issue.
+  - name: Spec questions
+    url: https://github.com/dekimuhq/anchors/discussions
+    about: Questions about what verification means, or how this library implements it, belong in Discussions.

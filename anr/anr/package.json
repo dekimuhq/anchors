@@ -1,0 +1,65 @@
+{
+  "name": "@dekimuhq/anr",
+  "version": "0.7.2",
+  "description": "Anchored Notice Receipts (ANR) v1 — verify (default) + issue (./issue) for GDPR Art.13/14/26 + AI Act Art.50 transparency notice receipts.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./issue": {
+      "types": "./dist/issue/index.d.ts",
+      "default": "./dist/issue/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "anr/anr"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/anr/anr#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "anr",
+    "anchored-notice-receipts",
+    "verifier",
+    "issuer",
+    "ed25519",
+    "gdpr",
+    "ai-act",
+    "transparency-notice"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-disclosure": "*",
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/anr-profiles": "^0.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

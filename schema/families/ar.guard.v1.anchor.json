@@ -1,0 +1,73 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.guard.v1",
+  "acronym": "AGR",
+  "name": "Anchored Guard Verdicts",
+  "claim_types": ["ar.guard.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 17,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "profile": {
+      "type": "enum",
+      "enum_values": ["guard.input"],
+      "description": "Discriminator. guard.input records the verdict for one screened inbound content item."
+    },
+    "ruleset_id": { "type": "string", "description": "Identifier of the prompt-injection ruleset applied." },
+    "ruleset_hash": { "type": "sha256", "description": "sha256 commit pinning the exact ruleset contents." },
+    "ruleset_version": { "type": "string", "description": "Human-readable version of the ruleset." },
+    "content_commit": { "type": "sha256", "description": "sha256 commit of the screened content." },
+    "decision": {
+      "type": "enum",
+      "enum_values": ["pass", "flagged", "blocked"],
+      "description": "Guard verdict: pass = clean, flagged = suspicious but allowed through, blocked = rejected."
+    },
+    "matched_rules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of rule identifiers that matched (empty when decision is pass)."
+    },
+    "detector": {
+      "type": "object",
+      "description": "Identity of the detector component that produced the verdict.",
+      "fields": {
+        "kind": { "type": "enum", "enum_values": ["deterministic", "llm-judge", "hybrid"] },
+        "model": { "type": "string", "required": false, "description": "Model identifier when kind involves an LLM judge." },
+        "model_version": { "type": "string", "required": false }
+      }
+    },
+    "screened_at": { "type": "iso8601", "description": "RFC 3339 time the screening ran." },
+    "content_media_type": { "type": "string", "required": false, "description": "MIME type of the screened content (e.g. text/plain, application/json)." },
+    "credential_id": { "type": "string", "required": false, "description": "Capability credential id the screened request was produced under." },
+    "caveats_consumed": {
+      "type": "object",
+      "required": false,
+      "description": "Caveats the producing action consumed.",
+      "fields": {
+        "data_scope": { "type": "string" },
+        "spend_step": { "type": "number" },
+        "spend_currency": { "type": "string", "required": false },
+        "capability": { "type": "string" }
+      }
+    }
+  },
+  "profiles": [
+    { "id": "guard.input", "regulation": "Dekimu Guard — per-input prompt-injection screening verdict" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/guard",
+  "packages": {
+    "verifier": "@dekimuhq/guard",
+    "issuer_kit": "@dekimuhq/guard/issue",
+    "profiles": "@dekimuhq/guard-profiles"
+  }
+}

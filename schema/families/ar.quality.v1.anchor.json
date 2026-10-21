@@ -1,0 +1,82 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.quality.v1",
+  "acronym": "AQR",
+  "name": "Anchored Quality Receipts",
+  "claim_types": ["ar.quality.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 16,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "profile": {
+      "type": "enum",
+      "enum_values": ["quality.output", "quality.release"],
+      "description": "Discriminator. quality.output scores one AI/agent output; quality.release scores a named version/release."
+    },
+    "suite_id": { "type": "string", "description": "Identifier of the named eval suite the output was scored against." },
+    "suite_hash": { "type": "sha256", "description": "sha256 commit pinning the exact suite contents/config." },
+    "scorer": {
+      "type": "object",
+      "description": "Who/what produced the score.",
+      "fields": {
+        "kind": { "type": "enum", "enum_values": ["deterministic", "llm-judge", "human", "hybrid"] },
+        "model": { "type": "string", "required": false, "description": "Scoring model identifier (when kind involves an LLM judge)." },
+        "model_version": { "type": "string", "required": false }
+      }
+    },
+    "result": {
+      "type": "object",
+      "description": "The scored outcome.",
+      "fields": {
+        "score": { "type": "number", "description": "Normalized score in [0,1]." },
+        "verdict": { "type": "enum", "enum_values": ["pass", "fail", "warn"] },
+        "threshold": { "type": "number", "description": "Pass threshold in [0,1]." },
+        "cases_total": { "type": "integer" },
+        "cases_passed": { "type": "integer" }
+      }
+    },
+    "ran_at": { "type": "iso8601", "description": "RFC 3339 time the eval ran." },
+    "samples_commit": { "type": "sha256", "required": false, "description": "sha256 commit of the evaluated sample set." },
+    "policy_uri": { "type": "uri", "required": false },
+    "policy_hash": { "type": "sha256", "required": false },
+    "policy_version": { "type": "string", "required": false },
+
+    "output_commit": { "type": "sha256", "required": false, "description": "REQUIRED for profile quality.output: sha256 commit of the scored output." },
+    "request_id_commit": { "type": "sha256", "required": false, "description": "quality.output only: salted commit of the originating request id." },
+    "credential_id": { "type": "string", "required": false, "description": "quality.output only: capability credential id the output was produced under." },
+    "caveats_consumed": {
+      "type": "object",
+      "required": false,
+      "description": "quality.output only: caveats the producing action consumed.",
+      "fields": {
+        "data_scope": { "type": "string" },
+        "spend_step": { "type": "number" },
+        "spend_currency": { "type": "string", "required": false },
+        "capability": { "type": "string" }
+      }
+    },
+
+    "subject_ref": { "type": "string", "required": false, "description": "REQUIRED for profile quality.release: identifier of the version/release scored." },
+    "gate": { "type": "enum", "enum_values": ["blocking", "advisory"], "required": false, "description": "quality.release only: whether the gate blocks or merely advises." }
+  },
+  "profiles": [
+    { "id": "quality.output", "regulation": "Dekimu Quality — per-output eval scoring" },
+    { "id": "quality.release", "regulation": "Dekimu Quality — per-release/version eval gating" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/quality",
+  "packages": {
+    "verifier": "@dekimuhq/quality",
+    "issuer_kit": "@dekimuhq/quality/issue",
+    "profiles": "@dekimuhq/quality-profiles"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "types": ["node"],
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "lib": ["ES2022"],
+    "paths": {
+      "@dekimuhq/acr": ["../acr/src/index.ts"],
+      "@dekimuhq/acr-profiles/body-types": ["./src/body-types.ts"],
+      "@dekimuhq/anchors-envelope": ["../../envelope/src/index.ts"],
+      "@dekimuhq/anchors-envelope/tsa": ["../../envelope/src/tsa/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

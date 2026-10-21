@@ -1,0 +1,52 @@
+name: Bug report
+description: Report incorrect verification behaviour, type errors, or crashes.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Security issues** — do NOT file here. Email security@dekimu.com (see `SECURITY.md`).
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Observed behaviour. Include the `{status, reasons}` you got, if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: Expected `{status, reasons}`, or behaviour you expected from the API.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproducer
+      description: |
+        Smallest possible code + inputs. If you can express it as a conformance-vector-style group
+        (claim.json + anchor.json + …), please do.
+      render: typescript
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      placeholder: "v22.x"
+    validations:
+      required: true

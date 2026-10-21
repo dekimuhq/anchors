@@ -1,0 +1,81 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.lineage.v1",
+  "acronym": "ALR",
+  "name": "Anchored Lineage Receipts",
+  "claim_types": ["ar.lineage.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 9,
+  "status_list_slot": 1,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["derived_from", "forked_from", "superseded_by", "disclosed"] },
+    "parents": {
+      "type": "array",
+      "required": false,
+      "items": {
+        "type": "object",
+        "fields": {
+          "artifact_hash": { "type": "sha256" },
+          "parent_apr_id": { "type": "string", "nullable": true },
+          "parent_alr_id": { "type": "string", "nullable": true },
+          "uri": { "type": "uri", "nullable": true }
+        }
+      },
+      "description": "Parent references for derived_from and forked_from events."
+    },
+    "successor": {
+      "type": "object",
+      "required": false,
+      "nullable": true,
+      "fields": {
+        "artifact_hash": { "type": "sha256" },
+        "parent_apr_id": { "type": "string", "nullable": true },
+        "parent_alr_id": { "type": "string", "nullable": true },
+        "uri": { "type": "uri", "nullable": true }
+      },
+      "description": "Forward pointer for superseded_by events."
+    },
+    "disclosure": {
+      "type": "object",
+      "required": false,
+      "nullable": true,
+      "fields": {
+        "recipient_commit": { "type": "sha256" },
+        "basis": { "type": "string" },
+        "categories": { "type": "array", "items": { "type": "string" } },
+        "disclosed_at": { "type": "iso8601" }
+      },
+      "description": "Disclosure sub-record for disclosed events."
+    },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["derived_from", "forked_from", "superseded_by", "disclosed"],
+  "profiles": [
+    { "id": "gdpr.art13.transparency", "regulation": "GDPR Art. 13" },
+    { "id": "aiact.art13.transparency", "regulation": "AI Act Art. 13" },
+    { "id": "aiact.art53.gpai-training", "regulation": "AI Act Art. 53" },
+    { "id": "c2pa.non-media", "regulation": "C2PA Non-Media" },
+    { "id": "disclosure.recipients", "regulation": "GDPR Art. 13(1)(e)" }
+  ],
+  "compose": {
+    "walk_parents": true,
+    "links_to": ["ar.provenance.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/alr",
+  "packages": {
+    "verifier": "@dekimuhq/alr",
+    "issuer_kit": "@dekimuhq/alr/issue",
+    "profiles": "@dekimuhq/alr-profiles"
+  }
+}

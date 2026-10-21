@@ -1,0 +1,59 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.transfer.v1",
+  "acronym": "ATR",
+  "name": "Anchored Transfer Receipts",
+  "claim_types": ["ar.transfer.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 5,
+  "status_list_slot": 9,
+  "subject_presence": "either",
+  "subject_presence_overrides": [
+    { "event_type": "arrangement", "subject_presence": "must-be-null", "description": "Arrangement is data-flow-level, not subject-level." },
+    { "event_type": "transfer", "subject_presence": "must-be-present", "description": "sha256 batch root or per-subject commit." },
+    { "event_type": "tia", "subject_presence": "must-be-null" },
+    { "event_type": "suspension", "subject_presence": "must-be-null" }
+  ],
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "arrangement": "recommended",
+    "suspension": "recommended",
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["arrangement", "transfer", "tia", "suspension"] },
+    "profile": { "type": "enum", "enum_values": ["gdpr.art45.adequacy", "gdpr.art46.scc", "gdpr.art46.bcr", "gdpr.art46.idta", "gdpr.art47.bcr_authorised", "gdpr.art49.derogation", "gdpr.dpf", "schremsii.tia"] },
+    "exporter_commit": { "type": "sha256" },
+    "importer_commit": { "type": "sha256" },
+    "destination_country": { "type": "string", "description": "ISO 3166-1 alpha-2." },
+    "mechanism_version": { "type": "string" },
+    "data_categories": { "type": "array", "items": { "type": "string" } },
+    "subject_count_bucket": { "type": "enum", "enum_values": ["1", "2_9", "10_99", "100_999", "1k_9k", "10k_99k", "100k_plus"], "required": false },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["arrangement", "transfer", "tia", "suspension"],
+  "profiles": [
+    { "id": "gdpr.art45.adequacy", "regulation": "GDPR Art. 45 Adequacy" },
+    { "id": "gdpr.art46.scc", "regulation": "GDPR Art. 46(2)(c) SCC" },
+    { "id": "gdpr.art46.bcr", "regulation": "GDPR Art. 46(2)(b) BCR" },
+    { "id": "gdpr.art46.idta", "regulation": "UK IDTA 2022" },
+    { "id": "gdpr.art47.bcr_authorised", "regulation": "GDPR Art. 47 BCR Authorised" },
+    { "id": "gdpr.art49.derogation", "regulation": "GDPR Art. 49 Derogations" },
+    { "id": "gdpr.dpf", "regulation": "EU-US Data Privacy Framework 2023" },
+    { "id": "schremsii.tia", "regulation": "Schrems II TIA" }
+  ],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/atr",
+  "packages": {
+    "verifier": "@dekimuhq/atr",
+    "issuer_kit": "@dekimuhq/atr/issue",
+    "profiles": "@dekimuhq/atr-profiles"
+  }
+}

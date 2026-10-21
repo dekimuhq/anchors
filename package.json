@@ -1,0 +1,90 @@
+{
+  "name": "anchors-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Development workspace for the Anchored Receipts reference implementation. The workspace root is not published; each package under it is published to npm separately.",
+  "workspaces": [
+    "envelope",
+    "transparency/anchors-transparency",
+    "disclosure/anchors-disclosure",
+    "anchors-vc/anchors-vc",
+    "anchor-contracts",
+    "apr/apr",
+    "acr/acr",
+    "acr/acr-profiles",
+    "alr/alr",
+    "alr/alr-profiles",
+    "anr/anr",
+    "anr/anr-profiles",
+    "abr/abr",
+    "abr/abr-profiles",
+    "asr/asr",
+    "asr/asr-profiles",
+    "air/air",
+    "air/air-profiles",
+    "arr/arr",
+    "arr/arr-profiles",
+    "atokr/atokr",
+    "atokr/atokr-profiles",
+    "adr/adr",
+    "adr/adr-profiles",
+    "aar/aar",
+    "aar/aar-profiles",
+    "aar/aar-tsl",
+    "atr/atr",
+    "atr/atr-profiles",
+    "apur/apur",
+    "apur/apur-profiles",
+    "aer/aer",
+    "aer/aer-profiles",
+    "action/action",
+    "action/action-profiles",
+    "quality/quality",
+    "quality/quality-profiles",
+    "trace/trace-profiles",
+    "trace/trace",
+    "trace/trace-otel",
+    "guard/guard",
+    "guard/guard-detect",
+    "guard/guard-profiles",
+    "grounding/grounding",
+    "grounding/grounding-check",
+    "grounding/grounding-profiles",
+    "compliance/compliance",
+    "redaction/redaction",
+    "redaction/redaction-profiles",
+    "did-web-resolver",
+    "trusted-issuers",
+    "federation",
+    "meta",
+    "cli",
+    "e2e"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git"
+  },
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "node scripts/release.mjs",
+    "build-all": "node scripts/build-all.mjs",
+    "changeset:check": "node scripts/changeset-check.mjs",
+    "sbom": "npx @cyclonedx/cyclonedx-npm --output-file sbom.json --spec-version 1.5",
+    "validate": "node --experimental-strip-types schema/validate.ts",
+    "generate": "node --experimental-strip-types schema/generate.ts"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0"
+  },
+  "overrides": {
+    "@changesets/parse": {
+      "js-yaml": "^4.3.0"
+    },
+    "read-yaml-file": {
+      "js-yaml": "^3.15.0"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.consent.v1",
+  "acronym": "ACR",
+  "name": "Anchored Consent Receipts",
+  "claim_types": ["ar.consent.v1", "ar.modification.v1", "ar.withdrawal.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 2,
+  "status_list_slot": 2,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional",
+    "esig.accept": "mandatory"
+  },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["gdpr.art7", "aiact.art14", "hipaa.auth", "kyc.consent", "mifid2.suit", "esig.accept", "gdpr.train"] },
+    "sub_commit": { "type": "sha256", "description": "Salted commitment to subject identifier." },
+    "purposes": { "type": "array", "items": { "type": "string" }, "description": "Salted commitments to purpose descriptors." },
+    "lawful_basis": { "type": "string", "description": "Profile-specific lawful basis, e.g. 6(1)(a)." },
+    "policy_hash": { "type": "sha256", "description": "SHA-256 of the consented policy document." },
+    "granted_at": { "type": "iso8601" },
+    "expires_at": { "type": "iso8601", "required": false },
+    "prev": { "type": "sha256", "nullable": true, "description": "Hash of prior receipt for modification/withdrawal." },
+    "field_root": { "type": "sha256", "description": "Merkle root over salted per-field commitments." },
+    "countersig": { "type": "string", "nullable": true, "description": "Optional subject countersignature (reserved for EUDI Wallet)." },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["consent.given", "consent.modified", "consent.withdrawn"],
+  "profiles": [
+    { "id": "gdpr.art7", "regulation": "GDPR Art. 7" },
+    { "id": "aiact.art14", "regulation": "AI Act Art. 14" },
+    { "id": "hipaa.auth", "regulation": "HIPAA Authorization" },
+    { "id": "kyc.consent", "regulation": "KYC/AML Consent" },
+    { "id": "mifid2.suit", "regulation": "MiFID II Suitability" },
+    { "id": "esig.accept", "regulation": "eIDAS Art. 25", "tsa_override": "mandatory" },
+    { "id": "gdpr.train", "regulation": "GDPR Art. 6(1)(a)/(f) + EDPB Opinion 28/2024" }
+  ],
+  "compose": {
+    "links_to": ["ar.notice.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/acr",
+  "packages": {
+    "verifier": "@dekimuhq/acr",
+    "issuer_kit": "@dekimuhq/acr/issue",
+    "profiles": "@dekimuhq/acr-profiles"
+  }
+}

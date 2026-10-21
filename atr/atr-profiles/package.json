@@ -1,0 +1,56 @@
+{
+  "name": "@dekimuhq/atr-profiles",
+  "version": "0.3.3",
+  "description": "Regulation profile validators for ATR v1: gdpr.art45.adequacy, gdpr.art46.scc, gdpr.art46.bcr, gdpr.art46.idta, gdpr.art47.bcr_authorised, gdpr.art49.derogation, gdpr.dpf, schremsii.tia.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "atr/atr-profiles"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/atr/atr-profiles#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "atr",
+    "anchored-transfer-receipts",
+    "profiles",
+    "gdpr",
+    "schrems-ii"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.impact.v1",
+  "acronym": "AIR",
+  "name": "Anchored Impact-Assessment Receipts",
+  "claim_types": ["ar.impact.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 13,
+  "status_list_slot": 7,
+  "subject_presence": "either",
+  "subject_presence_overrides": [
+    { "event_type": "dpia.stakeholders_consulted", "subject_presence": "either", "description": "Representative-org commit MAY appear." },
+    { "event_type": "dpia.threshold_triggered", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.scope_locked", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.dpo_advised", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.completed", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.reviewed", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.prior_consultation_initiated", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.prior_consultation_resolved", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.processing_authorised", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.processing_blocked", "subject_presence": "must-be-null" },
+    { "event_type": "dpia.terminated", "subject_presence": "must-be-null" }
+  ],
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "dpia.completed": "recommended",
+    "dpia.prior_consultation_initiated": "recommended",
+    "dpia.prior_consultation_resolved": "recommended",
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["dpia.threshold_triggered", "dpia.scope_locked", "dpia.dpo_advised", "dpia.stakeholders_consulted", "dpia.completed", "dpia.reviewed", "dpia.prior_consultation_initiated", "dpia.prior_consultation_resolved", "dpia.processing_authorised", "dpia.processing_blocked", "dpia.terminated"] },
+    "profile": { "type": "enum", "enum_values": ["impact.art35_3_a_automated_decisions", "impact.art35_3_b_large_scale_special_categories", "impact.art35_3_c_public_monitoring", "impact.art35_4_dpa_list", "impact.voluntary"] },
+    "activity_id_commit": { "type": "sha256" },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["dpia.threshold_triggered", "dpia.scope_locked", "dpia.dpo_advised", "dpia.stakeholders_consulted", "dpia.completed", "dpia.reviewed", "dpia.prior_consultation_initiated", "dpia.prior_consultation_resolved", "dpia.processing_authorised", "dpia.processing_blocked", "dpia.terminated"],
+  "profiles": [
+    { "id": "impact.art35_3_a_automated_decisions", "regulation": "GDPR Art. 35(3)(a) Automated Decision-Making" },
+    { "id": "impact.art35_3_b_large_scale_special_categories", "regulation": "GDPR Art. 35(3)(b) Large-Scale Special Categories" },
+    { "id": "impact.art35_3_c_public_monitoring", "regulation": "GDPR Art. 35(3)(c) Public Monitoring" },
+    { "id": "impact.art35_4_dpa_list", "regulation": "GDPR Art. 35(4) DPA List" },
+    { "id": "impact.voluntary", "regulation": "Voluntary DPIA" }
+  ],
+  "compose": {
+    "walk_parents": true,
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/air",
+  "packages": {
+    "verifier": "@dekimuhq/air",
+    "issuer_kit": "@dekimuhq/air/issue",
+    "profiles": "@dekimuhq/air-profiles"
+  }
+}

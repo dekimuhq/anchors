@@ -1,0 +1,51 @@
+{
+  "name": "asr-art15-recipient-notified",
+  "family": "asr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXASRA15RCPNT0000000001",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.subject_rights.v1",
+    "iss": "did:web:controller-asr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": "sha256:5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b5b",
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://controller-asr.example/subject-rights-policy/v1",
+    "policy_hash": "sha256:5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "N5BtdJf0mfdqRiWjXzf2nqFtVq6C0UAu0Sa7bCLX1eU8E0tTEnaU3nLMnb1sB0tB1zZYLcWeBIJFeyBqZ7CsAA",
+    "countersig": null,
+    "body": {
+      "event_type": "request.recipient_notified",
+      "subject_rights_request_id": "srr-asr-cross-001",
+      "recipient_set_alr_ids": [
+        "01HXXALRRECPSET00000000001"
+      ],
+      "recipient_notification_uri": "https://controller-asr.example/recipient-notice/0001",
+      "recipient_notification_hash": "sha256:6262626262626262626262626262626262626262626262626262626262626262"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_absent"
+  },
+  "profile": "subject_rights.art15.access"
+}

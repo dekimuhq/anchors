@@ -1,0 +1,48 @@
+{
+  "name": "acr-withdrawal-v2",
+  "family": "acr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXACRWITHDRAWV2CROSS1",
+    "iat": "2026-05-17T00:00:00Z",
+    "claim_type": "ar.withdrawal.v1",
+    "iss": "did:web:controller-cross-v2.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "exp": null,
+    "prev": "01HXXACRCONSENTV2CROSS001",
+    "policy_uri": "https://controller-cross-v2.example/privacy/v1",
+    "policy_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "policy_version": "1.0.0",
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "Wg6r4yH5UKPO9UdXaYu_X2Ea90BQXN1Aw01M542q6fQCw3P_s7wVRSDcyYdBE9WsdJ3aulmSg5yFkkNcn7c4Dg",
+    "countersig": null,
+    "body": {
+      "profile": "gdpr.art7",
+      "sub_commit": "sha256:06bede99e03b1e250723dac82b856f1fdf2c5d40a62989af1a806f3bed575542",
+      "purposes": [
+        "sha256:00ff1d89b0123c760593170e17aa2b5ee7eb95cd310194ed5a10be7dafbe9e62"
+      ],
+      "lawful_basis": "6(1)(a)",
+      "policy_hash": "sha256:45169e7075fcca92e33d56cb2886b96b399f1c59d057ac6a6c2d120237658f4e",
+      "granted_at": "2026-05-17T00:00:00Z",
+      "field_root": "sha256:d9e96778bd11b2f5e7474101e3ea107d58814323b76946dcbdad45169b466e80"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": true,
+    "tsa_state": "tsa_absent"
+  }
+}

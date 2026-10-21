@@ -1,0 +1,10 @@
+{
+  "test-claim-2026": {
+    "issuer": "test-issuer",
+    "publicKey": "5zTqbCtiV95yNV5HKqBaTEh-a0Y8Ap7TBt8vAbVja1g"
+  },
+  "test-claim-2025": {
+    "issuer": "test-issuer",
+    "publicKey": "fVnFYj3UCnSqTVoyrGRdOz-V2urkwiviVHbdakhvc4I"
+  }
+}

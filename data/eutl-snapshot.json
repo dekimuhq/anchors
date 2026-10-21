@@ -1,0 +1,5 @@
+{
+  "source": "https://ec.europa.eu/tools/lotl/eu-lotl.xml",
+  "note": "Live TSL data is served by verify.dekimu.com/aar/v1/tsl_snapshots/* via daily cron. This file is a static reference only. See @dekimuhq/aar-tsl for the operational tooling.",
+  "anchors": []
+}

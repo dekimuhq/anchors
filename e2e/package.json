@@ -1,0 +1,35 @@
+{
+  "name": "anchors-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Cross-package end-to-end integration tests for the Anchored Receipts family (APR + ACR + ARR + ALR + ANR + ABR + ASR + AIR + @dekimuhq/anchors meta).",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/acr": "^0.7.2",
+    "@dekimuhq/acr-profiles": "^0.7.3",
+    "@dekimuhq/apr": "^0.7.3",
+    "@dekimuhq/arr": "^0.9.2",
+    "@dekimuhq/arr-profiles": "^0.9.3",
+    "@dekimuhq/alr": "^0.5.2",
+    "@dekimuhq/alr-profiles": "^0.5.3",
+    "@dekimuhq/anr": "^0.7.2",
+    "@dekimuhq/anr-profiles": "^0.7.3",
+    "@dekimuhq/abr": "^0.6.2",
+    "@dekimuhq/abr-profiles": "^0.6.3",
+    "@dekimuhq/asr": "^0.6.2",
+    "@dekimuhq/asr-profiles": "^0.6.3",
+    "@dekimuhq/air": "^0.7.2",
+    "@dekimuhq/air-profiles": "^0.7.3",
+    "@dekimuhq/anchors": "^0.12.3",
+    "@dekimuhq/anchors-federation": "^0.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  }
+}

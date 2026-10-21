@@ -1,0 +1,218 @@
+{
+  "name": "@dekimuhq/anchors",
+  "version": "0.12.3",
+  "description": "Meta-package re-exporting the Anchored Receipts family: APR + ACR + ARR + ALR + ANR + ABR + ASR + AIR + ATokR + AAR + ADR + APuR + AER + ATR.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./apr": {
+      "types": "./dist/apr.d.ts",
+      "default": "./dist/apr.js"
+    },
+    "./acr": {
+      "types": "./dist/acr.d.ts",
+      "default": "./dist/acr.js"
+    },
+    "./acrProfiles": {
+      "types": "./dist/acrProfiles.d.ts",
+      "default": "./dist/acrProfiles.js"
+    },
+    "./arr": {
+      "types": "./dist/arr.d.ts",
+      "default": "./dist/arr.js"
+    },
+    "./arrProfiles": {
+      "types": "./dist/arrProfiles.d.ts",
+      "default": "./dist/arrProfiles.js"
+    },
+    "./alr": {
+      "types": "./dist/alr.d.ts",
+      "default": "./dist/alr.js"
+    },
+    "./alrProfiles": {
+      "types": "./dist/alrProfiles.d.ts",
+      "default": "./dist/alrProfiles.js"
+    },
+    "./anr": {
+      "types": "./dist/anr.d.ts",
+      "default": "./dist/anr.js"
+    },
+    "./anrProfiles": {
+      "types": "./dist/anrProfiles.d.ts",
+      "default": "./dist/anrProfiles.js"
+    },
+    "./abr": {
+      "types": "./dist/abr.d.ts",
+      "default": "./dist/abr.js"
+    },
+    "./abrProfiles": {
+      "types": "./dist/abrProfiles.d.ts",
+      "default": "./dist/abrProfiles.js"
+    },
+    "./asr": {
+      "types": "./dist/asr.d.ts",
+      "default": "./dist/asr.js"
+    },
+    "./asrProfiles": {
+      "types": "./dist/asrProfiles.d.ts",
+      "default": "./dist/asrProfiles.js"
+    },
+    "./air": {
+      "types": "./dist/air.d.ts",
+      "default": "./dist/air.js"
+    },
+    "./airProfiles": {
+      "types": "./dist/airProfiles.d.ts",
+      "default": "./dist/airProfiles.js"
+    },
+    "./atokr": {
+      "types": "./dist/atokr.d.ts",
+      "default": "./dist/atokr.js"
+    },
+    "./atokrProfiles": {
+      "types": "./dist/atokrProfiles.d.ts",
+      "default": "./dist/atokrProfiles.js"
+    },
+    "./aar": {
+      "types": "./dist/aar.d.ts",
+      "default": "./dist/aar.js"
+    },
+    "./aarProfiles": {
+      "types": "./dist/aarProfiles.d.ts",
+      "default": "./dist/aarProfiles.js"
+    },
+    "./adr": {
+      "types": "./dist/adr.d.ts",
+      "default": "./dist/adr.js"
+    },
+    "./adrProfiles": {
+      "types": "./dist/adrProfiles.d.ts",
+      "default": "./dist/adrProfiles.js"
+    },
+    "./aer": {
+      "types": "./dist/aer.d.ts",
+      "default": "./dist/aer.js"
+    },
+    "./aerProfiles": {
+      "types": "./dist/aerProfiles.d.ts",
+      "default": "./dist/aerProfiles.js"
+    },
+    "./atr": {
+      "types": "./dist/atr.d.ts",
+      "default": "./dist/atr.js"
+    },
+    "./atrProfiles": {
+      "types": "./dist/atrProfiles.d.ts",
+      "default": "./dist/atrProfiles.js"
+    },
+    "./apur": {
+      "types": "./dist/apur.d.ts",
+      "default": "./dist/apur.js"
+    },
+    "./apurProfiles": {
+      "types": "./dist/apurProfiles.d.ts",
+      "default": "./dist/apurProfiles.js"
+    },
+    "./envelope": {
+      "types": "./dist/envelope.d.ts",
+      "default": "./dist/envelope.js"
+    },
+    "./tsa": {
+      "types": "./dist/tsa.d.ts",
+      "default": "./dist/tsa.js"
+    },
+    "./status": {
+      "types": "./dist/status.d.ts",
+      "default": "./dist/status.js"
+    },
+    "./profile": {
+      "types": "./dist/profile.d.ts",
+      "default": "./dist/profile.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "meta"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/meta#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "anchored-receipts",
+    "apr",
+    "acr",
+    "arr",
+    "alr",
+    "anr",
+    "abr",
+    "asr",
+    "air",
+    "atokr",
+    "aar",
+    "adr",
+    "aer",
+    "atr",
+    "apur",
+    "meta"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/acr-profiles": "^0.7.3",
+    "@dekimuhq/acr": "^0.7.2",
+    "@dekimuhq/apr": "^0.7.3",
+    "@dekimuhq/arr-profiles": "^0.9.3",
+    "@dekimuhq/arr": "^0.9.2",
+    "@dekimuhq/alr-profiles": "^0.5.3",
+    "@dekimuhq/alr": "^0.5.2",
+    "@dekimuhq/anr-profiles": "^0.7.3",
+    "@dekimuhq/anr": "^0.7.2",
+    "@dekimuhq/abr-profiles": "^0.6.3",
+    "@dekimuhq/abr": "^0.6.2",
+    "@dekimuhq/asr-profiles": "^0.6.3",
+    "@dekimuhq/asr": "^0.6.2",
+    "@dekimuhq/air-profiles": "^0.7.3",
+    "@dekimuhq/air": "^0.7.2",
+    "@dekimuhq/atokr-profiles": "^0.3.3",
+    "@dekimuhq/atokr": "^0.3.2",
+    "@dekimuhq/apur": "^0.3.2",
+    "@dekimuhq/apur-profiles": "^0.3.3",
+    "@dekimuhq/aar": "^0.4.2",
+    "@dekimuhq/aar-profiles": "^0.4.3",
+    "@dekimuhq/adr-profiles": "^0.4.2",
+    "@dekimuhq/adr": "^0.4.1",
+    "@dekimuhq/aer-profiles": "^0.3.3",
+    "@dekimuhq/aer": "^0.3.2",
+    "@dekimuhq/atr": "^0.3.2",
+    "@dekimuhq/atr-profiles": "^0.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

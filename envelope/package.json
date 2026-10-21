@@ -1,0 +1,85 @@
+{
+  "name": "@dekimuhq/anchors-envelope",
+  "version": "0.26.2",
+  "description": "Shared receipt envelope for the Anchored Receipts protocol family (APR/ACR/ARR/…). Owns canonicalize, sign, verify, ClaimType union. Pure library, zero runtime npm dependencies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tsa": {
+      "types": "./dist/tsa/index.d.ts",
+      "default": "./dist/tsa/index.js"
+    },
+    "./status": {
+      "types": "./dist/status/index.d.ts",
+      "default": "./dist/status/index.js"
+    },
+    "./profile": {
+      "types": "./dist/profile/index.d.ts",
+      "default": "./dist/profile/index.js"
+    },
+    "./continuity": {
+      "types": "./dist/continuity.d.ts",
+      "default": "./dist/continuity.js"
+    },
+    "./issuer": {
+      "types": "./dist/issuer/index.d.ts",
+      "default": "./dist/issuer/index.js"
+    },
+    "./merkle": {
+      "types": "./dist/merkle.d.ts",
+      "default": "./dist/merkle.js"
+    },
+    "./commit": {
+      "types": "./dist/commit.d.ts",
+      "default": "./dist/commit.js"
+    },
+    "./field-commit": {
+      "types": "./dist/field-commit.d.ts",
+      "default": "./dist/field-commit.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "envelope"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/envelope#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "anchored-receipts",
+    "envelope",
+    "ed25519",
+    "merkle",
+    "claim-type"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

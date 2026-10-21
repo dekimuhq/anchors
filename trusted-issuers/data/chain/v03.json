@@ -1,0 +1,33 @@
+{
+  "kind": "ar.trusted_issuers.v1",
+  "version": 3,
+  "issued_at": "2026-06-15T00:00:00Z",
+  "valid_until": "2026-07-15T00:00:00Z",
+  "publisher": "did:web:test.example",
+  "publisher_key": "ed25519:ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ",
+  "previous_sha256": "sha256:27b03cbaf0eb10bb2e418c48bb8deaddbcbcbac5ccb8d96ad803c10deaf7cc18",
+  "issuers": [
+    {
+      "iss": "did:web:test.example",
+      "added_at": "2026-05-01T00:00:00Z",
+      "revoked_at": null,
+      "families": [
+        "apr",
+        "acr"
+      ],
+      "profiles_pinned": null,
+      "notes": "genesis entry"
+    },
+    {
+      "iss": "did:web:other.example",
+      "added_at": "2026-06-01T00:00:00Z",
+      "revoked_at": "2026-06-14T00:00:00Z",
+      "families": [
+        "acr"
+      ],
+      "profiles_pinned": null,
+      "notes": "revoked at v03"
+    }
+  ],
+  "sig": "-I3d1HV_LClYLGuPDPJU4eSlFiJZxTUXs97kYWLKbWMQ5S5n-op1e-ZE0iHxy4zSeMlYx_bwhAkBEW2JRScaDg"
+}

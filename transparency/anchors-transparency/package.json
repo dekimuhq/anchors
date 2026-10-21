@@ -1,0 +1,40 @@
+{
+  "name": "@dekimuhq/anchors-transparency",
+  "version": "0.3.2",
+  "description": "Verifier-side transparency-log primitives for the Anchored Receipts family (leaf hashing, inclusion/consistency proofs, C2SP checkpoints). node:crypto only.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "transparency/anchors-transparency"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/transparency/anchors-transparency#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  }
+}

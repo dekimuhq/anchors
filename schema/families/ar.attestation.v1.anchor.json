@@ -1,0 +1,60 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.attestation.v1",
+  "acronym": "AAR",
+  "name": "Anchored Attestation Receipts",
+  "claim_types": ["ar.attestation.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 8,
+  "status_list_slot": 12,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "external",
+  "tsa_mandate": {
+    "issuance:qts": "mandatory",
+    "issuance": "recommended",
+    "revocation": "recommended"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["issuance", "revocation"] },
+    "service_type": { "type": "enum", "enum_values": ["qes", "qeseal", "qts", "qereg", "qcert_natural", "qcert_legal", "qwallet", "qattest"] },
+    "service_policy_oid": { "type": "string" },
+    "service_recipient_commit": { "type": "sha256" },
+    "artefact_hash": { "type": "sha256", "nullable": true },
+    "artefact_metadata_commit": { "type": "sha256" },
+    "signature_format": { "type": "enum", "enum_values": ["pades_b_b", "pades_b_t", "pades_b_lt", "pades_b_lta", "xades_b_b", "xades_b_t", "xades_b_lt", "xades_b_lta", "cades_b_b", "cades_b_t", "cades_b_lt", "cades_b_lta", "jades_b_b", "jades_b_t", "jades_b_lt", "jades_b_lta"], "nullable": true },
+    "qcert_serial_commit": { "type": "sha256", "nullable": true },
+    "tsl_country": { "type": "string", "description": "ISO 3166-1 alpha-2 of the TSL origin." },
+    "tsl_entry_hash": { "type": "sha256" },
+    "tsl_signed_tree_head_root": { "type": "sha256" },
+    "tsl_tree_size": { "type": "integer" },
+    "tsl_inclusion_proof": { "type": "array", "items": { "type": "sha256" } },
+    "tsl_log_time": { "type": "iso8601" },
+    "atr_transfer_hash": { "type": "sha256", "nullable": true },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["issuance", "revocation"],
+  "profiles": [
+    { "id": "eidas.qes", "regulation": "eIDAS Art. 25-34 QES" },
+    { "id": "eidas.qeseal", "regulation": "eIDAS Art. 35-40 Qualified Seal" },
+    { "id": "eidas.qts", "regulation": "eIDAS Art. 41-42 Qualified Timestamp", "tsa_override": "mandatory" },
+    { "id": "eidas.qereg", "regulation": "eIDAS Art. 44 Qualified eDelivery" },
+    { "id": "eidas.qcert.natural", "regulation": "eIDAS Annex I Natural Person Cert" },
+    { "id": "eidas.qcert.legal", "regulation": "eIDAS Annex I Legal Person Cert" },
+    { "id": "eidas.qwallet", "regulation": "eIDAS2 Art. 6a EU Digital Identity Wallet" },
+    { "id": "eidas.qattest", "regulation": "eIDAS2 Art. 45a Qualified Attestation" }
+  ],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/aar",
+  "packages": {
+    "verifier": "@dekimuhq/aar",
+    "issuer_kit": "@dekimuhq/aar/issue",
+    "profiles": "@dekimuhq/aar-profiles"
+  }
+}

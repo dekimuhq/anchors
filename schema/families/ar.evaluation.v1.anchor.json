@@ -1,0 +1,57 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.evaluation.v1",
+  "acronym": "AER",
+  "name": "Anchored Evaluation Receipts",
+  "claim_types": ["ar.evaluation.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 7,
+  "status_list_slot": 11,
+  "subject_presence": "either",
+  "subject_presence_overrides": [
+    { "event_type": "conformity", "subject_presence": "must-be-null", "description": "Conformity assessment is system-level." },
+    { "event_type": "transparency", "subject_presence": "must-be-present", "description": "sha256 end-user subject commit." }
+  ],
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "conformity": "recommended",
+    "transparency": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["conformity", "transparency"] },
+    "profile": { "type": "enum", "enum_values": ["aiact.art43.internal", "aiact.art43.thirdparty", "aiact.art43.fr_assessment", "aiact.art50.chatbot", "aiact.art50.synthetic_media", "aiact.art50.emotion_biocategorization", "aiact.art50.public_text", "aiact.art52.gpai", "nist.aimrf.profile"] },
+    "risk_class": { "type": "enum", "enum_values": ["prohibited", "high", "limited", "minimal", "gpai", "gpai_systemic"] },
+    "assessment_route": { "type": "enum", "enum_values": ["internal_control", "thirdparty_notified_body", "fundamental_rights"], "required": false },
+    "annex_iii_category": { "type": "enum", "enum_values": ["biometrics", "critical_infrastructure", "education_training", "employment_management", "essential_services", "law_enforcement", "migration_border", "justice_democratic"], "required": false },
+    "disclosure_type": { "type": "enum", "enum_values": ["chatbot", "synthetic_audio", "synthetic_image", "synthetic_video", "deepfake_recognisable_person", "deepfake_artistic", "emotion_recognition", "biometric_categorisation", "ai_generated_text_public_interest"], "required": false },
+    "disclosure_scope": { "type": "enum", "enum_values": ["single", "session", "batch"], "required": false },
+    "watermark_scheme": { "type": "enum", "enum_values": ["c2pa", "starc", "nlsw", "none"], "required": false },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["conformity", "transparency"],
+  "profiles": [
+    { "id": "aiact.art43.internal", "regulation": "AI Act Art. 43 Internal Control" },
+    { "id": "aiact.art43.thirdparty", "regulation": "AI Act Art. 43 Third-Party" },
+    { "id": "aiact.art43.fr_assessment", "regulation": "AI Act Art. 43 Fundamental Rights" },
+    { "id": "aiact.art50.chatbot", "regulation": "AI Act Art. 50 Chatbot Disclosure" },
+    { "id": "aiact.art50.synthetic_media", "regulation": "AI Act Art. 50 Synthetic Media" },
+    { "id": "aiact.art50.emotion_biocategorization", "regulation": "AI Act Art. 50 Emotion/Biometric" },
+    { "id": "aiact.art50.public_text", "regulation": "AI Act Art. 50 AI-Generated Public Text" },
+    { "id": "aiact.art52.gpai", "regulation": "AI Act Art. 52 GPAI" },
+    { "id": "nist.aimrf.profile", "regulation": "NIST AI RMF" }
+  ],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/aer",
+  "packages": {
+    "verifier": "@dekimuhq/aer",
+    "issuer_kit": "@dekimuhq/aer/issue",
+    "profiles": "@dekimuhq/aer-profiles"
+  }
+}

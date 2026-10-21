@@ -1,0 +1,48 @@
+{
+  "name": "asr-neg-subject-null",
+  "family": "asr",
+  "envelope_version": 2,
+  "receipt": {
+    "v": 2,
+    "id": "01HXXASRNEGSUBNULL00000001",
+    "iat": "2026-05-17T00:00:00Z",
+    "iat_ms": 1778976000000,
+    "claim_type": "ar.subject_rights.v1",
+    "iss": "did:web:controller-asr.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "subject": null,
+    "exp": null,
+    "prev": null,
+    "policy_uri": "https://controller-asr.example/subject-rights-policy/v1",
+    "policy_hash": "sha256:5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a",
+    "policy_version": "1.0.0",
+    "kind": "decision",
+    "cause": null,
+    "predicate": null,
+    "tsa": null,
+    "credentialStatus": null,
+    "anchor": {
+      "log": "https://verify.dekimu.com/test/v1",
+      "leaf_index": 0,
+      "inclusion_proof": [],
+      "tree_head_root": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tree_size": 1,
+      "log_time": "2026-05-17T00:00:00Z"
+    },
+    "sig": "aCOOSU0TtZUhXWYevLi5k1lzj9CXSMCVUtnEPWTZQQuAxHJdrFpcIWva2VRSlUOXknG22tBS9Kutwl2hV3s4Cw",
+    "countersig": null,
+    "body": {
+      "event_type": "request.received",
+      "subject_rights_request_id": "srr-asr-cross-001",
+      "channel": "web_form",
+      "received_at": "2026-05-17T00:00:00Z",
+      "deadline_at": "2026-06-16T00:00:00Z"
+    }
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 2,
+    "signature_valid": false,
+    "reason": "subject_missing"
+  }
+}

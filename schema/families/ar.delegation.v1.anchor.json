@@ -1,0 +1,70 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.delegation.v1",
+  "acronym": "ADR",
+  "name": "Anchored Delegation Receipts",
+  "claim_types": ["ar.delegation.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 4,
+  "status_list_slot": 8,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "event": { "type": "enum", "enum_values": ["grant", "revoke", "narrow", "renew", "suspend", "resume"] },
+    "profile": { "type": "enum", "enum_values": ["aiact.art26.deployer", "aiact.art14.oversight", "agentops.scoped-delegation", "gdpr.art28.processor", "corporate.officer"] },
+    "agent": {
+      "type": "object",
+      "fields": {
+        "agent_id": { "type": "string" },
+        "agent_pubkey": { "type": "string", "nullable": true },
+        "agent_descriptor": {
+          "type": "object",
+          "nullable": true,
+          "fields": {
+            "model": { "type": "string" },
+            "model_version": { "type": "string" },
+            "tool_set_hash": { "type": "sha256" }
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "fields": {
+        "actions": { "type": "array", "items": { "type": "string" } },
+        "resources": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "object" }
+      }
+    },
+    "delegable": { "type": "boolean" },
+    "expiry": { "type": "integer", "nullable": true },
+    "rationale_uri": { "type": "uri" },
+    "rationale_hash": { "type": "sha256" },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["grant", "revoke", "narrow", "renew", "suspend", "resume"],
+  "profiles": [
+    { "id": "aiact.art26.deployer", "regulation": "AI Act Art. 26" },
+    { "id": "aiact.art14.oversight", "regulation": "AI Act Art. 14" },
+    { "id": "agentops.scoped-delegation", "regulation": "Agent Operations" },
+    { "id": "gdpr.art28.processor", "regulation": "GDPR Art. 28" },
+    { "id": "corporate.officer", "regulation": "Corporate Governance" }
+  ],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/adr",
+  "packages": {
+    "verifier": "@dekimuhq/adr",
+    "issuer_kit": "@dekimuhq/adr/issue",
+    "profiles": "@dekimuhq/adr-profiles"
+  }
+}

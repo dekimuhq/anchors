@@ -1,0 +1,54 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.purpose.v1",
+  "acronym": "APuR",
+  "name": "Anchored Purpose Receipts",
+  "claim_types": ["ar.purpose.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 6,
+  "status_list_slot": 10,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["binding", "repurpose", "unbinding"] },
+    "profile": { "type": "enum", "enum_values": ["purpose.gdpr.art5", "purpose.gdpr.art6_4", "purpose.hipaa.minimum_necessary", "purpose.lgpd.art6"] },
+    "activity_id_commit": { "type": "sha256", "description": "Salted commit of the processing activity identifier." },
+    "purpose_commit": { "type": "sha256", "description": "Salted commit of the purpose description." },
+    "purpose_class": { "type": "string" },
+    "lawful_basis": { "type": "string" },
+    "data_categories": { "type": "array", "items": { "type": "string" } },
+    "data_subjects_class": { "type": "enum", "enum_values": ["customers", "employees", "prospects", "minors", "vulnerable", "vendors", "visitors", "mixed"] },
+    "policy_hash": { "type": "sha256" },
+    "minimisation_hash": { "type": "sha256" },
+    "consent_receipt_hash": { "type": "sha256", "nullable": true },
+    "retention_receipt_hash": { "type": "sha256", "nullable": true },
+    "transfer_arrangement_hash": { "type": "sha256", "nullable": true },
+    "bound_at": { "type": "iso8601" },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["binding", "repurpose", "unbinding"],
+  "profiles": [
+    { "id": "purpose.gdpr.art5", "regulation": "GDPR Art. 5(1)(b) Purpose Limitation" },
+    { "id": "purpose.gdpr.art6_4", "regulation": "GDPR Art. 6(4) Compatibility Test" },
+    { "id": "purpose.hipaa.minimum_necessary", "regulation": "HIPAA Minimum Necessary" },
+    { "id": "purpose.lgpd.art6", "regulation": "LGPD Art. 6" }
+  ],
+  "compose": {
+    "links_to": ["ar.consent.v1", "ar.erasure.v1", "ar.transfer.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/apur",
+  "packages": {
+    "verifier": "@dekimuhq/apur",
+    "issuer_kit": "@dekimuhq/apur/issue",
+    "profiles": "@dekimuhq/apur-profiles"
+  }
+}

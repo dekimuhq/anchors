@@ -1,0 +1,53 @@
+{
+  "name": "@dekimuhq/arr-profiles",
+  "version": "0.9.3",
+  "description": "Regulation profile validators for ARR v1: gdpr.art17, gdpr.art5e, hipaa.retention, kyc.retention, sox.retention, mifid2.retention, aiact.art10.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./body-types": {
+      "types": "./dist/body-types.d.ts",
+      "default": "./dist/body-types.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "arr/arr-profiles"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/arr/arr-profiles#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

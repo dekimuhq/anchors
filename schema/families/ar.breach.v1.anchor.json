@@ -1,0 +1,59 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.breach.v1",
+  "acronym": "ABR",
+  "name": "Anchored Breach Receipts",
+  "claim_types": ["ar.breach.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 11,
+  "status_list_slot": 5,
+  "subject_presence": "either",
+  "subject_presence_overrides": [
+    { "event_type": "breach.detected", "subject_presence": "must-be-null", "description": "Incident-level." },
+    { "event_type": "breach.assessed", "subject_presence": "must-be-null" },
+    { "event_type": "breach.dpa_notified", "subject_presence": "must-be-null" },
+    { "event_type": "breach.dpa_delayed", "subject_presence": "must-be-null" },
+    { "event_type": "breach.subject_notified", "subject_presence": "must-be-present", "description": "sha256 batch root over affected subjects." },
+    { "event_type": "breach.subject_notification_exempted", "subject_presence": "must-be-null", "description": "Exemption is incident-level." },
+    { "event_type": "breach.contained", "subject_presence": "must-be-null" },
+    { "event_type": "breach.closed", "subject_presence": "must-be-null" }
+  ],
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "breach.detected": "mandatory",
+    "*": "recommended"
+  },
+  "body": {
+    "event_type": { "type": "enum", "enum_values": ["breach.detected", "breach.assessed", "breach.dpa_notified", "breach.dpa_delayed", "breach.subject_notified", "breach.subject_notification_exempted", "breach.contained", "breach.closed"] },
+    "profile": { "type": "enum", "enum_values": ["breach.gdpr.art33", "breach.gdpr.art34", "breach.nis2.art23", "breach.nis2.annex1.energy", "breach.nis2.annex1.transport", "breach.nis2.annex1.health", "breach.nis2.annex1.digital_infrastructure", "breach.dora.art19", "breach.us_state.attorney_general"] },
+    "severity_class": { "type": "enum", "enum_values": ["no_risk", "risk", "high_risk"] },
+    "incident_id_commit": { "type": "sha256" },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["breach.detected", "breach.assessed", "breach.dpa_notified", "breach.dpa_delayed", "breach.subject_notified", "breach.subject_notification_exempted", "breach.contained", "breach.closed"],
+  "profiles": [
+    { "id": "breach.gdpr.art33", "regulation": "GDPR Art. 33 Notification to SA" },
+    { "id": "breach.gdpr.art34", "regulation": "GDPR Art. 34 Communication to Data Subject" },
+    { "id": "breach.nis2.art23", "regulation": "NIS2 Art. 23 Incident Reporting" },
+    { "id": "breach.nis2.annex1.energy", "regulation": "NIS2 Annex I Energy Sector" },
+    { "id": "breach.nis2.annex1.transport", "regulation": "NIS2 Annex I Transport Sector" },
+    { "id": "breach.nis2.annex1.health", "regulation": "NIS2 Annex I Health Sector" },
+    { "id": "breach.nis2.annex1.digital_infrastructure", "regulation": "NIS2 Annex I Digital Infrastructure" },
+    { "id": "breach.dora.art19", "regulation": "DORA Art. 19 ICT Incident Reporting" },
+    { "id": "breach.us_state.attorney_general", "regulation": "US State AG Notification" }
+  ],
+  "compose": {
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/abr",
+  "packages": {
+    "verifier": "@dekimuhq/abr",
+    "issuer_kit": "@dekimuhq/abr/issue",
+    "profiles": "@dekimuhq/abr-profiles"
+  }
+}

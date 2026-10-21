@@ -1,0 +1,69 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.erasure.v1",
+  "acronym": "ARR",
+  "name": "Anchored Retention Receipts",
+  "claim_types": ["ar.erasure.v1", "ar.expiry.v1", "ar.hold.v1", "ar.anonymization.v1", "ar.archive.v1", "ar.batch.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 3,
+  "status_list_slot": 3,
+  "subject_presence": "must-be-present",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "ar.erasure.v1": "mandatory",
+    "*": "recommended"
+  },
+  "body": {
+    "profile": { "type": "enum", "enum_values": ["gdpr.art17", "gdpr.art5e", "hipaa.retention", "kyc.retention", "sox.retention", "mifid2.retention", "aiact.art10"] },
+    "target_kind": { "type": "enum", "enum_values": ["subject", "artifact"] },
+    "target_commit": { "type": "sha256" },
+    "salt_epoch": { "type": "string" },
+    "policy_hash": { "type": "sha256" },
+    "policy_uri": { "type": "uri" },
+    "policy_version": { "type": "string" },
+    "trigger": { "type": "enum", "enum_values": ["subject_request", "scheduled", "legal_order", "regulator_order", "operator"] },
+    "trigger_receipt": { "type": "string", "nullable": true },
+    "event_at": { "type": "iso8601" },
+    "granted_at": { "type": "iso8601" },
+    "effective_until": { "type": "iso8601", "nullable": true },
+    "state_snapshot": {
+      "type": "object",
+      "fields": {
+        "retention_status": { "type": "enum", "enum_values": ["active", "erased", "expired", "archived", "anonymized", "pseudonymized"] },
+        "current_policy_hash": { "type": "sha256" },
+        "hold_active": { "type": "boolean" },
+        "hold_reason_commit": { "type": "sha256", "nullable": true },
+        "anonymized": { "type": "boolean" },
+        "archived": { "type": "boolean" }
+      }
+    },
+    "prev": { "type": "sha256", "nullable": true },
+    "field_root": { "type": "sha256" },
+    "qts_attestation_hash": { "type": "sha256", "nullable": true }
+  },
+  "event_types": ["erasure", "expiry", "hold_extension", "hold_release", "anonymization", "pseudonymization", "archive", "batch"],
+  "profiles": [
+    { "id": "gdpr.art17", "regulation": "GDPR Art. 17" },
+    { "id": "gdpr.art5e", "regulation": "GDPR Art. 5(1)(e)" },
+    { "id": "hipaa.retention", "regulation": "HIPAA Retention" },
+    { "id": "kyc.retention", "regulation": "KYC/AML Retention" },
+    { "id": "sox.retention", "regulation": "SOX Retention" },
+    { "id": "mifid2.retention", "regulation": "MiFID II Retention" },
+    { "id": "aiact.art10", "regulation": "AI Act Art. 10" }
+  ],
+  "compose": {
+    "links_to": ["ar.subject_rights.v1"],
+    "chain_predecessor": true
+  },
+  "continuity": true,
+  "status_list": true,
+  "suspension": true,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/arr",
+  "packages": {
+    "verifier": "@dekimuhq/arr",
+    "issuer_kit": "@dekimuhq/arr/issue",
+    "profiles": "@dekimuhq/arr-profiles"
+  }
+}

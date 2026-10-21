@@ -1,0 +1,65 @@
+{
+  "name": "@dekimuhq/grounding",
+  "version": "0.1.2",
+  "description": "Anchored Grounding Receipts (AGrR) v1 — verify (default) + issue (./issue). Citation-binding + grounding-support provenance for RAG answers. Binding authoritative, score advisory.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./issue": {
+      "types": "./dist/issue/index.d.ts",
+      "default": "./dist/issue/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekimuhq/anchors.git",
+    "directory": "grounding/grounding"
+  },
+  "homepage": "https://github.com/dekimuhq/anchors/tree/main/grounding/grounding#readme",
+  "bugs": "https://github.com/dekimuhq/anchors/issues",
+  "keywords": [
+    "agrr",
+    "anchored-grounding-receipts",
+    "grounding",
+    "rag",
+    "citation-binding",
+    "verifier",
+    "issuer",
+    "ed25519"
+  ],
+  "engines": {
+    "node": ">=24.6.0"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-anchor-pkg.mjs",
+    "test": "node --experimental-strip-types --test 'test/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/grounding-profiles": "^0.1.2",
+    "@dekimuhq/grounding-check": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

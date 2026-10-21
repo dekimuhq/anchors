@@ -1,0 +1,28 @@
+{
+  "name": "acr-consent-v1",
+  "family": "acr",
+  "envelope_version": 1,
+  "receipt": {
+    "kind": "ar.consent.v1",
+    "profile": "gdpr.art7",
+    "iss": "did:web:controller-cross-v1.example",
+    "iss_key": "ed25519:IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+    "sub_commit": "sha256:e3ca37d68a1f23f4288094ffbe1f8f7b619d2033da721e3a57059ccb8aaa4810",
+    "purposes": [
+      "sha256:b84a811c3eeb1a97b896967c6204b9d7703db80cec9860b998083d7b61db3041"
+    ],
+    "lawful_basis": "6(1)(a)",
+    "policy_hash": "sha256:4fb66cf63fd359aa4a77688c08819609e1772cf5a2ecbec6de268eb688463d0b",
+    "granted_at": "2026-05-17T00:00:00Z",
+    "prev": null,
+    "field_root": "sha256:50a5bc534f2d7f4cc1bf2cf864bf5e7dc69e4cb967e44cade56c8cd8639d4d70",
+    "anchor": null,
+    "sig": "ed25519:ocmo4r0-rqO5_aa9CMj1aEC1VURJpz_s5J3Qc8KG0zk9iQTuF45DD8vvS60VD8J-DBF99EuxEduTbc_tnWcMBQ",
+    "countersig": null
+  },
+  "publicKey_b64url": "IVL40Zt5HSRFMkLhXy6rbLfP-ntqXtMAl5YOBpiB2xI",
+  "expected": {
+    "envelope_version": 1,
+    "signature_valid": true
+  }
+}
