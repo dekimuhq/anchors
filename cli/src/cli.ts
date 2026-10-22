@@ -18,8 +18,9 @@
  * 2 = usage error or unreadable/invalid input file.
  */
 
+import { realpathSync } from "node:fs";
 import { readFile as fsReadFile } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import type { FamilyVerifyOptions } from "@dekimuhq/anchors-envelope";
 import {
   verifyAnchor,
@@ -252,10 +253,19 @@ function errMsg(err: unknown): string {
 export { supportedClaimTypes };
 
 // ── Executable entry ──────────────────────────────────────────────────────────
-const invokedPath = process.argv[1];
-const isMain =
-  invokedPath !== undefined &&
-  import.meta.url === pathToFileURL(invokedPath).href;
+// Compared by realpath: installed as a bin, argv[1] is the node_modules/.bin
+// SYMLINK while import.meta.url is the real dist/cli.js, so a URL equality check
+// is false and `npx @dekimuhq/anchors-cli …` exits 0 having done nothing.
+function isEntryPoint(): boolean {
+  const invokedPath = process.argv[1];
+  if (invokedPath === undefined) return false;
+  try {
+    return realpathSync(invokedPath) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+const isMain = isEntryPoint();
 
 if (isMain) {
   runCli(process.argv.slice(2), { readFile: (p) => fsReadFile(p, "utf8") })
