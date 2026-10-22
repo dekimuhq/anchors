@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Offline / third-party verifier CLI for the Anchored Receipts family — `anchors verify <file>` routes any receipt to its family verifier by claim_type, no trust in the Dekimu SaaS.",
   "license": "Apache-2.0",
   "type": "module",

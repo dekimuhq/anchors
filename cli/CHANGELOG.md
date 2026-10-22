@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+### Patch Changes
+
+- 2b31383: Installed as a bin (`npx @dekimuhq/anchors-cli`, `node_modules/.bin/anchors`), the CLI exited 0 without doing anything: its entry check compared the symlinked `argv[1]` to its own file URL. It now compares real paths, and a test runs the built CLI through a symlink.
+
 ## 0.1.2
 
 ### Patch Changes
