@@ -37,7 +37,7 @@ export const REGISTRIES = {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-function publishablePackages() {
+export function publishablePackages() {
   const rootPkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   const out = [];
   for (const ws of rootPkg.workspaces || []) {
@@ -49,7 +49,7 @@ function publishablePackages() {
   return out;
 }
 
-async function npmView(spec, fields, registry) {
+export async function npmView(spec, fields, registry) {
   try {
     const { stdout } = await run('npm', ['view', spec, ...fields, '--json', `--@dekimuhq:registry=${registry}`], {
       maxBuffer: 16 * 1024 * 1024,

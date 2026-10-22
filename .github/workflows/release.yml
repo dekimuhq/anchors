@@ -117,6 +117,13 @@ jobs:
           done
           case ",${scopes// /}," in *,write:packages,*) ;; *) echo "::error::GH_PACKAGES_TOKEN lacks write:packages"; exit 1 ;; esac
 
+      # A brand-new package cannot use trusted publishing for its first npmjs
+      # version; fail here, before anything ships, with the bootstrap steps.
+      - name: New packages have a bootstrap token?
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+        run: node scripts/new-package-preflight.mjs
+
       - name: Publish (npmjs, then GitHub Packages) + registry parity
         env:
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
