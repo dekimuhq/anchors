@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-transparency",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Verifier-side transparency-log primitives for the Anchored Receipts family (leaf hashing, inclusion/consistency proofs, C2SP checkpoints). node:crypto only.",
   "type": "module",
   "main": "./dist/index.js",

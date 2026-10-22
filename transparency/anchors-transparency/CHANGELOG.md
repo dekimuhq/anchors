@@ -1,5 +1,11 @@
 # @dekimuhq/anchors-transparency
 
+## 0.3.3
+
+### Patch Changes
+
+- 858a2d8: The published tarball now includes CONTRIBUTING.md, SECURITY.md and CHANGELOG.md, like every other package in the repository.
+
 ## 0.3.2
 
 ### Patch Changes
