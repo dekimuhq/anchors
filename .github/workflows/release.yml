@@ -91,6 +91,11 @@ jobs:
           name: dist
           path: .
 
+      # Every main/module/types/exports target must exist after the restore, so
+      # a partial artifact fails before anything is published.
+      - name: Every manifest target was restored
+        run: node scripts/check-dist.mjs
+
       # Both legs' credentials are proven before anything is published, so a
       # dead GitHub token cannot strand a release on npmjs alone.
       - name: GitHub Packages credential works?
