@@ -26,7 +26,11 @@ if (missing.length === 0) {
   console.log('new-package preflight: every publishable package already exists on npmjs');
   process.exit(0);
 }
-if (process.env.NODE_AUTH_TOKEN) {
+// setup-node (with registry-url) exports NODE_AUTH_TOKEN=XXXXX-XXXXX-XXXXX-XXXXX
+// as a placeholder when no token is supplied; that is not a token.
+const PLACEHOLDER = 'XXXXX-XXXXX-XXXXX-XXXXX';
+const token = process.env.NODE_AUTH_TOKEN;
+if (token && token !== PLACEHOLDER) {
   console.log(`new-package preflight: first publish of ${missing.join(', ')} via NPM_BOOTSTRAP_TOKEN`);
   process.exit(0);
 }
