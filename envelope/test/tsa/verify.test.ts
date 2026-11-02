@@ -206,4 +206,12 @@ describe("verifyTsa — CMS SignerInfo signature", () => {
     assert.equal(r.verified, true);
     assert.equal(r.reason, "tsa_verified");
   });
+
+  it("reports tsa_malformed (never throws) on bytes that are not a TimeStampResp", () => {
+    const opts = { anchors, driftToleranceSec: 300, referenceTime: refTime };
+    for (const bad of [new Uint8Array([0x00, 0x01]), new Uint8Array(0), tsr.subarray(0, 40)]) {
+      const r = verifyTsa(bad, imprint, opts);
+      assert.deepEqual(r, { verified: false, reason: "tsa_malformed", listed: false });
+    }
+  });
 });

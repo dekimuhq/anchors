@@ -71,3 +71,33 @@ test("gdpr.art17.erasure-finalized adapter: real v=2 envelope (no kind/tsa in bo
   const r = validateGdprArt17ErasureFinalizedProfile(stamped, stamped.body, { tsa_state: "tsa_verified" });
   assert.deepEqual(r, { profile_id: "arr.gdpr.art17.erasure-finalized", ok: true });
 });
+
+// ── malformed tsa (outside the signature) is a TSA outcome, never a throw ───
+
+const TSA_SHAPE = {
+  v: 1,
+  alg: "sha-256",
+  tsa_url: "https://tsa.example",
+  tsa_cert_chain_sha256: ["sha256:" + "a".repeat(64)],
+  issued_at: "2026-05-17T12:00:00Z",
+};
+
+for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
+  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} → signature_valid, tsa_malformed, profile reaches the TSA check`, async () => {
+    const { envelope, publicKey } = v2Fixture;
+    const stamped = { ...envelope, tsa: { ...TSA_SHAPE, tsr } };
+    const result = await arrFamily.verifyReceipt(
+      stamped as unknown as Record<string, unknown>,
+      { resolveKey: async () => publicKey, profile: "arr.gdpr.art17.erasure-finalized", tsaAnchors: [] },
+    );
+    assert.equal(result.signature_valid, true);
+    assert.equal(result.tsa_state, "tsa_malformed");
+    const entry = result.profile_state?.find((p) => p.profile_id === "arr.gdpr.art17.erasure-finalized");
+    assert.ok(entry, `profile not dispatched: ${JSON.stringify(result)}`);
+    assert.deepEqual(entry, {
+      profile_id: "arr.gdpr.art17.erasure-finalized",
+      ok: false,
+      reason: "tsa_failed:tsa_malformed",
+    });
+  });
+}
