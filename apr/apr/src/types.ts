@@ -8,6 +8,7 @@ export type APRArtifactType =
   | "commander.run.email"
   | "commander.run.message"
   | "miniterms.document"
+  | "miniterms.erasure"
   | "lethe.letter"
   | "lethe.document"
   | "hub.sign-offs.deliverable"

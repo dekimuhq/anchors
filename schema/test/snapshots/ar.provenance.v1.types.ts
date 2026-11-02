@@ -13,7 +13,7 @@ export type APRClaimType =
 /** Body fields for APR receipts. */
 export interface APRBody {
   artifact: {
-    type: "commander.run.output" | "commander.run.codeChange" | "commander.run.email" | "commander.run.message" | "miniterms.document" | "lethe.letter" | "lethe.document" | "hub.sign-offs.deliverable" | "hub.time-clock.day";
+    type: "commander.run.output" | "commander.run.codeChange" | "commander.run.email" | "commander.run.message" | "miniterms.document" | "miniterms.erasure" | "lethe.letter" | "lethe.document" | "hub.sign-offs.deliverable" | "hub.time-clock.day";
     id: string;
     hash: string;
     hashAlgorithm: "sha256";
