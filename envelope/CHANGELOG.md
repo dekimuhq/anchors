@@ -1,5 +1,17 @@
 # Changelog — `@dekimuhq/anchors-envelope`
 
+## 0.26.4
+
+### Patch Changes
+
+- 7d98531: fix(tsa): ship the default FreeTSA trust-anchor catalog in the package.
+
+  `defaultTrustAnchorPath()` resolved to the workspace-root `data/` directory,
+  which is not in the published tarball, so any consumer that verified a
+  `tsa`-bearing receipt without passing `tsaAnchors` got an ENOENT throw instead
+  of a result. The catalog now ships at `<package>/data/freetsa-trust-anchor.json`
+  (added to `files`) and is kept byte-equal to the workspace copy by a test.
+
 ## 0.26.3
 
 ### Patch Changes
