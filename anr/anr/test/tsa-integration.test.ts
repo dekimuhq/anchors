@@ -8,7 +8,7 @@
  *   T3 — injected (imprint-mismatched) tsa block → `tsa_state: "tsa_imprint_mismatch"`.
  *        RECOMMENDED profiles: `signature_valid` remains true (real TSA reason
  *        surfaced as-is). MANDATORY (art50): fails closed — `signature_valid:
- *        false`, `reason: "tsa_required"`, real `tsa_state` kept.
+ *        false`, `reason: "tsa_unverified"`, real `tsa_state` kept.
  *   M  — per-profile mandate matrix:
  *        `notice.aiact.art50_transparency`     → MANDATORY (poisons sig when tsa absent).
  *        all four other profiles               → RECOMMENDED (warning only).
@@ -141,7 +141,7 @@ test("anr tsa-integration: injected tsa with mismatched imprint → tsa_imprint_
   assert.equal(result.tsa_policy_oid, "1.2.3.4.1");
 });
 
-test("anr tsa-integration: injected tsa with mismatched imprint on MANDATORY profile → tsa_required, fail closed", async () => {
+test("anr tsa-integration: injected tsa with mismatched imprint on MANDATORY profile → tsa_unverified, fail closed", async () => {
   const { envelope, publicKey } = await mintValidAnr("notice.aiact.art50_transparency");
 
   const injected = {
@@ -172,7 +172,7 @@ test("anr tsa-integration: injected tsa with mismatched imprint on MANDATORY pro
     false,
     "MANDATORY must fail closed on an unverified (attached) tsa block",
   );
-  assert.equal(result.reason, "tsa_required");
+  assert.equal(result.reason, "tsa_unverified");
   assert.equal(result.tsa_state, "tsa_imprint_mismatch", "real TSA reason must be preserved");
 });
 
@@ -180,7 +180,7 @@ for (const [profile, mandatory] of [
   ["notice.aiact.art50_transparency", true],
   ["notice.art13.collected_direct", false],
 ] as const) {
-  test(`anr tsa-integration: garbage tsr on ${profile} → ${mandatory ? "tsa_required (fail closed)" : "not poisoned"}, tsa_state tsa_malformed`, async () => {
+  test(`anr tsa-integration: garbage tsr on ${profile} → ${mandatory ? "tsa_unverified (fail closed)" : "not poisoned"}, tsa_state tsa_malformed`, async () => {
     const { envelope, publicKey } = await mintValidAnr(profile);
     const injected = {
       ...envelope,
@@ -198,7 +198,7 @@ for (const [profile, mandatory] of [
       tsaAnchors: anchors,
     }) as FamilyVerifyResult;
     assert.equal(result.signature_valid, !mandatory);
-    assert.equal(result.reason, mandatory ? "tsa_required" : undefined);
+    assert.equal(result.reason, mandatory ? "tsa_unverified" : undefined);
     assert.equal(result.tsa_state, "tsa_malformed");
   });
 }
@@ -285,7 +285,7 @@ for (const state of ["tsa_imprint_mismatch", "tsa_malformed", "tsa_unrecognised_
     const out: AnrTsaMandateTarget = { signature_valid: true, tsa_state: state };
     applyAnrTsaMandate(out, body);
     assert.equal(out.signature_valid, false, "MANDATORY must fail closed on an unverified tsa");
-    assert.equal(out.reason, "tsa_required");
+    assert.equal(out.reason, "tsa_unverified");
     assert.equal(out.tsa_state, state, "real TSA reason must be preserved");
   });
 }

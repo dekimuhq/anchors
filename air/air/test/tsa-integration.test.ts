@@ -316,7 +316,7 @@ for (const state of ["tsa_imprint_mismatch", "tsa_malformed"]) {
       const out: AirTsaMandateTarget = { signature_valid: true, tsa_state: state };
       applyAirTsaMandate(out, completed());
       assert.equal(out.signature_valid, false);
-      assert.equal(out.reason, "tsa_required");
+      assert.equal(out.reason, "tsa_unverified");
       assert.equal(out.tsa_state, state);
     });
   });

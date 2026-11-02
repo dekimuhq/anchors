@@ -26,7 +26,8 @@
  *
  * Advisory steps (11–13) never poison `signature_valid` on their own, EXCEPT:
  *   - TSA with tsaMandateLevel "mandatory" + any tsa_state other than
- *     "tsa_verified" → signature_valid: false, reason "tsa_required". This
+ *     "tsa_verified" → signature_valid: false. Absent → reason
+ *     "tsa_required"; present but unverified → reason "tsa_unverified". This
  *     fails closed: `tsa` is outside the signature, so a present-but-bad
  *     block (malformed, foreign anchor, imprint mismatch, drift, …) MUST NOT
  *     satisfy the mandate. `tsa_state` keeps the real TSA reason (or
@@ -729,11 +730,14 @@ export function buildVerifyReceipt<BodyType>(
     // tsa_verified → hard fail. `tsa` is zeroed out of the signing input, so
     // an attacker can attach any block to a genuine receipt; only a verified
     // token satisfies the mandate. `tsa_state` is left as the real reason.
+    // Absent → "tsa_required"; present but unverified → "tsa_unverified"
+    // ("timestamp not confirmed", e.g. the verifier lacks/distrusts the
+    // anchor — distinct from a missing timestamp).
     if (opts.profile && out.tsa_state !== "tsa_verified") {
       const mandate = tsaMandateLevel(opts.profile);
       if (mandate === "mandatory") {
         out.signature_valid = false;
-        out.reason = "tsa_required";
+        out.reason = out.tsa_state === "tsa_absent" ? "tsa_required" : "tsa_unverified";
         return out;
       }
     }

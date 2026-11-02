@@ -4,8 +4,9 @@
  *
  * `tsa` is zeroed out of the signing input, so anyone can attach any block to
  * a genuine receipt. Under a MANDATORY mandate only `tsa_verified` satisfies
- * it; every other TSA outcome is a hard fail with `reason: "tsa_required"`,
- * and `tsa_state` keeps the real TSA reason. Without the MANDATORY profile the
+ * it; every other TSA outcome is a hard fail with `reason: "tsa_unverified"`
+ * ("timestamp not confirmed" — distinct from the absent case's
+ * `"tsa_required"`), and `tsa_state` keeps the real TSA reason. Without the MANDATORY profile the
  * same receipts stay `signature_valid: true` (advisory TSA outcome).
  *
  * Reuses the v1.1/v1.2 ARR TSA vectors (verified + imprint mismatch + anchor
@@ -70,11 +71,11 @@ for (const file of [
   "arr-erasure-v2-tsa-anchor-expired.json",
   "arr-erasure-v2-tsa-drift-exceeded.json",
 ]) {
-  test(`MANDATORY + ${file} → tsa_required hard fail, real tsa_state preserved`, async () => {
+  test(`MANDATORY + ${file} → tsa_unverified hard fail, real tsa_state preserved`, async () => {
     const v = load(file);
     const r = await run(v, MANDATORY_PROFILE);
     assert.equal(r.signature_valid, false);
-    assert.equal(r.reason, "tsa_required");
+    assert.equal(r.reason, "tsa_unverified");
     assert.equal(r.tsa_state, v.expected.tsa_state);
   });
 

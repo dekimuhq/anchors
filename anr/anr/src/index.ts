@@ -70,8 +70,9 @@ export async function verifyReceipt(
     } as FamilyVerifyOptions);
 
     // Re-apply per-profile TSA mandate keyed on body.profile.
-    // MANDATORY (notice.aiact.art50_transparency) + anything but tsa_verified
-    // -> reason tsa_required (fail closed); RECOMMENDED + tsa_absent surfaces
+    // MANDATORY (notice.aiact.art50_transparency): tsa_absent -> reason
+    // tsa_required, present but unverified -> reason tsa_unverified (fail
+    // closed); RECOMMENDED + tsa_absent surfaces
     // as an advisory tsa_state upgrade without poisoning signature_valid.
     const r = out as unknown as Record<string, unknown>;
     if (r.signature_valid) {

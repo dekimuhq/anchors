@@ -530,14 +530,14 @@ const JUNK_TSA_SHAPE = {
 };
 
 for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
-  test(`§6.4 TSA mandate MANDATORY + present ${label} → tsa_required hard fail, tsa_state tsa_malformed`, async () => {
+  test(`§6.4 TSA mandate MANDATORY + present ${label} → tsa_unverified hard fail, tsa_state tsa_malformed`, async () => {
     const signed = await signedEnvelope({ tsa: null });
     const e = { ...signed, tsa: { ...JUNK_TSA_SHAPE, tsr } } as unknown as Envelope;
     const verify = buildVerifyReceipt(makeAlrPredicates());
     const r = await verify(e, { resolveKey: okResolver, profile: "test.pass", tsaAnchors: [] });
 
     assert.strictEqual(r.signature_valid, false);
-    assert.strictEqual(r.reason, "tsa_required");
+    assert.strictEqual(r.reason, "tsa_unverified");
     assert.strictEqual(r.tsa_state, "tsa_malformed", "real TSA reason must be preserved");
     assert.strictEqual(r.profile_state, undefined, "hard fail returns before profile dispatch");
   });

@@ -9,7 +9,7 @@
  *   T3 — injected (imprint-mismatched) tsa block → `tsa_state: "tsa_imprint_mismatch"`.
  *        RECOMMENDED events: `signature_valid` remains true (real TSA reason
  *        surfaced as-is). MANDATORY (`breach.detected`): fails closed —
- *        `signature_valid: false`, `reason: "tsa_required"`, real `tsa_state` kept.
+ *        `signature_valid: false`, `reason: "tsa_unverified"`, real `tsa_state` kept.
  *   M  — per-event mandate matrix:
  *        `breach.detected`                    → MANDATORY (D10-ABR-2 — 72-hour clock).
  *        all seven other events               → RECOMMENDED (warning only).
@@ -147,7 +147,7 @@ test("abr tsa-integration: injected tsa with mismatched imprint → tsa_imprint_
   assert.equal(result.tsa_policy_oid, "1.2.3.4.1");
 });
 
-test("abr tsa-integration: injected tsa with mismatched imprint on breach.detected (MANDATORY) → tsa_required, fail closed", async () => {
+test("abr tsa-integration: injected tsa with mismatched imprint on breach.detected (MANDATORY) → tsa_unverified, fail closed", async () => {
   const { envelope, publicKey } = await mintValidAbr("breach.detected");
 
   const injected = {
@@ -178,11 +178,11 @@ test("abr tsa-integration: injected tsa with mismatched imprint on breach.detect
     false,
     "MANDATORY must fail closed on an unverified (attached) tsa block",
   );
-  assert.equal(result.reason, "tsa_required");
+  assert.equal(result.reason, "tsa_unverified");
   assert.equal(result.tsa_state, "tsa_imprint_mismatch", "real TSA reason must be preserved");
 });
 
-test("abr tsa-integration: garbage tsr on breach.detected (MANDATORY) → tsa_required, tsa_state tsa_malformed", async () => {
+test("abr tsa-integration: garbage tsr on breach.detected (MANDATORY) → tsa_unverified, tsa_state tsa_malformed", async () => {
   const { envelope, publicKey } = await mintValidAbr("breach.detected");
   const injected = {
     ...envelope,
@@ -200,7 +200,7 @@ test("abr tsa-integration: garbage tsr on breach.detected (MANDATORY) → tsa_re
     tsaAnchors: anchors,
   });
   assert.equal(result.signature_valid, false);
-  assert.equal(result.reason, "tsa_required");
+  assert.equal(result.reason, "tsa_unverified");
   assert.equal(result.tsa_state, "tsa_malformed");
 });
 
@@ -353,7 +353,7 @@ for (const state of ["tsa_imprint_mismatch", "tsa_malformed", "tsa_unrecognised_
     const out: AbrTsaMandateTarget = { signature_valid: true, tsa_state: state };
     applyAbrTsaMandate(out, body);
     assert.equal(out.signature_valid, false, "MANDATORY must fail closed on an unverified tsa");
-    assert.equal(out.reason, "tsa_required");
+    assert.equal(out.reason, "tsa_unverified");
     assert.equal(out.tsa_state, state, "real TSA reason must be preserved");
   });
 }

@@ -18,9 +18,11 @@ mismatch, drift beyond tolerance — and the receipt kept `signature_valid: true
 bypassing the mandate entirely.
 
 **Behaviour change (MANDATORY only):** a present-but-unverified `tsa` block now
-returns `signature_valid: false` with `reason: "tsa_required"`. `tsa_state`
+returns `signature_valid: false` with the new reason `"tsa_unverified"`
+("timestamp not confirmed" — e.g. a verifier that lacks or does not trust the
+TSA anchor), distinct from `"tsa_required"` (no timestamp at all). `tsa_state`
 keeps the real TSA reason (e.g. `"tsa_malformed"`) so callers can see why; the
-absent case is unchanged. Covers the shared pipeline's profile-keyed mandate
+absent case is unchanged (`reason: "tsa_required"`). Covers the shared pipeline's profile-keyed mandate
 (`acr.esig.accept@qes`, `arr.gdpr.art17.erasure-finalized`,
 `notice.aiact.art50_transparency`) and the body-keyed family post-steps (AAR
 issuance+qts, ABR `breach.detected`, ANR art50; AIR/ALR scaffolding). The

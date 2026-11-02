@@ -87,7 +87,7 @@ for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as c
   // MANDATORY fails closed: `tsa` is outside the signature, so a junk block
   // attached to a genuine receipt must NOT satisfy the mandate. tsa_state
   // keeps the real TSA reason so callers can see why.
-  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} under MANDATORY erasure-finalized → tsa_required hard fail, tsa_state tsa_malformed`, async () => {
+  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} under MANDATORY erasure-finalized → tsa_unverified hard fail, tsa_state tsa_malformed`, async () => {
     const { envelope, publicKey } = v2Fixture;
     const stamped = { ...envelope, tsa: { ...TSA_SHAPE, tsr } };
     const result = await arrFamily.verifyReceipt(
@@ -95,7 +95,7 @@ for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as c
       { resolveKey: async () => publicKey, profile: "arr.gdpr.art17.erasure-finalized", tsaAnchors: [] },
     );
     assert.equal(result.signature_valid, false);
-    assert.equal(result.reason, "tsa_required");
+    assert.equal(result.reason, "tsa_unverified");
     assert.equal(result.tsa_state, "tsa_malformed");
   });
 

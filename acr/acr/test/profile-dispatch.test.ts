@@ -63,7 +63,7 @@ const JUNK_TSA = {
 };
 
 for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
-  test(`acrFamily.verifyReceipt: esig.accept@qes + ${label} → tsa_required hard fail, tsa_state tsa_malformed`, async () => {
+  test(`acrFamily.verifyReceipt: esig.accept@qes + ${label} → tsa_unverified hard fail, tsa_state tsa_malformed`, async () => {
     const { envelope, publicKey } = v2Fixture;
     const stamped = { ...envelope, tsa: { ...JUNK_TSA, tsr } };
     const result = await acrFamily.verifyReceipt(
@@ -71,7 +71,7 @@ for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as c
       { resolveKey: async () => publicKey, profile: "acr.esig.accept@qes", tsaAnchors: [] },
     );
     assert.equal(result.signature_valid, false);
-    assert.equal(result.reason, "tsa_required");
+    assert.equal(result.reason, "tsa_unverified");
     assert.equal(result.tsa_state, "tsa_malformed");
   });
 

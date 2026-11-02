@@ -56,11 +56,11 @@ Per-event TSA (eIDAS RFC 3161 trusted timestamp) requirement. The v1.1 envelope 
 
 | Level | Meaning | Verifier surface when absent |
 |---|---|---|
-| **MANDATORY** | Receipt is invalid without a verified `tsa`. | HARD-invalid (`tsa_required`) when absent or not `tsa_verified` |
+| **MANDATORY** | Receipt is invalid without a verified `tsa`. | HARD-invalid: `tsa_required` when absent; `tsa_unverified` when present but not `tsa_verified` |
 | **RECOMMENDED** | Receipt valid without `tsa`, but verifier surfaces a warning that downgrades verifier confidence for deadline-sensitive queries. | `tsa_recommended` (warning) |
 | **OPTIONAL** | No verifier surface. | none |
 
-**MANDATORY fails closed.** `tsa` is outside the signature (it is zeroed out of the signing input), so anyone can attach any block to a genuine receipt. Under a MANDATORY mandate only `tsa_state: "tsa_verified"` satisfies it: a present-but-unverified block (malformed, unrecognised or expired anchor, imprint mismatch, drift exceeded, …) is HARD-invalid with `reason: "tsa_required"`, and the verifier keeps the real TSA reason in `tsa_state` so callers can see why. RECOMMENDED and OPTIONAL surface a present-but-unverified block's reason as-is and never poison `signature_valid`.
+**MANDATORY fails closed.** `tsa` is outside the signature (it is zeroed out of the signing input), so anyone can attach any block to a genuine receipt. Under a MANDATORY mandate only `tsa_state: "tsa_verified"` satisfies it: a present-but-unverified block (malformed, unrecognised or expired anchor, imprint mismatch, drift exceeded, …) is HARD-invalid with `reason: "tsa_unverified"` (timestamp not confirmed — e.g. a verifier that lacks or does not trust the TSA anchor — distinct from `tsa_required`, which means no timestamp at all), and the verifier keeps the real TSA reason in `tsa_state` so callers can see why. RECOMMENDED and OPTIONAL surface a present-but-unverified block's reason as-is and never poison `signature_valid`.
 
 **Family-wide rule (derived from audit-finding H7 review):** events whose `iat` starts a regulatory clock are **MANDATORY**. Events whose `iat` is the basis for a verifier-side deadline check but where the clock-start is anchored elsewhere are **RECOMMENDED**. All other events are **OPTIONAL**.
 

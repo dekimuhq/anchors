@@ -229,7 +229,7 @@ test("alr tsa-mandate: applyAlrTsaMandate fails closed on (patched) MANDATORY + 
     };
     applyAlrTsaMandate(out, body);
     assert.equal(out.signature_valid, false, "MANDATORY must fail closed on an unverified tsa");
-    assert.equal(out.reason, "tsa_required");
+    assert.equal(out.reason, "tsa_unverified");
     assert.equal(out.tsa_state, "tsa_imprint_mismatch", "real TSA reason must be preserved");
   } finally {
     (ALR_TSA_MANDATE as Record<string, string>).derived_from = origLevel;

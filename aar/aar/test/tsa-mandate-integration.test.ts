@@ -18,7 +18,7 @@
  *   M3 — revocation, tsa absent → signature_valid:true,
  *        tsa_state "tsa_recommended" (advisory).
  *   M4 — issuance + qts, present-but-unverified tsa (garbage tsr) →
- *        fail closed: signature_valid:false, reason "tsa_required",
+ *        fail closed: signature_valid:false, reason "tsa_unverified",
  *        tsa_state keeps the real reason ("tsa_malformed").
  *   M5 — issuance + qes, garbage tsr → RECOMMENDED unchanged: not poisoned.
  *   U  — applyAarTsaMandate unit coverage (verified passes, undefined state,
@@ -116,7 +116,7 @@ const GARBAGE_TSA = {
   issued_at: "2026-05-16T10:00:00Z",
 };
 
-test("M4: issuance+qts with garbage tsa → fail closed, reason tsa_required, tsa_state tsa_malformed", async () => {
+test("M4: issuance+qts with garbage tsa → fail closed, reason tsa_unverified, tsa_state tsa_malformed", async () => {
   const env = await mintIssuance({
     ...baseCommon,
     profile: "eidas.qts" as const,
@@ -126,7 +126,7 @@ test("M4: issuance+qts with garbage tsa → fail closed, reason tsa_required, ts
   });
   const r = await verifyReceipt({ ...env, tsa: GARBAGE_TSA }, { resolveKey: makeResolveKey(), tsaAnchors: [] });
   assert.equal(r.signature_valid, false, "MANDATORY must not be satisfied by an attached junk tsa");
-  assert.equal(r.reason, "tsa_required");
+  assert.equal(r.reason, "tsa_unverified");
   assert.equal((r as { tsa_state?: string }).tsa_state, "tsa_malformed");
 });
 
@@ -158,7 +158,7 @@ for (const state of ["tsa_imprint_mismatch", "tsa_unrecognised_anchor", "tsa_dri
   test(`U2: MANDATORY + ${state} → fail closed, tsa_state preserved`, () => {
     const out: AarTsaMandateTarget = { signature_valid: true, tsa_state: state };
     applyAarTsaMandate(out, qtsBody);
-    assert.deepEqual(out, { signature_valid: false, reason: "tsa_required", tsa_state: state });
+    assert.deepEqual(out, { signature_valid: false, reason: "tsa_unverified", tsa_state: state });
   });
 
   test(`U3: RECOMMENDED + ${state} → untouched`, () => {

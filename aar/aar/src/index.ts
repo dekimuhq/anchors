@@ -35,8 +35,9 @@ export async function verifyReceipt(
     } as FamilyVerifyOptions);
 
     // Re-apply per-event TSA mandate (event+service_type keyed, not profile-keyed).
-    // issuance+qts + anything but tsa_verified -> reason tsa_required (poisons
-    // sig, fail closed); other events + tsa_absent -> tsa_recommended
+    // issuance+qts + tsa_absent -> reason tsa_required; + present but
+    // unverified -> reason tsa_unverified (both poison sig, fail closed);
+    // other events + tsa_absent -> tsa_recommended
     // (advisory). Mirrors ABR/AIR — the factory
     // only enforces profile-keyed MANDATORY, so this post-step carries AAR's
     // body-keyed rule (FAMILY-CONSISTENCY §2).

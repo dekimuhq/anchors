@@ -65,8 +65,9 @@ export async function verifyReceipt(
     } as FamilyVerifyOptions);
 
     // Re-apply per-event TSA mandate (event-keyed, not profile-keyed).
-    // breach.detected + anything but tsa_verified -> reason tsa_required
-    //   (poisons sig; fail closed — `tsa` is not signature-covered)
+    // breach.detected + tsa_absent -> reason tsa_required; + present but
+    //   unverified -> reason tsa_unverified (both poison sig; fail closed —
+    //   `tsa` is not signature-covered)
     // other events + tsa_absent -> tsa_recommended (advisory only)
     const r = out as unknown as Record<string, unknown>;
     if (r.signature_valid) {

@@ -72,10 +72,10 @@ export interface AirTsaMandateTarget {
  * Apply the per-event mandate to a verify result. Mutates `target`.
  *
  * - `MANDATORY` + any `tsa_state` other than `"tsa_verified"` →
- *     `signature_valid: false`, `reason: "tsa_required"`. When no block was
- *     present (`"tsa_absent"` / undefined) `tsa_state` becomes
- *     `"tsa_required"`; a present-but-unverified block keeps its real TSA
- *     reason (e.g. `"tsa_malformed"`). Fails closed because `tsa` is not
+ *     `signature_valid: false`. When no block was present (`"tsa_absent"` /
+ *     undefined) → `reason: "tsa_required"`, `tsa_state: "tsa_required"`.
+ *     A present-but-unverified block → `reason: "tsa_unverified"` and
+ *     `tsa_state` keeps its real TSA reason (e.g. `"tsa_malformed"`). Fails closed because `tsa` is not
  *     signature-covered — anyone can attach a junk block to a genuine
  *     receipt. No-op when `signature_valid` is already false. AIR v1 has
  *     no MANDATORY event; the branch is kept for forward-compatibility with
@@ -105,13 +105,13 @@ export function applyAirTsaMandate(
     // satisfies the mandate. An earlier failure keeps its own reason.
     if (!target.signature_valid) return;
     if (target.tsa_state === "tsa_verified") return;
+    const absent = target.tsa_state === undefined || target.tsa_state === "tsa_absent";
     target.signature_valid = false;
-    target.reason = "tsa_required";
-    // Keep a real TSA reason (e.g. "tsa_malformed") so callers see why;
-    // only the no-block case is relabelled.
-    if (target.tsa_state === undefined || target.tsa_state === "tsa_absent") {
-      target.tsa_state = "tsa_required";
-    }
+    // Absent → "tsa_required" (no timestamp). Present but unverified →
+    // "tsa_unverified" (timestamp not confirmed, e.g. a verifier that does
+    // not trust the anchor); tsa_state keeps the real TSA reason.
+    target.reason = absent ? "tsa_required" : "tsa_unverified";
+    if (absent) target.tsa_state = "tsa_required";
     return;
   }
   if (target.tsa_state !== "tsa_absent") return;
