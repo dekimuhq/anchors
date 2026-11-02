@@ -31,7 +31,8 @@ export type TsaReason =
   | "tsa_anchor_expired"
   | "tsa_anchor_not_timestamping"
   | "tsa_drift_exceeded"
-  | "tsa_status_not_granted";
+  | "tsa_status_not_granted"
+  | "tsa_malformed";
 
 /**
  * Full TSA state surfaced on a verify result — a superset of `TsaReason` (the
@@ -83,6 +84,21 @@ export interface TsaVerifyOpts {
  * @param opts    Anchors, drift tolerance, and reference clock.
  */
 export function verifyTsa(
+  tsr: Uint8Array,
+  imprint: Uint8Array,
+  opts: TsaVerifyOpts,
+): TsaVerifyResult {
+  // The `tsa` block is outside the envelope signature, so anyone can attach
+  // bytes that do not parse (DER, X.509). That is a TSA outcome, not a
+  // verifier crash: report it and leave the signature result alone.
+  try {
+    return verifyParsedTsa(tsr, imprint, opts);
+  } catch {
+    return { verified: false, reason: "tsa_malformed", listed: false };
+  }
+}
+
+function verifyParsedTsa(
   tsr: Uint8Array,
   imprint: Uint8Array,
   opts: TsaVerifyOpts,

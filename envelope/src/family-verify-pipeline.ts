@@ -55,7 +55,7 @@ import {
   loadTrustAnchors,
   defaultTrustAnchorPath,
 } from "./tsa/index.ts";
-import type { TrustAnchor, TsaReason, TsaState } from "./tsa/index.ts";
+import type { TrustAnchor, TsaReason, TsaState, TsaVerifyResult } from "./tsa/index.ts";
 import { verifyCredentialStatus } from "./status/reconcile.ts";
 import type { StatusCheck, RootKeyMaterial, StatusCacheConfig } from "./status/index.ts";
 import { dispatchProfiles } from "./profile/dispatch.ts";
@@ -696,16 +696,20 @@ export function buildVerifyReceipt<BodyType>(
 
     // ── Step 12: TSA dispatch (advisory; MANDATORY → hard fail on tsa_absent) ─
     if (e.tsa) {
-      const tsr = base64UrlDecode(e.tsa.tsr);
+      // `tsa` is outside the signature and unvalidated: a non-string `tsr` is
+      // a malformed token, reported like any other, never a throw.
+      const rawTsr: unknown = (e.tsa as { tsr?: unknown }).tsr;
       const imprint = computeTsaImprint(e);
       const anchors = opts.tsaAnchors ?? loadTrustAnchors([defaultTrustAnchorPath()]);
       const driftSec = opts.tsaDriftToleranceSec ?? 300;
       const refTime = opts.tsaReferenceTime ?? new Date();
-      const tsaResult = verifyTsa(tsr, imprint, {
-        anchors,
-        driftToleranceSec: driftSec,
-        referenceTime: refTime,
-      });
+      const tsaResult: TsaVerifyResult = typeof rawTsr === "string"
+        ? verifyTsa(base64UrlDecode(rawTsr), imprint, {
+            anchors,
+            driftToleranceSec: driftSec,
+            referenceTime: refTime,
+          })
+        : { verified: false, reason: "tsa_malformed", listed: false };
       out.tsa_state = tsaResult.reason;
       out.tsa_listed = tsaResult.listed;
       if (tsaResult.anchorName !== undefined) out.tsa_anchor_name = tsaResult.anchorName;
