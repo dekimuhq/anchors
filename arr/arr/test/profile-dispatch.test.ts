@@ -11,6 +11,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { arrFamily } from "../src/family.ts";
 import v2Fixture from "./fixtures/v2-arr-erasure.ts";
+import { validateGdprArt17ErasureFinalizedProfile } from "@dekimuhq/arr-profiles";
+import type { Envelope } from "@dekimuhq/anchors-envelope";
 
 // ── no profile option → profile_state undefined ─────────────────────────────
 
@@ -47,4 +49,25 @@ test("arrFamily.verifyReceipt: tampered envelope (signature_valid=false) → pro
   );
   assert.equal(result.signature_valid, false);
   assert.equal(result.profile_state, undefined);
+});
+
+// ── finalized adapter reads the signed v=2 envelope, not the body ───────────
+
+test("gdpr.art17.erasure-finalized adapter: real v=2 envelope (no kind/tsa in body) + verified TSA → ok", () => {
+  const { envelope } = v2Fixture;
+  assert.equal("kind" in (envelope.body as object), false);
+  assert.equal("tsa" in (envelope.body as object), false);
+  const stamped = {
+    ...envelope,
+    tsa: {
+      v: 1,
+      tsr: "base64url",
+      alg: "sha-256",
+      tsa_url: "https://tsa.example",
+      tsa_cert_chain_sha256: ["sha256:" + "a".repeat(64)],
+      issued_at: "2026-05-17T12:00:00Z",
+    },
+  } as unknown as Envelope;
+  const r = validateGdprArt17ErasureFinalizedProfile(stamped, stamped.body, { tsa_state: "tsa_verified" });
+  assert.deepEqual(r, { profile_id: "arr.gdpr.art17.erasure-finalized", ok: true });
 });

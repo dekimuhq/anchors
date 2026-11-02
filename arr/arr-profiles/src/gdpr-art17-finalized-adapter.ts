@@ -6,6 +6,13 @@
  * `ProfileValidator` shape so it can be dispatched from any verifier via
  * the `profileValidators` option.
  *
+ * `kind` and `tsa` are read from the v=2 envelope (`claim_type`, `tsa`), never
+ * from the body, which carries neither on a v=2 receipt (and must not be able
+ * to claim them). `claim_type` is signed; `tsa` is NOT (it is zeroed out of
+ * the signing input) and is trusted only through `ctx.tsa_state`, which the
+ * pipeline sets by verifying that token against the signing input. Keep that
+ * gate: without it a stripped or forged `tsa` would pass.
+ *
  * Phase E Task E.2.
  */
 
@@ -20,11 +27,14 @@ export const GDPR_ART17_ERASURE_FINALIZED_PROFILE_ID =
   "arr.gdpr.art17.erasure-finalized" as const;
 
 export const validateGdprArt17ErasureFinalizedProfile: ProfileValidator = (
-  _envelope,
-  body,
+  envelope,
+  _body,
   ctx,
 ) => {
-  const receipt = body as ErasureFinalizedReceipt;
+  const receipt: ErasureFinalizedReceipt = {
+    kind: envelope.claim_type,
+    tsa: envelope.tsa ?? null,
+  };
   const result = validateGdprArt17ErasureFinalized(receipt, {
     tsa_state: (ctx.tsa_state ?? "tsa_absent") as TsaReason,
   });
