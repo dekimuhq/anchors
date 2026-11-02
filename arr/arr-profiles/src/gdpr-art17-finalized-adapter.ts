@@ -6,9 +6,12 @@
  * `ProfileValidator` shape so it can be dispatched from any verifier via
  * the `profileValidators` option.
  *
- * `kind` and `tsa` are read from the v=2 envelope (`claim_type`, `tsa`), the
- * signed fields the verifier checked — never from the body, which carries
- * neither on a v=2 receipt (and must not be able to claim them).
+ * `kind` and `tsa` are read from the v=2 envelope (`claim_type`, `tsa`), never
+ * from the body, which carries neither on a v=2 receipt (and must not be able
+ * to claim them). `claim_type` is signed; `tsa` is NOT (it is zeroed out of
+ * the signing input) and is trusted only through `ctx.tsa_state`, which the
+ * pipeline sets by verifying that token against the signing input. Keep that
+ * gate: without it a stripped or forged `tsa` would pass.
  *
  * Phase E Task E.2.
  */
