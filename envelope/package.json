@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-envelope",
-  "version": "0.26.3",
+  "version": "0.26.4",
   "description": "Shared receipt envelope for the Anchored Receipts protocol family (APR/ACR/ARR/…). Owns canonicalize, sign, verify, ClaimType union. Pure library, zero runtime npm dependencies.",
   "license": "Apache-2.0",
   "type": "module",

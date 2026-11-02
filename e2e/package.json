@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.3",
+    "@dekimuhq/anchors-envelope": "^0.26.4",
     "@dekimuhq/acr": "^0.7.2",
     "@dekimuhq/acr-profiles": "^0.7.3",
     "@dekimuhq/apr": "^0.7.4",
