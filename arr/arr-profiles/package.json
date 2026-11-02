@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/arr-profiles",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Regulation profile validators for ARR v1: gdpr.art17, gdpr.art5e, hipaa.retention, kyc.retention, sox.retention, mifid2.retention, aiact.art10.",
   "license": "Apache-2.0",
   "type": "module",
@@ -41,7 +41,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.26.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
