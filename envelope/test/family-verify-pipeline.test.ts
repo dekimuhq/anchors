@@ -10,7 +10,7 @@
  *   §3  signature failures             — tampered body / null key from resolver
  *   §4  body schema reject             — validateBody returns ok: false
  *   §5  subject presence               — must-be-present pass+fail, per-event override
- *   §6  TSA mandate                    — MANDATORY+absent → hard fail; RECOMMENDED → advisory; OPTIONAL → advisory
+ *   §6  TSA mandate                    — MANDATORY+absent or unverified → hard fail; RECOMMENDED → advisory; OPTIONAL → advisory
  *   §7  unknown profile                — hasProfile false → hard fail
  *   §8  known profile                  — pass + advisory fail (never poisons sig)
  *   §9  status-list slot               — null slot + credentialStatus present → rejected
@@ -516,6 +516,53 @@ test("§6.3 TSA mandate OPTIONAL + tsa_absent → tsa_absent advisory (no hard f
   assert.strictEqual(r.tsa_state, "tsa_absent");
   assert.strictEqual(r.tsa_listed, false);
 });
+
+// §6.4–§6.6 — MANDATORY fails closed on a present-but-unverified block.
+// `tsa` is zeroed out of the signing input, so a junk block attached after
+// signing must NOT satisfy the mandate; `tsa_state` keeps the real reason.
+
+const JUNK_TSA_SHAPE = {
+  v: 1,
+  alg: "sha-256",
+  tsa_url: "https://tsa.example",
+  tsa_cert_chain_sha256: [],
+  issued_at: "2026-05-19T00:00:00Z",
+};
+
+for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
+  test(`§6.4 TSA mandate MANDATORY + present ${label} → tsa_required hard fail, tsa_state tsa_malformed`, async () => {
+    const signed = await signedEnvelope({ tsa: null });
+    const e = { ...signed, tsa: { ...JUNK_TSA_SHAPE, tsr } } as unknown as Envelope;
+    const verify = buildVerifyReceipt(makeAlrPredicates());
+    const r = await verify(e, { resolveKey: okResolver, profile: "test.pass", tsaAnchors: [] });
+
+    assert.strictEqual(r.signature_valid, false);
+    assert.strictEqual(r.reason, "tsa_required");
+    assert.strictEqual(r.tsa_state, "tsa_malformed", "real TSA reason must be preserved");
+    assert.strictEqual(r.profile_state, undefined, "hard fail returns before profile dispatch");
+  });
+
+  test(`§6.5 TSA mandate RECOMMENDED + present ${label} → not poisoned (signature_valid: true)`, async () => {
+    const signed = await signedEnvelope({ tsa: null });
+    const e = { ...signed, tsa: { ...JUNK_TSA_SHAPE, tsr } } as unknown as Envelope;
+    const verify = buildVerifyReceipt(makeAlrPredicates());
+    const r = await verify(e, { resolveKey: okResolver, profile: "test.fail", tsaAnchors: [] });
+
+    assert.strictEqual(r.signature_valid, true);
+    assert.strictEqual(r.reason, undefined);
+    assert.strictEqual(r.tsa_state, "tsa_malformed");
+  });
+
+  test(`§6.6 no profile + present ${label} → not poisoned (signature_valid: true)`, async () => {
+    const signed = await signedEnvelope({ tsa: null });
+    const e = { ...signed, tsa: { ...JUNK_TSA_SHAPE, tsr } } as unknown as Envelope;
+    const verify = buildVerifyReceipt(makeAlrPredicates());
+    const r = await verify(e, { resolveKey: okResolver, tsaAnchors: [] });
+
+    assert.strictEqual(r.signature_valid, true);
+    assert.strictEqual(r.tsa_state, "tsa_malformed");
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // §7 — unknown profile

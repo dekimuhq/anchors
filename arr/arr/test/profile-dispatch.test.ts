@@ -4,7 +4,8 @@
  * Post-A2 migration: profile validators are wired into the family manifest.
  * The factory dispatches the validator when `opts.profile` matches a registered
  * profile ID. The factory's tsa_mandate enforcement is HARD — a MANDATORY
- * profile with absent TSA poisons signature_valid (spec-correct behavior).
+ * profile with an absent OR unverified TSA poisons signature_valid (fail
+ * closed; spec-correct behavior).
  */
 
 import { test } from "node:test";
@@ -83,21 +84,39 @@ const TSA_SHAPE = {
 };
 
 for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
-  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} → signature_valid, tsa_malformed, profile reaches the TSA check`, async () => {
+  // MANDATORY fails closed: `tsa` is outside the signature, so a junk block
+  // attached to a genuine receipt must NOT satisfy the mandate. tsa_state
+  // keeps the real TSA reason so callers can see why.
+  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} under MANDATORY erasure-finalized → tsa_required hard fail, tsa_state tsa_malformed`, async () => {
     const { envelope, publicKey } = v2Fixture;
     const stamped = { ...envelope, tsa: { ...TSA_SHAPE, tsr } };
     const result = await arrFamily.verifyReceipt(
       stamped as unknown as Record<string, unknown>,
       { resolveKey: async () => publicKey, profile: "arr.gdpr.art17.erasure-finalized", tsaAnchors: [] },
     );
-    assert.equal(result.signature_valid, true);
+    assert.equal(result.signature_valid, false);
+    assert.equal(result.reason, "tsa_required");
     assert.equal(result.tsa_state, "tsa_malformed");
-    const entry = result.profile_state?.find((p) => p.profile_id === "arr.gdpr.art17.erasure-finalized");
-    assert.ok(entry, `profile not dispatched: ${JSON.stringify(result)}`);
-    assert.deepEqual(entry, {
-      profile_id: "arr.gdpr.art17.erasure-finalized",
-      ok: false,
-      reason: "tsa_failed:tsa_malformed",
-    });
+  });
+
+  test(`arrFamily.verifyReceipt: v=2 erasure + ${label} under non-mandatory profile → signature_valid, tsa_malformed (not poisoned)`, async () => {
+    const { envelope, publicKey } = v2Fixture;
+    const stamped = { ...envelope, tsa: { ...TSA_SHAPE, tsr } };
+    const result = await arrFamily.verifyReceipt(
+      stamped as unknown as Record<string, unknown>,
+      { resolveKey: async () => publicKey, profile: "arr.gdpr.art5e", tsaAnchors: [] },
+    );
+    assert.equal(result.signature_valid, true);
+    assert.equal(result.reason, undefined);
+    assert.equal(result.tsa_state, "tsa_malformed");
   });
 }
+
+test("arrFamily.verifyReceipt (top-level index): v=2 erasure + garbage tsr, no profile → RECOMMENDED path keeps signature_valid and tsa_malformed", async () => {
+  const { verifyReceipt } = await import("../src/index.ts");
+  const { envelope, publicKey } = v2Fixture;
+  const stamped = { ...envelope, tsa: { ...TSA_SHAPE, tsr: "AAAA" } };
+  const result = await verifyReceipt(stamped as never, { resolveKey: async () => publicKey, tsaAnchors: [] });
+  assert.equal(result.signature_valid, true);
+  assert.equal((result as { tsa_state?: string }).tsa_state, "tsa_malformed");
+});

@@ -69,11 +69,12 @@ export async function verifyReceipt(
       resolveKey: opts?.resolveKey ?? (() => undefined),
     } as FamilyVerifyOptions);
 
-    // Re-apply per-profile TSA mandate (RECOMMENDED upgrade).
-    // Factory only enforces MANDATORY; RECOMMENDED surfaces as advisory
-    // tsa_state upgrade without poisoning signature_valid.
+    // Re-apply per-profile TSA mandate keyed on body.profile.
+    // MANDATORY (notice.aiact.art50_transparency) + anything but tsa_verified
+    // -> reason tsa_required (fail closed); RECOMMENDED + tsa_absent surfaces
+    // as an advisory tsa_state upgrade without poisoning signature_valid.
     const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid && r.tsa_state === "tsa_absent") {
+    if (r.signature_valid) {
       const body = (obj as { body?: unknown }).body;
       if (body && typeof body === "object") {
         applyAnrTsaMandate(

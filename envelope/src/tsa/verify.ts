@@ -40,6 +40,9 @@ export type TsaReason =
  * mandate states:
  *   - `"tsa_absent"`      — receipt carries no TSA block.
  *   - `"tsa_required"`    — a MANDATORY mandate found no TSA block (hard fail).
+ *     A MANDATORY mandate also hard-fails (`reason: "tsa_required"`) when a
+ *     block is present but did not verify; `tsa_state` then keeps the real
+ *     `TsaReason` (e.g. `"tsa_malformed"`) rather than this value.
  *   - `"tsa_recommended"` — a RECOMMENDED mandate found no TSA block (advisory).
  *
  * Mandate states are assigned by the per-family TSA-mandate post-steps

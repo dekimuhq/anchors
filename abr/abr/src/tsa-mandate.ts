@@ -57,17 +57,21 @@ export interface AbrTsaMandateTarget {
 /**
  * Apply the per-event mandate to a verify result. Mutates `target`.
  *
- * - `MANDATORY` + `tsa_state === "tsa_absent"` →
- *     `signature_valid: false`, `reason: "tsa_required"`,
- *     `tsa_state: "tsa_required"`.
+ * - `MANDATORY` + any `tsa_state` other than `"tsa_verified"` →
+ *     `signature_valid: false`, `reason: "tsa_required"`. When no block was
+ *     present (`"tsa_absent"` / undefined) `tsa_state` becomes
+ *     `"tsa_required"`; a present-but-unverified block keeps its real TSA
+ *     reason (e.g. `"tsa_malformed"`). Fails closed because `tsa` is not
+ *     signature-covered — anyone can attach a junk block to a genuine
+ *     receipt. No-op when `signature_valid` is already false.
  * - `RECOMMENDED` + `tsa_state === "tsa_absent"` →
  *     `tsa_state: "tsa_recommended"` (warning only; signature not poisoned).
  * - `OPTIONAL` → no-op. ABR v1 has no OPTIONAL events, but the branch is
  *   kept for forward-compatibility with the family-uniform mandate shape.
  *
- * When `target.tsa_state` is anything other than `"tsa_absent"` (e.g. a real
- * TSA reason like `"tsa_imprint_mismatch"`), mandate enforcement is a no-op —
- * the TSA dispatch result wins over the mandate matrix.
+ * For `RECOMMENDED`, a `tsa_state` other than `"tsa_absent"` (e.g. a real
+ * TSA reason like `"tsa_imprint_mismatch"`) is left untouched — the TSA
+ * dispatch result is surfaced as-is and the signature is not poisoned.
  *
  * Defensive: an unknown event_type short-circuits to no-op. The §C body
  * verifier is the authoritative gate for event-type validity; the mandate
@@ -81,13 +85,21 @@ export function applyAbrTsaMandate(
   const level = ABR_TSA_MANDATE[body.event_type];
   if (level === undefined) return;
   if (level === "OPTIONAL") return;
-  if (target.tsa_state !== "tsa_absent") return;
   if (level === "MANDATORY") {
+    // Fail closed: `tsa` is outside the signature, so only a verified token
+    // satisfies the mandate. An earlier failure keeps its own reason.
+    if (!target.signature_valid) return;
+    if (target.tsa_state === "tsa_verified") return;
     target.signature_valid = false;
     target.reason = "tsa_required";
-    target.tsa_state = "tsa_required";
+    // Keep a real TSA reason (e.g. "tsa_malformed") so callers see why;
+    // only the no-block case is relabelled.
+    if (target.tsa_state === undefined || target.tsa_state === "tsa_absent") {
+      target.tsa_state = "tsa_required";
+    }
     return;
   }
+  if (target.tsa_state !== "tsa_absent") return;
   // RECOMMENDED
   target.tsa_state = "tsa_recommended";
 }

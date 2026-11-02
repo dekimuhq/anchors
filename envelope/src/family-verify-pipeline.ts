@@ -21,11 +21,16 @@
  *   9. Body schema                                   — manifest.validateBody
  *  10. Subject presence                              — manifest.checkSubjectPresence
  *  11. Status-list reconciliation (advisory)         — verifyCredentialStatus
- *  12. TSA dispatch (advisory; MANDATORY level → hard fail)
+ *  12. TSA dispatch (advisory; MANDATORY level → hard fail unless verified)
  *  13. Profile dispatch (advisory; result surfaced in profile_state)
  *
  * Advisory steps (11–13) never poison `signature_valid` on their own, EXCEPT:
- *   - TSA with tsaMandateLevel "mandatory" + tsa_absent → signature_valid: false
+ *   - TSA with tsaMandateLevel "mandatory" + any tsa_state other than
+ *     "tsa_verified" → signature_valid: false, reason "tsa_required". This
+ *     fails closed: `tsa` is outside the signature, so a present-but-bad
+ *     block (malformed, foreign anchor, imprint mismatch, drift, …) MUST NOT
+ *     satisfy the mandate. `tsa_state` keeps the real TSA reason (or
+ *     "tsa_absent") so callers can see why.
  *
  * Spec: https://github.com/dekimuhq/anchors-spec/tree/main/envelope
  * Phase A.2 Task 1.5.
@@ -694,7 +699,7 @@ export function buildVerifyReceipt<BodyType>(
       out.status_state = "not_attempted";
     }
 
-    // ── Step 12: TSA dispatch (advisory; MANDATORY → hard fail on tsa_absent) ─
+    // ── Step 12: TSA dispatch (advisory; MANDATORY → hard fail unless verified)
     if (e.tsa) {
       // `tsa` is outside the signature and unvalidated: a non-string `tsr` is
       // a malformed token, reported like any other, never a throw.
@@ -718,15 +723,18 @@ export function buildVerifyReceipt<BodyType>(
     } else {
       out.tsa_state = "tsa_absent";
       out.tsa_listed = false;
+    }
 
-      // TSA mandate enforcement: MANDATORY + tsa_absent → hard fail.
-      if (opts.profile) {
-        const mandate = tsaMandateLevel(opts.profile);
-        if (mandate === "mandatory") {
-          out.signature_valid = false;
-          out.reason = "tsa_required";
-          return out;
-        }
+    // TSA mandate enforcement (fail closed): MANDATORY + anything but
+    // tsa_verified → hard fail. `tsa` is zeroed out of the signing input, so
+    // an attacker can attach any block to a genuine receipt; only a verified
+    // token satisfies the mandate. `tsa_state` is left as the real reason.
+    if (opts.profile && out.tsa_state !== "tsa_verified") {
+      const mandate = tsaMandateLevel(opts.profile);
+      if (mandate === "mandatory") {
+        out.signature_valid = false;
+        out.reason = "tsa_required";
+        return out;
       }
     }
 

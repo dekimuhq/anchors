@@ -201,7 +201,7 @@ test("alr tsa-mandate: applyAlrTsaMandate adds tsa_recommended on RECOMMENDED + 
   }
 });
 
-test("alr tsa-mandate: applyAlrTsaMandate no-op when tsa_state is a real TSA reason", () => {
+test("alr tsa-mandate: applyAlrTsaMandate fails closed on (patched) MANDATORY + real TSA reason, tsa_state preserved", () => {
   const body = {
     profile: "aiact.art13.transparency" as const,
     artifact_hash: "sha256:" + "c".repeat(64),
@@ -228,9 +228,50 @@ test("alr tsa-mandate: applyAlrTsaMandate no-op when tsa_state is a real TSA rea
       tsa_state: "tsa_imprint_mismatch",
     };
     applyAlrTsaMandate(out, body);
-    assert.equal(out.signature_valid, true, "real TSA reason must win over mandate matrix");
-    assert.equal(out.tsa_state, "tsa_imprint_mismatch");
-    assert.equal(out.reason, undefined);
+    assert.equal(out.signature_valid, false, "MANDATORY must fail closed on an unverified tsa");
+    assert.equal(out.reason, "tsa_required");
+    assert.equal(out.tsa_state, "tsa_imprint_mismatch", "real TSA reason must be preserved");
+  } finally {
+    (ALR_TSA_MANDATE as Record<string, string>).derived_from = origLevel;
+  }
+});
+
+test("alr tsa-mandate: (patched) MANDATORY + tsa_verified passes; RECOMMENDED + real reason untouched", () => {
+  const body = {
+    profile: "aiact.art13.transparency" as const,
+    artifact_hash: "sha256:" + "c".repeat(64),
+    event_at: "2026-05-16T14:23:00Z",
+    qts_attestation_hash: null,
+    event_type: "derived_from" as const,
+    parents: [
+      {
+        artifact_hash: "sha256:" + "a".repeat(64),
+        parent_apr_id: null,
+        parent_alr_id: null,
+        uri: null,
+      },
+    ],
+    successor: null,
+    transform_claim: { summary: "x", uri: null },
+    disclosure: null,
+  };
+  const origLevel = ALR_TSA_MANDATE.derived_from;
+  try {
+    (ALR_TSA_MANDATE as Record<string, string>).derived_from = "MANDATORY";
+    const verified: { signature_valid: boolean; reason?: string; tsa_state?: string } = {
+      signature_valid: true,
+      tsa_state: "tsa_verified",
+    };
+    applyAlrTsaMandate(verified, body);
+    assert.deepEqual(verified, { signature_valid: true, tsa_state: "tsa_verified" });
+
+    (ALR_TSA_MANDATE as Record<string, string>).derived_from = "RECOMMENDED";
+    const bad: { signature_valid: boolean; reason?: string; tsa_state?: string } = {
+      signature_valid: true,
+      tsa_state: "tsa_malformed",
+    };
+    applyAlrTsaMandate(bad, body);
+    assert.deepEqual(bad, { signature_valid: true, tsa_state: "tsa_malformed" });
   } finally {
     (ALR_TSA_MANDATE as Record<string, string>).derived_from = origLevel;
   }

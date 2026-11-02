@@ -35,12 +35,13 @@ export async function verifyReceipt(
     } as FamilyVerifyOptions);
 
     // Re-apply per-event TSA mandate (event+service_type keyed, not profile-keyed).
-    // issuance+qts + tsa_absent -> tsa_required (poisons sig); other events +
-    // tsa_absent -> tsa_recommended (advisory). Mirrors ABR/AIR — the factory
+    // issuance+qts + anything but tsa_verified -> reason tsa_required (poisons
+    // sig, fail closed); other events + tsa_absent -> tsa_recommended
+    // (advisory). Mirrors ABR/AIR — the factory
     // only enforces profile-keyed MANDATORY, so this post-step carries AAR's
     // body-keyed rule (FAMILY-CONSISTENCY §2).
     const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid && r.tsa_state === "tsa_absent") {
+    if (r.signature_valid) {
       const body = (obj as { body?: unknown }).body;
       if (body && typeof body === "object") {
         applyAarTsaMandate(r as { signature_valid: boolean; reason?: string; tsa_state?: string }, body as AarBody);
