@@ -18,7 +18,7 @@
     "artifact": {
       "type": "object",
       "fields": {
-        "type": { "type": "enum", "enum_values": ["commander.run.output", "commander.run.codeChange", "commander.run.email", "commander.run.message", "miniterms.document", "lethe.letter", "lethe.document", "hub.sign-offs.deliverable", "hub.time-clock.day"] },
+        "type": { "type": "enum", "enum_values": ["commander.run.output", "commander.run.codeChange", "commander.run.email", "commander.run.message", "miniterms.document", "miniterms.erasure", "lethe.letter", "lethe.document", "hub.sign-offs.deliverable", "hub.time-clock.day"] },
         "id": { "type": "string" },
         "hash": { "type": "sha256" },
         "hashAlgorithm": { "type": "enum", "enum_values": ["sha256"] },
