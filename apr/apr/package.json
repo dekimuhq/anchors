@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/apr",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Agent Provenance Receipts (APR) v1 — verify (default) + issue (./issue) for agent action provenance anchoring.",
   "license": "Apache-2.0",
   "type": "module",
@@ -50,7 +50,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.26.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
