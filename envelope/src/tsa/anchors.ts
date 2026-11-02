@@ -60,10 +60,14 @@ export function loadTrustAnchors(paths: string[]): TrustAnchor[] {
  * Return the path to the bundled FreeTSA trust-anchor catalog.
  *
  * Uses `import.meta.url` for ESM-safe resolution:
- *   envelope/src/tsa/ → ../../../data/freetsa-trust-anchor.json
- *   = anchors/data/freetsa-trust-anchor.json (workspace root)
+ *   envelope/src/tsa/  → ../../data/freetsa-trust-anchor.json
+ *   envelope/dist/tsa/ → ../../data/freetsa-trust-anchor.json
+ *   = <package root>/data/freetsa-trust-anchor.json, shipped in "files".
+ * It used to resolve to the workspace root, which is not in the published
+ * tarball, so every consumer that omitted `tsaAnchors` hit ENOENT.
+ * The copy is kept byte-equal to the root `data/` catalog by a test.
  */
 export function defaultTrustAnchorPath(): string {
   const here = dirname(fileURLToPath(import.meta.url));
-  return resolve(here, "../../../data/freetsa-trust-anchor.json");
+  return resolve(here, "../../data/freetsa-trust-anchor.json");
 }

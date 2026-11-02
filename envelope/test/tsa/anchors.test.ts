@@ -4,7 +4,10 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { writeFileSync, unlinkSync } from "node:fs";
+import { writeFileSync, unlinkSync, existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadTrustAnchors, defaultTrustAnchorPath } from "../../src/tsa/anchors.ts";
 
 describe("loadTrustAnchors", () => {
@@ -52,5 +55,27 @@ describe("loadTrustAnchors", () => {
       p.endsWith("data/freetsa-trust-anchor.json"),
       `expected path ending in data/freetsa-trust-anchor.json, got: ${p}`,
     );
+  });
+
+  it("defaultTrustAnchorPath resolves inside the package (shipped), not the workspace root", () => {
+    const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+    assert.equal(defaultTrustAnchorPath(), join(pkgRoot, "data", "freetsa-trust-anchor.json"));
+    assert.ok(existsSync(defaultTrustAnchorPath()));
+    assert.ok(loadTrustAnchors([defaultTrustAnchorPath()]).length > 0);
+  });
+
+  it("the shipped catalog is byte-equal to the workspace data/ catalog", () => {
+    const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+    assert.deepEqual(
+      readFileSync(join(pkgRoot, "data", "freetsa-trust-anchor.json")),
+      readFileSync(join(pkgRoot, "..", "data", "freetsa-trust-anchor.json")),
+    );
+  });
+
+  it("npm pack includes the default catalog", () => {
+    const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+    const out = execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: pkgRoot, encoding: "utf8" });
+    const files = (JSON.parse(out) as Array<{ files: Array<{ path: string }> }>)[0]!.files.map((f) => f.path);
+    assert.ok(files.includes("data/freetsa-trust-anchor.json"), files.join("\n"));
   });
 });
