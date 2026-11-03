@@ -294,3 +294,59 @@ test("air tsa-mandate: applyAirTsaMandate defensive — unknown event_type is a 
   assert.equal(out.tsa_state, "tsa_absent");
   assert.equal(out.reason, undefined);
 });
+
+// ── Forward-compat: a MANDATORY level (none in AIR v1) fails closed ──────────
+// The matrix is patched for the assertion and restored, mirroring the ALR
+// scaffolding test. `tsa` is outside the signature, so only `tsa_verified`
+// may satisfy a MANDATORY event.
+
+function withMandatoryCompleted(fn: () => void): void {
+  const orig = AIR_TSA_MANDATE["dpia.completed"];
+  (AIR_TSA_MANDATE as Record<string, string>)["dpia.completed"] = "MANDATORY";
+  try {
+    fn();
+  } finally {
+    (AIR_TSA_MANDATE as Record<string, string>)["dpia.completed"] = orig;
+  }
+}
+
+for (const state of ["tsa_imprint_mismatch", "tsa_malformed"]) {
+  test(`air tsa-mandate: MANDATORY + ${state} → fail closed, tsa_state preserved`, () => {
+    withMandatoryCompleted(() => {
+      const out: AirTsaMandateTarget = { signature_valid: true, tsa_state: state };
+      applyAirTsaMandate(out, completed());
+      assert.equal(out.signature_valid, false);
+      assert.equal(out.reason, "tsa_unverified");
+      assert.equal(out.tsa_state, state);
+    });
+  });
+}
+
+test("air tsa-mandate: MANDATORY + tsa_absent → tsa_required", () => {
+  withMandatoryCompleted(() => {
+    const out: AirTsaMandateTarget = { signature_valid: true, tsa_state: "tsa_absent" };
+    applyAirTsaMandate(out, completed());
+    assert.equal(out.signature_valid, false);
+    assert.equal(out.reason, "tsa_required");
+    assert.equal(out.tsa_state, "tsa_required");
+  });
+});
+
+test("air tsa-mandate: MANDATORY + tsa_verified → passes", () => {
+  withMandatoryCompleted(() => {
+    const out: AirTsaMandateTarget = { signature_valid: true, tsa_state: "tsa_verified" };
+    applyAirTsaMandate(out, completed());
+    assert.equal(out.signature_valid, true);
+    assert.equal(out.reason, undefined);
+    assert.equal(out.tsa_state, "tsa_verified");
+  });
+});
+
+test("air tsa-mandate: MANDATORY keeps an earlier failure reason", () => {
+  withMandatoryCompleted(() => {
+    const out: AirTsaMandateTarget = { signature_valid: false, reason: "subject_present", tsa_state: "tsa_malformed" };
+    applyAirTsaMandate(out, completed());
+    assert.equal(out.reason, "subject_present");
+    assert.equal(out.tsa_state, "tsa_malformed");
+  });
+});

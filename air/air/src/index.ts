@@ -90,8 +90,9 @@ export async function verifyReceipt(
     // only enforces MANDATORY (profile-keyed; AIR has none), and never
     // surfaces RECOMMENDED. `applyAirTsaMandate` reads `body.event_type` and
     // upgrades `tsa_absent` to `tsa_recommended` on the three deadline-bearing
-    // events.
-    if (out.signature_valid && out.tsa_state === "tsa_absent") {
+    // events. The module itself decides which tsa_state values it acts on (a
+    // MANDATORY level, if ever added, fails closed on anything unverified).
+    if (out.signature_valid) {
       const body = (obj as { body?: unknown }).body;
       if (body && typeof body === "object") {
         applyAirTsaMandate(out, body as AirBody);

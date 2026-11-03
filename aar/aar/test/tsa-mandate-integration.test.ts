@@ -17,6 +17,12 @@
  *        tsa_state "tsa_recommended" (advisory).
  *   M3 — revocation, tsa absent → signature_valid:true,
  *        tsa_state "tsa_recommended" (advisory).
+ *   M4 — issuance + qts, present-but-unverified tsa (garbage tsr) →
+ *        fail closed: signature_valid:false, reason "tsa_unverified",
+ *        tsa_state keeps the real reason ("tsa_malformed").
+ *   M5 — issuance + qes, garbage tsr → RECOMMENDED unchanged: not poisoned.
+ *   U  — applyAarTsaMandate unit coverage (verified passes, undefined state,
+ *        earlier failure reason kept).
  */
 
 import { test } from "node:test";
@@ -24,6 +30,8 @@ import assert from "node:assert/strict";
 
 import { mintIssuance, mintRevocation } from "../src/issue/index.ts";
 import { verifyReceipt } from "../src/index.ts";
+import { applyAarTsaMandate, type AarTsaMandateTarget } from "../src/tsa-mandate.ts";
+import type { AarBody } from "../src/types.ts";
 import { baseCommon, makeResolveKey, makeSigningKey } from "./_helpers/common.ts";
 
 const baseIssuance = {
@@ -95,4 +103,79 @@ test("M3: revocation without tsa → signature_valid:true, tsa_state tsa_recomme
   const r = await verifyReceipt(env, { resolveKey: makeResolveKey() });
   assert.equal(r.signature_valid, true, r.reason ?? "ok");
   assert.equal(r.tsa_state, "tsa_recommended");
+});
+
+// ── M4/M5: present-but-unverified tsa (tsa is outside the signature) ─────────
+
+const GARBAGE_TSA = {
+  v: 1 as const,
+  tsr: "AAAA",
+  alg: "sha-256" as const,
+  tsa_url: "https://tsa.example",
+  tsa_cert_chain_sha256: [],
+  issued_at: "2026-05-16T10:00:00Z",
+};
+
+test("M4: issuance+qts with garbage tsa → fail closed, reason tsa_unverified, tsa_state tsa_malformed", async () => {
+  const env = await mintIssuance({
+    ...baseCommon,
+    profile: "eidas.qts" as const,
+    signingKey: makeSigningKey(),
+    ...baseIssuance,
+    service_type: "qts" as const,
+  });
+  const r = await verifyReceipt({ ...env, tsa: GARBAGE_TSA }, { resolveKey: makeResolveKey(), tsaAnchors: [] });
+  assert.equal(r.signature_valid, false, "MANDATORY must not be satisfied by an attached junk tsa");
+  assert.equal(r.reason, "tsa_unverified");
+  assert.equal((r as { tsa_state?: string }).tsa_state, "tsa_malformed");
+});
+
+test("M5: issuance+qes with garbage tsa → RECOMMENDED unchanged (signature_valid:true, tsa_malformed)", async () => {
+  const env = await mintIssuance({
+    ...baseCommon,
+    signingKey: makeSigningKey(),
+    ...baseIssuance,
+    service_type: "qes" as const,
+  });
+  const r = await verifyReceipt({ ...env, tsa: GARBAGE_TSA }, { resolveKey: makeResolveKey(), tsaAnchors: [] });
+  assert.equal(r.signature_valid, true, r.reason ?? "ok");
+  assert.equal(r.reason, undefined);
+  assert.equal((r as { tsa_state?: string }).tsa_state, "tsa_malformed");
+});
+
+// ── U: applyAarTsaMandate unit coverage ───────────────────────────────────────
+
+const qtsBody = { event_type: "issuance", service_type: "qts" } as unknown as AarBody;
+const qesBody = { event_type: "issuance", service_type: "qes" } as unknown as AarBody;
+
+test("U1: MANDATORY + tsa_verified → passes", () => {
+  const out: AarTsaMandateTarget = { signature_valid: true, tsa_state: "tsa_verified" };
+  applyAarTsaMandate(out, qtsBody);
+  assert.deepEqual(out, { signature_valid: true, tsa_state: "tsa_verified" });
+});
+
+for (const state of ["tsa_imprint_mismatch", "tsa_unrecognised_anchor", "tsa_drift_exceeded"]) {
+  test(`U2: MANDATORY + ${state} → fail closed, tsa_state preserved`, () => {
+    const out: AarTsaMandateTarget = { signature_valid: true, tsa_state: state };
+    applyAarTsaMandate(out, qtsBody);
+    assert.deepEqual(out, { signature_valid: false, reason: "tsa_unverified", tsa_state: state });
+  });
+
+  test(`U3: RECOMMENDED + ${state} → untouched`, () => {
+    const out: AarTsaMandateTarget = { signature_valid: true, tsa_state: state };
+    applyAarTsaMandate(out, qesBody);
+    assert.deepEqual(out, { signature_valid: true, tsa_state: state });
+  });
+}
+
+test("U4: MANDATORY + undefined tsa_state → fail closed as tsa_required", () => {
+  const out: AarTsaMandateTarget = { signature_valid: true };
+  applyAarTsaMandate(out, qtsBody);
+  assert.deepEqual(out, { signature_valid: false, reason: "tsa_required", tsa_state: "tsa_required" });
+});
+
+test("U5: MANDATORY keeps an earlier failure reason", () => {
+  const out: AarTsaMandateTarget = { signature_valid: false, reason: "subject_missing", tsa_state: "tsa_malformed" };
+  applyAarTsaMandate(out, qtsBody);
+  assert.deepEqual(out, { signature_valid: false, reason: "subject_missing", tsa_state: "tsa_malformed" });
 });

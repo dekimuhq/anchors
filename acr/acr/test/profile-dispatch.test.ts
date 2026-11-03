@@ -49,3 +49,40 @@ test("acrFamily.verifyReceipt: tampered envelope (signature_valid=false) → pro
   assert.equal(result.signature_valid, false);
   assert.equal(result.profile_state, undefined);
 });
+
+// ── MANDATORY fails closed on a present-but-unverified tsa ──────────────────
+// `tsa` is outside the signature: a junk block attached to a genuine receipt
+// must not satisfy the esig.accept@qes mandate. tsa_state keeps the reason.
+
+const JUNK_TSA = {
+  v: 1,
+  alg: "sha-256",
+  tsa_url: "https://tsa.example",
+  tsa_cert_chain_sha256: [],
+  issued_at: "2026-05-17T12:00:00Z",
+};
+
+for (const [label, tsr] of [["garbage tsr", "AAAA"], ["non-string tsr", 5]] as const) {
+  test(`acrFamily.verifyReceipt: esig.accept@qes + ${label} → tsa_unverified hard fail, tsa_state tsa_malformed`, async () => {
+    const { envelope, publicKey } = v2Fixture;
+    const stamped = { ...envelope, tsa: { ...JUNK_TSA, tsr } };
+    const result = await acrFamily.verifyReceipt(
+      stamped as unknown as Record<string, unknown>,
+      { resolveKey: async () => publicKey, profile: "acr.esig.accept@qes", tsaAnchors: [] },
+    );
+    assert.equal(result.signature_valid, false);
+    assert.equal(result.reason, "tsa_unverified");
+    assert.equal(result.tsa_state, "tsa_malformed");
+  });
+
+  test(`acrFamily.verifyReceipt: no profile + ${label} → not poisoned, tsa_state tsa_malformed`, async () => {
+    const { envelope, publicKey } = v2Fixture;
+    const stamped = { ...envelope, tsa: { ...JUNK_TSA, tsr } };
+    const result = await acrFamily.verifyReceipt(
+      stamped as unknown as Record<string, unknown>,
+      { resolveKey: async () => publicKey, tsaAnchors: [] },
+    );
+    assert.equal(result.signature_valid, true);
+    assert.equal(result.tsa_state, "tsa_malformed");
+  });
+}

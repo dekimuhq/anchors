@@ -65,10 +65,12 @@ export async function verifyReceipt(
     } as FamilyVerifyOptions);
 
     // Re-apply per-event TSA mandate (event-keyed, not profile-keyed).
-    // breach.detected + tsa_absent -> tsa_required (poisons sig)
+    // breach.detected + tsa_absent -> reason tsa_required; + present but
+    //   unverified -> reason tsa_unverified (both poison sig; fail closed —
+    //   `tsa` is not signature-covered)
     // other events + tsa_absent -> tsa_recommended (advisory only)
     const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid && r.tsa_state === "tsa_absent") {
+    if (r.signature_valid) {
       const body = (obj as { body?: unknown }).body;
       if (body && typeof body === "object") {
         applyAbrTsaMandate(r as { signature_valid: boolean; reason?: string; tsa_state?: string }, body as AbrBody);

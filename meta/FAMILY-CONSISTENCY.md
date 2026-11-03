@@ -56,9 +56,11 @@ Per-event TSA (eIDAS RFC 3161 trusted timestamp) requirement. The v1.1 envelope 
 
 | Level | Meaning | Verifier surface when absent |
 |---|---|---|
-| **MANDATORY** | Receipt is invalid without `tsa`. | HARD-invalid (`tsa_required`) |
+| **MANDATORY** | Receipt is invalid without a verified `tsa`. | HARD-invalid: `tsa_required` when absent; `tsa_unverified` when present but not `tsa_verified` |
 | **RECOMMENDED** | Receipt valid without `tsa`, but verifier surfaces a warning that downgrades verifier confidence for deadline-sensitive queries. | `tsa_recommended` (warning) |
 | **OPTIONAL** | No verifier surface. | none |
+
+**MANDATORY fails closed.** `tsa` is outside the signature (it is zeroed out of the signing input), so anyone can attach any block to a genuine receipt. Under a MANDATORY mandate only `tsa_state: "tsa_verified"` satisfies it: a present-but-unverified block (malformed, unrecognised or expired anchor, imprint mismatch, drift exceeded, …) is HARD-invalid with `reason: "tsa_unverified"` (timestamp not confirmed — e.g. a verifier that lacks or does not trust the TSA anchor — distinct from `tsa_required`, which means no timestamp at all), and the verifier keeps the real TSA reason in `tsa_state` so callers can see why. RECOMMENDED and OPTIONAL surface a present-but-unverified block's reason as-is and never poison `signature_valid`.
 
 **Family-wide rule (derived from audit-finding H7 review):** events whose `iat` starts a regulatory clock are **MANDATORY**. Events whose `iat` is the basis for a verifier-side deadline check but where the clock-start is anchored elsewhere are **RECOMMENDED**. All other events are **OPTIONAL**.
 
@@ -215,18 +217,18 @@ Every member spec's anchor flow §7 and verifier package SHOULD reference these 
 | Family | Status | Tests promised | Engineering budget (1-eng-eq) | Closeable by |
 |---|---|---|---|---|
 | APR | shipped | 89 (apr 89; no profiles package) | shipped | shipped |
-| ACR | shipped | 183 (acr 141 + acr-profiles 42) | shipped | shipped |
-| ARR | shipped | 217 (arr 171 + arr-profiles 46) | shipped | shipped |
+| ACR | shipped | 187 (acr 145 + acr-profiles 42) | shipped | shipped |
+| ARR | shipped | 224 (arr 178 + arr-profiles 46) | shipped | shipped |
 | ADR | shipped | 196 (adr 151 + adr-profiles 45) | shipped | — |
 | ATR | shipped | 175 (verifier 75 + profiles 77 + issuer-kit 23) | shipped | — |
 | APuR | shipped | 171 (verifier 99 + profiles 49 + issuer-kit 23) | shipped | — |
 | AER | shipped | 118 (aer 71 + aer-profiles 47; verifier + issuer-kit consolidated into `@dekimuhq/aer` — re-measured 2026-09-02) | ~3.5 weeks | shipped |
-| AAR | shipped | 217 (aar 90 + aar-profiles 76 + aar-tsl 51) | shipped | shipped |
-| ALR | shipped | 160 (alr 119 + alr-profiles 41) | shipped | shipped |
-| ANR | shipped | 268 (verifier 154 + issuer-kit 45 + profiles 69) | shipped | shipped |
-| ABR | shipped | 453 (verifier 197 + issuer-kit 113 + profiles 143) | shipped | shipped |
+| AAR | shipped | 228 (aar 101 + aar-profiles 76 + aar-tsl 51) | shipped | shipped |
+| ALR | shipped | 161 (alr 120 + alr-profiles 41) | shipped | shipped |
+| ANR | shipped | 275 (verifier 161 + issuer-kit 45 + profiles 69) | shipped | shipped |
+| ABR | shipped | 460 (verifier 204 + issuer-kit 113 + profiles 143) | shipped | shipped |
 | ASR | shipped | 409 (asr 292 + asr-profiles 117) | shipped | shipped |
-| AIR | shipped | 465 (verifier 242 + issuer-kit 112 + profiles 111) | shipped | shipped |
+| AIR | shipped | 470 (verifier 247 + issuer-kit 112 + profiles 111) | shipped | shipped |
 | ATokR | shipped | 109 (atokr 77 + atokr-profiles 32; verifier + issuer-kit consolidated into `@dekimuhq/atokr` — re-measured 2026-09-02) | shipped | shipped |
 | AActR | shipped | 223 (action 142 + action-profiles 81) | ~0.5 eng-eq | shipped (2026-06-08) |
 | AQR | shipped | 156 (quality 109 + quality-profiles 47) | ~0.5 eng-eq | shipped (2026-06-19) |
