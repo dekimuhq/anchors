@@ -127,7 +127,17 @@ export interface FamilyVerifyOptions {
   tsaAnchors?: TrustAnchor[];
   /** Drift tolerance for TSA genTime vs reference time. Default 300 seconds. */
   tsaDriftToleranceSec?: number;
-  /** Reference time for drift comparison. Default: new Date(). */
+  /**
+   * Reference time for the TSA drift check (genTime vs reference) and the
+   * trust-anchor validity check. Default: the receipt's SIGNED `iat` — the
+   * token must have been issued within `tsaDriftToleranceSec` of the claimed
+   * issuance time, and the anchor must have been valid at `iat` (long-term
+   * validation semantics). Not the verifier's wall clock: that would turn
+   * every genuine timestamped receipt into `tsa_drift_exceeded` minutes after
+   * mint. An explicit value overrides (replay / audit at a chosen instant).
+   * An `iat` that does not parse yields an invalid reference, which the TSA
+   * verifier reports as a failed check (fail closed).
+   */
   tsaReferenceTime?: Date;
 
   /** Profile ID to dispatch after envelope+body validation. */
@@ -708,7 +718,8 @@ export function buildVerifyReceipt<BodyType>(
       const imprint = computeTsaImprint(e);
       const anchors = opts.tsaAnchors ?? loadTrustAnchors([defaultTrustAnchorPath()]);
       const driftSec = opts.tsaDriftToleranceSec ?? 300;
-      const refTime = opts.tsaReferenceTime ?? new Date();
+      // Default reference = the signed iat (see FamilyVerifyOptions doc).
+      const refTime = opts.tsaReferenceTime ?? new Date(e.iat);
       const tsaResult: TsaVerifyResult = typeof rawTsr === "string"
         ? verifyTsa(base64UrlDecode(rawTsr), imprint, {
             anchors,
