@@ -7,15 +7,18 @@
  *
  * The MANDATORY case is profile-keyed and enforced by the factory's
  * `tsa_mandate` map (`arr.gdpr.art17.erasure-finalized → mandatory` in
- * `family.ts`), which fires before this post-step and leaves
- * `signature_valid: false` when `tsa` is absent. Every other ARR event is
+ * `family.ts`), which fires before this post-step and fails closed — it
+ * leaves `signature_valid: false` when `tsa` is absent (`reason:
+ * "tsa_required"`) or present but not `tsa_verified` (`reason:
+ * "tsa_unverified"`). Every other ARR event is
  * RECOMMENDED — ARR's §2 row has no OPTIONAL tier — so this post-step
  * uniformly upgrades a `tsa_absent` result to `tsa_recommended` for
  * otherwise-valid receipts.
  *
  * Mirrors the per-event post-step in ABR/AIR; ARR's is uniform because its §2
- * row carries no per-event split below the profile-keyed MANDATORY case. Real
- * TSA failure reasons (e.g. `tsa_imprint_mismatch`) win — the guard only
+ * row carries no per-event split below the profile-keyed MANDATORY case. On
+ * the RECOMMENDED path real TSA failure reasons (e.g. `tsa_imprint_mismatch`)
+ * are surfaced as-is — the guard only
  * upgrades when `tsa_state` is exactly `"tsa_absent"` and the signature is
  * valid, so the MANDATORY hard-fail (`signature_valid: false`) is untouched.
  */

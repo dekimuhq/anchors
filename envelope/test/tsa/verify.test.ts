@@ -105,6 +105,28 @@ describe("verifyTsa", () => {
     assert.equal(r.reason, "tsa_anchor_expired");
   });
 
+  // An unparseable reference time (e.g. a receipt whose iat does not parse,
+  // now the default reference) must fail closed, not slip past NaN compares.
+  it("fails closed on an invalid referenceTime (NaN never passes a check)", () => {
+    const r = verifyTsa(tsr, imprint, {
+      anchors,
+      driftToleranceSec: 365 * 86400,
+      referenceTime: new Date("not-a-date"),
+    });
+    assert.equal(r.verified, false);
+    assert.equal(r.reason, "tsa_anchor_expired");
+  });
+
+  it("fails closed on an anchor with an unparseable valid_until", () => {
+    const r = verifyTsa(tsr, imprint, {
+      anchors: [{ ...anchors[0]!, valid_until: "garbage" }],
+      driftToleranceSec: 300,
+      referenceTime: refTime,
+    });
+    assert.equal(r.verified, false);
+    assert.equal(r.reason, "tsa_anchor_expired");
+  });
+
   it("rejects anchor missing timeStamping key_usage", () => {
     const wrongUsageAnchor: TrustAnchor = { ...anchors[0]!, key_usage: ["emailProtection"] };
     const r = verifyTsa(tsr, imprint, {
