@@ -38,9 +38,7 @@ export { composeAnr } from "./compose.ts";
 // ── v=2 envelope dispatch ─────────────────────────────────────────────────────
 
 import { anrFamily } from "./family.ts";
-import { applyAnrTsaMandate } from "./tsa-mandate.ts";
 import type { FamilyVerifyResult, FamilyVerifyOptions } from "@dekimuhq/anchors-envelope";
-import type { AnrBody } from "./types.ts";
 
 type VerifyReceiptResult =
   | FamilyVerifyResult
@@ -64,28 +62,12 @@ export async function verifyReceipt(
   }
   const obj = receipt as Record<string, unknown>;
   if (obj.v === 2) {
-    const out = await anrFamily.verifyReceipt(obj, {
+    // The TSA mandate keyed on body.profile (art50 MANDATORY) is anrFamily's
+    // `body_tsa_mandate`, applied inside anrFamily.verifyReceipt.
+    return anrFamily.verifyReceipt(obj, {
       ...opts,
       resolveKey: opts?.resolveKey ?? (() => undefined),
     } as FamilyVerifyOptions);
-
-    // Re-apply per-profile TSA mandate keyed on body.profile.
-    // MANDATORY (notice.aiact.art50_transparency): tsa_absent -> reason
-    // tsa_required, present but unverified -> reason tsa_unverified (fail
-    // closed); RECOMMENDED + tsa_absent surfaces
-    // as an advisory tsa_state upgrade without poisoning signature_valid.
-    const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid) {
-      const body = (obj as { body?: unknown }).body;
-      if (body && typeof body === "object") {
-        applyAnrTsaMandate(
-          r as { signature_valid: boolean; reason?: string; tsa_state?: string },
-          body as AnrBody,
-        );
-      }
-    }
-
-    return out;
   }
   return {
     envelope_version: "unknown",

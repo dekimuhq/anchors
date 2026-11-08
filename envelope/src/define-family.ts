@@ -223,6 +223,20 @@ export interface FamilyDefinition<BodyType = unknown> {
    */
   tsa_mandate?: Readonly<Record<string, Exclude<TsaMandateLevel, "optional">>>;
 
+  /**
+   * Optional body-keyed TSA mandate, for families whose FAMILY-CONSISTENCY §2
+   * level rides on the signed body (e.g. ABR `event_type`, AAR `event_type` +
+   * `service_type`, ANR `profile`) rather than on the caller's `opts.profile`.
+   * Called with the receipt body (when it is a non-null object) as the final
+   * verify step, so every path applies it — `verifyReceipt` on the manifest,
+   * package wrappers and the CLI alike. `"mandatory"` fails closed on any
+   * `tsa_state` other than `"tsa_verified"` (`tsa_required` /
+   * `tsa_unverified`); `"recommended"` with no block surfaces
+   * `tsa_state: "tsa_recommended"`; `"optional"` / `undefined` is a no-op.
+   * A non-function value throws at config time.
+   */
+  body_tsa_mandate?: (body: BodyType) => TsaMandateLevel | undefined;
+
   // Optional flow flags
   /** Family emits `ar.continuity.v1` attestations. Default `false`. */
   continuity?: boolean;
@@ -517,6 +531,10 @@ export function defineFamily<BodyType = unknown>(
   if (composeCb !== undefined && typeof composeCb !== "function") {
     throw new Error("defineFamily: compose must be a function");
   }
+  const bodyTsaMandate = def.body_tsa_mandate;
+  if (bodyTsaMandate !== undefined && typeof bodyTsaMandate !== "function") {
+    throw new Error("defineFamily: body_tsa_mandate must be a function");
+  }
 
   // ── Build frozen meta ─────────────────────────────────────────────────────
   const meta: FamilyMeta = Object.freeze({
@@ -607,6 +625,7 @@ export function defineFamily<BodyType = unknown>(
     profileIds: frozenProfileIds,
     hasProfile,
     ...(composeCb !== undefined ? { compose: composeCb } : {}),
+    ...(bodyTsaMandate !== undefined ? { bodyTsaMandate } : {}),
   };
   const verifyReceipt = buildVerifyReceipt(verifyPredicates);
 

@@ -16,10 +16,10 @@
  *     emits the same reason strings as the hand-rolled `applyAnrSubjectPresence`.
  *   - `tsa_mandate` — profile-keyed matrix per FAMILY-CONSISTENCY.md §2.
  *     `notice.aiact.art50_transparency` is MANDATORY (AI Act Art. 50 stricter
- *     than baseline GDPR). All other v1 profiles are RECOMMENDED. The factory
- *     pipeline only enforces MANDATORY; the hand-rolled `applyAnrTsaMandate`
- *     post-processor in `envelope-v2.ts` restores RECOMMENDED downgrade
- *     semantics on top of factory output.
+ *     than baseline GDPR). All other v1 profiles are RECOMMENDED. This map
+ *     only fires when the caller passes `opts.profile`; `body_tsa_mandate`
+ *     applies the same matrix keyed on the signed `body.profile`, on every
+ *     verify path (manifest, wrapper, CLI).
  *   - `body_schema` — pass-through adapter. ANR body shape validation lives
  *     in `verifyAnrBody` (`verify-single.ts`) and is invoked separately by
  *     callers that hold a body in hand. See `body-validator.ts` for the
@@ -48,6 +48,7 @@ import {
   defineFamily,
   type FamilyManifest,
   type SubjectPresenceCheck,
+  type TsaMandateLevel,
 } from "@dekimuhq/anchors-envelope";
 import {
   validateArt13CollectedDirectProfile,
@@ -59,6 +60,7 @@ import {
 import { anrBodyValidator } from "./body-validator.ts";
 import { composeAnr } from "./compose.ts";
 import { checkAnrSubjectPresence } from "./subject-presence.ts";
+import { ANR_TSA_MANDATE } from "./tsa-mandate.ts";
 import type { AnrBody } from "./types.ts";
 
 /**
@@ -119,6 +121,10 @@ export const anrFamily: FamilyManifest<AnrBody> = defineFamily<AnrBody>({
     "notice.art26.joint_controller_essence": "recommended",
     "notice.layered_transparency": "recommended",
   },
+
+  // Same matrix keyed on the signed body.profile, so it holds without opts.profile.
+  body_tsa_mandate: (body) =>
+    ANR_TSA_MANDATE[body.profile]?.toLowerCase() as TsaMandateLevel | undefined,
 
   continuity: true,
   compose: composeAnr,

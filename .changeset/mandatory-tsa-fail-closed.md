@@ -26,13 +26,10 @@ keeps the real TSA reason (e.g. `"tsa_malformed"`) so callers can see why; the
 absent case is unchanged (`reason: "tsa_required"`). Enforced by the shared
 pipeline's profile-keyed mandate (`acr.esig.accept@qes`,
 `arr.gdpr.art17.erasure-finalized`, `notice.aiact.art50_transparency`) and by
-the body-keyed post-steps in the AAR / ABR / ANR top-level `verifyReceipt`
-(issuance+qts, `breach.detected`, art50; AIR/ALR scaffolding). The post-step
-now leaves an earlier, more specific failure reason intact. Note: the
-body-keyed post-steps run only in each package's top-level `verifyReceipt`;
-callers of `aarFamily` / `abrFamily` / `anrFamily.verifyReceipt` directly (and
-the CLI's family dispatch) do not run them — a pre-existing gap tracked
-separately.
+the body-keyed mandate of AAR / ABR / ANR (issuance+qts, `breach.detected`,
+art50), which now runs on every verify path — see the
+`body-keyed-tsa-mandate-hook` changeset. An earlier, more specific failure
+reason is left intact.
 
 **Behaviour change (all levels): default TSA reference time is the signed
 `iat`, not the verifier's clock.** `tsaReferenceTime` still overrides. The

@@ -22,9 +22,9 @@
  *     `dpia.prior_consultation_resolved` RECOMMENDED; all others OPTIONAL),
  *     not on `body.profile`. The factory's profile-keyed matrix only enforces
  *     MANDATORY (none in AIR v1), so the `recommended` entries here are pure
- *     declarative documentation — the wrapper restores the real event-keyed
- *     semantics by re-running `applyAirTsaMandate` after the factory call.
- *     Same approach ABR will adopt when it migrates.
+ *     declarative documentation. The real event-keyed matrix is
+ *     `body_tsa_mandate` (`AIR_TSA_MANDATE`), which the shared pipeline
+ *     applies on every verify path (manifest, wrapper, CLI).
  *   - `body_schema` — pass-through adapter (see `body-validator.ts`). AIR
  *     body shape validation lives in `verifyAirBody` (`verify-single.ts`)
  *     and is invoked separately by callers that hold a body in hand.
@@ -60,6 +60,7 @@ import {
   type FamilyManifest,
   type ProfileValidator,
   type SubjectPresenceCheck,
+  type TsaMandateLevel,
 } from "@dekimuhq/anchors-envelope";
 import {
   ART35_3_A_PROFILE_ID,
@@ -77,6 +78,7 @@ import {
 } from "@dekimuhq/air-profiles";
 import { airBodyValidator } from "./body-validator.ts";
 import { composeAir } from "./compose.ts";
+import { AIR_TSA_MANDATE } from "./tsa-mandate.ts";
 import { checkAirSubjectPresence } from "./subject-presence.ts";
 import type { AirBody } from "./types.ts";
 
@@ -191,6 +193,10 @@ export const airFamily: FamilyManifest<AirBody> = defineFamily<AirBody>({
     [ART35_4_PROFILE_ID]: "recommended",
     [VOLUNTARY_PROFILE_ID]: "recommended",
   },
+
+  // FAMILY-CONSISTENCY §2 event-keyed matrix (3 deadline events RECOMMENDED).
+  body_tsa_mandate: (body) =>
+    AIR_TSA_MANDATE[body.event_type]?.toLowerCase() as TsaMandateLevel | undefined,
 
   continuity: true,
   compose: composeAir,

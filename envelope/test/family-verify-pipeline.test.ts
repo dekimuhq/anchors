@@ -1459,3 +1459,94 @@ test("§18.7 verifyIssuerPqc supplied WITHOUT verifyIssuerTrust → fail-closed 
   assert.strictEqual(r.reason, "issuer_pqc_requires_trust_dispatch");
   assert.strictEqual(called, false, "guard fires before the hook — no record source to enforce against");
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// §19 — body-keyed TSA mandate (`body_tsa_mandate` hook)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** A family whose mandate is keyed on `body.events.length` (stand-in for an event type). */
+function bodyKeyedFamily(
+  hook: (body: AlrBody) => "mandatory" | "recommended" | "optional" | undefined,
+) {
+  return defineFamily<AlrBody>({
+    acronym: "ALR",
+    name: "Anchored Lineage Receipts",
+    claim_types: ["ar.lineage.v1"],
+    spec_path: "anchors/alr/alr-spec/v1.md",
+    chip: 4,
+    status_list_slot: 1,
+    subject_presence: "must-be-null",
+    tsa_upgrade_path: "free",
+    body_schema: alrBodySchema,
+    body_tsa_mandate: hook,
+  });
+}
+const byEvents = (b: AlrBody) => (b.events.length > 0 ? "mandatory" as const : "recommended" as const);
+const JUNK_TSA = {
+  v: 1 as const,
+  tsr: "AAAA",
+  alg: "sha-256" as const,
+  tsa_url: "https://tsa.example",
+  tsa_cert_chain_sha256: [],
+  issued_at: "2026-05-19T00:00:00Z",
+};
+
+test("§19.1 body_tsa_mandate mandatory + tsa absent → tsa_required, with NO opts.profile", async () => {
+  const e = await signedEnvelope({ body: { kind: "ar.lineage.v1", events: [1] } });
+  const r = await bodyKeyedFamily(byEvents).verifyReceipt(e, { resolveKey: okResolver });
+  assert.strictEqual(r.signature_valid, false);
+  assert.strictEqual(r.reason, "tsa_required");
+  assert.strictEqual(r.tsa_state, "tsa_required");
+});
+
+test("§19.2 body_tsa_mandate mandatory + junk tsa → tsa_unverified, real tsa_state kept", async () => {
+  const e = { ...(await signedEnvelope({ body: { kind: "ar.lineage.v1", events: [1] } })), tsa: JUNK_TSA };
+  const r = await bodyKeyedFamily(byEvents).verifyReceipt(e, { resolveKey: okResolver, tsaAnchors: [] });
+  assert.strictEqual(r.signature_valid, false);
+  assert.strictEqual(r.reason, "tsa_unverified");
+  assert.strictEqual(r.tsa_state, "tsa_malformed");
+});
+
+test("§19.3 body_tsa_mandate recommended + tsa absent → valid, tsa_recommended", async () => {
+  const e = await signedEnvelope();
+  const r = await bodyKeyedFamily(byEvents).verifyReceipt(e, { resolveKey: okResolver });
+  assert.strictEqual(r.signature_valid, true);
+  assert.strictEqual(r.tsa_state, "tsa_recommended");
+});
+
+test("§19.4 body_tsa_mandate optional / undefined → no-op (tsa_absent)", async () => {
+  const e = await signedEnvelope();
+  for (const level of ["optional", undefined] as const) {
+    const r = await bodyKeyedFamily(() => level).verifyReceipt(e, { resolveKey: okResolver });
+    assert.strictEqual(r.signature_valid, true);
+    assert.strictEqual(r.tsa_state, "tsa_absent");
+  }
+});
+
+test("§19.5 body_tsa_mandate not consulted once the result is already invalid", async () => {
+  let called = false;
+  const e = await signedEnvelope({ body: { kind: "ar.lineage.v1", events: [1] } });
+  const r = await bodyKeyedFamily(() => {
+    called = true;
+    return "mandatory";
+  }).verifyReceipt({ ...e, sig: "AAAA" }, { resolveKey: okResolver });
+  assert.strictEqual(r.signature_valid, false);
+  assert.notStrictEqual(r.reason, "tsa_required", "earlier failure reason must be kept");
+  assert.strictEqual(called, false);
+});
+
+test("§19.6 body_tsa_mandate throws → fail closed with tsa_mandate_threw:", async () => {
+  const e = await signedEnvelope();
+  const r = await bodyKeyedFamily(() => {
+    throw new Error("boom");
+  }).verifyReceipt(e, { resolveKey: okResolver });
+  assert.strictEqual(r.signature_valid, false);
+  assert.strictEqual(r.reason, "tsa_mandate_threw:boom");
+});
+
+test("§19.7 defineFamily rejects a non-function body_tsa_mandate", () => {
+  assert.throws(
+    () => bodyKeyedFamily("mandatory" as unknown as () => "mandatory"),
+    /body_tsa_mandate must be a function/,
+  );
+});
