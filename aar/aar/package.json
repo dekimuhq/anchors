@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/aar",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "Anchored Attestation Receipts (AAR) v1 — verify (default) + issue (./issue) for eIDAS QTSP issuance attestation receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,7 +51,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/anchors-envelope": "^0.26.5",
     "@dekimuhq/aar-profiles": "^0.4.3"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/air",
-  "version": "0.7.2",
+  "version": "0.7.4",
   "description": "Anchored Impact-Assessment Receipts (AIR) v1 — verify (default) + issue (./issue) for GDPR Art. 35 DPIA receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@dekimuhq/anchors-disclosure": "*",
-    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/anchors-envelope": "^0.26.5",
     "@dekimuhq/air-profiles": "^0.7.3"
   },
   "devDependencies": {

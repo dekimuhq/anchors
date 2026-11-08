@@ -1,5 +1,77 @@
 # @dekimuhq/anr-verifier changelog
 
+## 0.7.4
+
+### Patch Changes
+
+- 52446e0: security(tsa): the body-keyed TSA mandate now applies on every verify path.
+
+  ABR `breach.detected`, AAR issuance with `service_type: qts` and ANR
+  `notice.aiact.art50_transparency` are MANDATORY under FAMILY-CONSISTENCY §2,
+  keyed on the signed body rather than on the caller's `opts.profile`. Until now
+  that mandate ran only as a post-step in each package's top-level
+  `verifyReceipt`. The CLI (`anchors verify`, which dispatches to
+  `<family>Family.verifyReceipt`) and any direct caller of `aarFamily` /
+  `abrFamily` / `anrFamily.verifyReceipt` skipped it, so such a receipt with no
+  `tsa`, or with a junk one, verified as valid on those paths.
+
+  `defineFamily()` gains an optional `body_tsa_mandate: (body) => level` hook.
+  The shared verify pipeline applies it as its final step, with the same
+  fail-closed rule as the profile-keyed mandate: `"mandatory"` and no block gives
+  `reason: "tsa_required"`; `"mandatory"` and any `tsa_state` other than
+  `"tsa_verified"` gives `reason: "tsa_unverified"` (the real TSA reason stays
+  in `tsa_state`); `"recommended"` and no block gives
+  `tsa_state: "tsa_recommended"`. A hook that throws fails closed with
+  `tsa_mandate_threw:<msg>`. AAR, ABR, AIR and ANR declare the hook, and their
+  top-level `verifyReceipt` no longer re-applies the post-step. Results on the
+  package-wrapper path are unchanged. The exported `apply*TsaMandate` helpers
+  are kept.
+
+- 9694901: security(tsa): a MANDATORY TSA mandate now fails closed on any `tsa_state`
+  other than `"tsa_verified"`; the TSA reference time defaults to the signed
+  `iat`.
+
+  Previously a MANDATORY mandate hard-failed only when the `tsa` block was
+  absent. `tsa` sits outside the envelope signature (it is zeroed out of the
+  signing input), so anyone could attach a junk block to a genuine receipt —
+  garbage bytes (`tsa_malformed`), a token from an unrecognised TSA, an imprint
+  mismatch, drift beyond tolerance — and the receipt kept `signature_valid: true`,
+  bypassing the mandate entirely.
+
+  **Behaviour change (MANDATORY):** a present-but-unverified `tsa` block now
+  returns `signature_valid: false` with the new reason `"tsa_unverified"`
+  ("timestamp not confirmed" — e.g. a verifier that lacks or does not trust the
+  TSA anchor), distinct from `"tsa_required"` (no timestamp at all). `tsa_state`
+  keeps the real TSA reason (e.g. `"tsa_malformed"`) so callers can see why; the
+  absent case is unchanged (`reason: "tsa_required"`). Enforced by the shared
+  pipeline's profile-keyed mandate (`acr.esig.accept@qes`,
+  `arr.gdpr.art17.erasure-finalized`, `notice.aiact.art50_transparency`) and by
+  the body-keyed mandate of AAR / ABR / ANR (issuance+qts, `breach.detected`,
+  art50), which now runs on every verify path — see the
+  `body-keyed-tsa-mandate-hook` changeset. An earlier, more specific failure
+  reason is left intact.
+
+  **Behaviour change (all levels): default TSA reference time is the signed
+  `iat`, not the verifier's clock.** `tsaReferenceTime` still overrides. The
+  token's `genTime` must lie within `tsaDriftToleranceSec` (default 300 s) of
+  `iat`, and the trust anchor must be valid at `iat` (long-term validation).
+  Without this, fail-closed MANDATORY would have turned every genuine timestamped
+  receipt invalid ~5 minutes after mint for any caller that does not pin a
+  reference time. For RECOMMENDED / OPTIONAL this changes only advisory output:
+  fewer spurious `tsa_drift_exceeded` on old receipts, and a token stamped far
+  from its receipt's `iat` now reports `tsa_drift_exceeded`. `verifyTsa`'s expiry
+  and drift checks now fail closed on an unparseable reference time, anchor
+  `valid_until` or `genTime` (previously a NaN comparison passed).
+
+  Downstream verifiers must supply trust anchors for the TSA that issued a
+  token: the bundled default is FreeTSA only, so eIDAS QTSP anchors are needed
+  for qualified profiles (`acr.esig.accept@qes`, `notice.aiact.art50_transparency`).
+  RECOMMENDED and OPTIONAL signature behaviour is unchanged.
+
+- Updated dependencies [52446e0]
+- Updated dependencies [9694901]
+  - @dekimuhq/anchors-envelope@0.26.5
+
 ## 0.7.2
 
 ### Patch Changes
