@@ -139,8 +139,9 @@ function verifyParsedTsa(
     return { verified: false, reason: "tsa_unrecognised_anchor", listed: false, policy_oid: policyOid };
   }
 
-  // Step 3 — anchor must not be expired
-  if (new Date(matchedAnchor.valid_until) < opts.referenceTime) {
+  // Step 3 — anchor must not be expired. Written as !(>=) so an unparseable
+  // valid_until or referenceTime (NaN) fails closed instead of passing.
+  if (!(new Date(matchedAnchor.valid_until).getTime() >= opts.referenceTime.getTime())) {
     return {
       verified: false,
       reason: "tsa_anchor_expired",
@@ -190,7 +191,8 @@ function verifyParsedTsa(
   // Step 6 — drift check between TST genTime and caller's reference clock
   const gen = new Date(parsed.tstInfo.genTime);
   const driftSec = Math.abs(gen.getTime() - opts.referenceTime.getTime()) / 1000;
-  if (driftSec > opts.driftToleranceSec) {
+  // !(<=) so a NaN drift (unparseable genTime or referenceTime) fails closed.
+  if (!(driftSec <= opts.driftToleranceSec)) {
     return {
       verified: false,
       reason: "tsa_drift_exceeded",

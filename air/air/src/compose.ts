@@ -421,7 +421,10 @@ export const composeAir: ComposeCallback = async (input) => {
   // module docstring).
   //
   // Pass `opts.tsaReferenceTime` as `now` when supplied — keeps replay /
-  // historical-corpus runs deterministic. Pass `opts.profile` so the
+  // historical-corpus runs deterministic. Only an EXPLICIT value is used: the
+  // envelope's TSA default (the signed `iat`) is a timestamp-drift reference,
+  // not a deadline clock, so the walker keeps its own wall-clock default for
+  // elapsed-deadline checks. Pass `opts.profile` so the
   // §5.5 voluntary-high-risk evaluator can fire.
   const index = buildAirChainIndex(collected);
   const walkOpts: {

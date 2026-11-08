@@ -22,8 +22,12 @@
  * DPIA, which the spec deliberately avoids until eIDAS QTS rollout is
  * universal.
  *
- * The mandate runs AFTER `tsa` dispatch in `envelope-v2.ts`. Real TSA
- * failure reasons (e.g. `tsa_imprint_mismatch`) win over the matrix.
+ * The mandate runs AFTER the shared pipeline's `tsa` dispatch (as a post-step
+ * in this package's top-level `verifyReceipt`). A MANDATORY level fails
+ * closed: absent → `reason: "tsa_required"`; present but not `tsa_verified`
+ * (e.g. `tsa_imprint_mismatch`) → `reason: "tsa_unverified"` with the real
+ * TSA reason kept in `tsa_state`. For RECOMMENDED / OPTIONAL a real TSA
+ * failure reason is surfaced as-is and never poisons the signature.
  */
 
 import type { AirBody, AirEventType } from "./types.ts";
