@@ -11,6 +11,7 @@ import {
   defineFamily,
   type FamilyManifest,
   type SubjectPresenceCheck,
+  type TsaMandateLevel,
 } from "@dekimuhq/anchors-envelope";
 import {
   validateEidasQesProfile,
@@ -25,6 +26,7 @@ import {
 import { aarBodyValidator } from "./body-validator.ts";
 import { composeAar } from "./compose.ts";
 import { checkAarSubjectPresence } from "./subject-presence.ts";
+import { tsaMandateLevel } from "./tsa-mandate.ts";
 import type { AarBody } from "./types.ts";
 
 const subjectPresenceCheck: SubjectPresenceCheck = ({ subject }) => {
@@ -61,9 +63,10 @@ export const aarFamily: FamilyManifest<AarBody> = defineFamily<AarBody>({
   },
   // AAR's TSA mandate is event+service_type keyed (issuance+qts MANDATORY,
   // else RECOMMENDED — FAMILY-CONSISTENCY §2), not profile-keyed, so it cannot
-  // be expressed here. Enforced as a post-step via applyAarTsaMandate in
-  // index.ts, mirroring ABR/AIR.
+  // be expressed here. It is `body_tsa_mandate` below, which the shared
+  // pipeline applies on every verify path (manifest, wrapper, CLI).
   tsa_mandate: {},
+  body_tsa_mandate: (body) => tsaMandateLevel(body).toLowerCase() as TsaMandateLevel,
   continuity: true,
   compose: composeAar,
 });

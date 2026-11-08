@@ -32,8 +32,6 @@ export * from "./composition.ts";
 export { abrFamily } from "./family.ts";
 import { abrFamily } from "./family.ts";
 import type { FamilyVerifyResult, FamilyVerifyOptions } from "@dekimuhq/anchors-envelope";
-import { applyAbrTsaMandate } from "./tsa-mandate.ts";
-import type { AbrBody } from "./types.ts";
 
 /**
  * Top-level receipt verifier for ABR.
@@ -44,11 +42,10 @@ import type { AbrBody } from "./types.ts";
  * - any other value    -> fail-closed with `"unsupported_envelope_version"`
  * - non-object input   -> fail-closed with `"schema_invalid"`
  *
- * Post-processing: re-applies the per-event TSA mandate matrix
- * (`applyAbrTsaMandate`) because ABR's mandate is event-keyed
- * (`body.event_type`), not profile-keyed. The factory only enforces
- * profile-keyed MANDATORY; ABR's `breach.detected` MANDATORY (D10-ABR-2
- * / 72-hour clock) requires this post-step.
+ * ABR's event-keyed TSA mandate (`breach.detected` MANDATORY, D10-ABR-2 /
+ * 72-hour clock) is `abrFamily`'s `body_tsa_mandate`, applied inside
+ * `abrFamily.verifyReceipt` — so direct manifest callers and the CLI get it
+ * too, not only this wrapper.
  */
 export async function verifyReceipt(
   receipt: unknown,
@@ -59,25 +56,10 @@ export async function verifyReceipt(
   }
   const obj = receipt as Record<string, unknown>;
   if (obj.v === 2) {
-    const out = await abrFamily.verifyReceipt(obj, {
+    return abrFamily.verifyReceipt(obj, {
       ...opts,
       resolveKey: opts?.resolveKey ?? (() => undefined),
     } as FamilyVerifyOptions);
-
-    // Re-apply per-event TSA mandate (event-keyed, not profile-keyed).
-    // breach.detected + tsa_absent -> reason tsa_required; + present but
-    //   unverified -> reason tsa_unverified (both poison sig; fail closed —
-    //   `tsa` is not signature-covered)
-    // other events + tsa_absent -> tsa_recommended (advisory only)
-    const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid) {
-      const body = (obj as { body?: unknown }).body;
-      if (body && typeof body === "object") {
-        applyAbrTsaMandate(r as { signature_valid: boolean; reason?: string; tsa_state?: string }, body as AbrBody);
-      }
-    }
-
-    return out;
   }
   return {
     envelope_version: "unknown",

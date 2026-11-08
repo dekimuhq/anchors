@@ -46,8 +46,9 @@ export type TsaReason =
  *     `"tsa_malformed"`) rather than this value.
  *   - `"tsa_recommended"` — a RECOMMENDED mandate found no TSA block (advisory).
  *
- * Mandate states are assigned by the per-family TSA-mandate post-steps
- * (ABR/AIR/ARR/AAR/…), which run after the shared pipeline's TSA dispatch.
+ * Mandate states are assigned by the shared pipeline's mandate steps (the
+ * profile-keyed `tsa_mandate` and the body-keyed `body_tsa_mandate` hook
+ * declared by ABR/AIR/AAR/ANR), which run after its TSA dispatch.
  */
 export type TsaState =
   | "tsa_absent"

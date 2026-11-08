@@ -16,8 +16,6 @@ export type {
 // ── v=2 envelope dispatch ─────────────────────────────────────────────────────
 
 import { aarFamily } from "./family.ts";
-import { applyAarTsaMandate } from "./tsa-mandate.ts";
-import type { AarBody } from "./types.ts";
 import type { FamilyVerifyResult, FamilyVerifyOptions } from "@dekimuhq/anchors-envelope";
 
 export async function verifyReceipt(
@@ -29,27 +27,12 @@ export async function verifyReceipt(
   }
   const obj = receipt as Record<string, unknown>;
   if (obj.v === 2) {
-    const out = await aarFamily.verifyReceipt(obj, {
+    // AAR's event+service_type keyed TSA mandate (FAMILY-CONSISTENCY §2) is
+    // aarFamily's `body_tsa_mandate`, applied inside aarFamily.verifyReceipt.
+    return aarFamily.verifyReceipt(obj, {
       ...opts,
       resolveKey: opts?.resolveKey ?? (() => undefined),
     } as FamilyVerifyOptions);
-
-    // Re-apply per-event TSA mandate (event+service_type keyed, not profile-keyed).
-    // issuance+qts + tsa_absent -> reason tsa_required; + present but
-    // unverified -> reason tsa_unverified (both poison sig, fail closed);
-    // other events + tsa_absent -> tsa_recommended
-    // (advisory). Mirrors ABR/AIR — the factory
-    // only enforces profile-keyed MANDATORY, so this post-step carries AAR's
-    // body-keyed rule (FAMILY-CONSISTENCY §2).
-    const r = out as unknown as Record<string, unknown>;
-    if (r.signature_valid) {
-      const body = (obj as { body?: unknown }).body;
-      if (body && typeof body === "object") {
-        applyAarTsaMandate(r as { signature_valid: boolean; reason?: string; tsa_state?: string }, body as AarBody);
-      }
-    }
-
-    return out;
   }
   return {
     envelope_version: "unknown",

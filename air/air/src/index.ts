@@ -50,9 +50,7 @@ export { composeAir } from "./compose.ts";
 // ── v=2 envelope dispatch ─────────────────────────────────────────────────────
 
 import { airFamily } from "./family.ts";
-import { applyAirTsaMandate } from "./tsa-mandate.ts";
 import type { FamilyVerifyResult, FamilyVerifyOptions } from "@dekimuhq/anchors-envelope";
-import type { AirBody } from "./types.ts";
 
 type VerifyReceiptResult =
   | FamilyVerifyResult
@@ -67,10 +65,9 @@ type VerifyReceiptResult =
  * - any other value    → fail-closed with `"unsupported_envelope_version"`
  * - non-object input   → fail-closed with `"schema_invalid"`
  *
- * Post-processing: the per-event TSA mandate matrix (§D) re-applies
- * `applyAirTsaMandate` to upgrade `tsa_absent` → `tsa_recommended` on
- * the three deadline-bearing events. The factory's profile-keyed mandate
- * only enforces MANDATORY (none in AIR v1).
+ * The per-event TSA mandate matrix (§D — `tsa_absent` → `tsa_recommended`
+ * on the three deadline-bearing events) is `airFamily`'s `body_tsa_mandate`,
+ * applied inside `airFamily.verifyReceipt` on every verify path.
  */
 export async function verifyReceipt(
   receipt: unknown,
@@ -81,25 +78,10 @@ export async function verifyReceipt(
   }
   const obj = receipt as Record<string, unknown>;
   if (obj.v === 2) {
-    const out = await airFamily.verifyReceipt(obj, {
+    return airFamily.verifyReceipt(obj, {
       ...opts,
       resolveKey: opts?.resolveKey ?? (() => undefined),
     } as FamilyVerifyOptions);
-
-    // Re-apply the per-event TSA mandate matrix (event-keyed). The factory
-    // only enforces MANDATORY (profile-keyed; AIR has none), and never
-    // surfaces RECOMMENDED. `applyAirTsaMandate` reads `body.event_type` and
-    // upgrades `tsa_absent` to `tsa_recommended` on the three deadline-bearing
-    // events. The module itself decides which tsa_state values it acts on (a
-    // MANDATORY level, if ever added, fails closed on anything unverified).
-    if (out.signature_valid) {
-      const body = (obj as { body?: unknown }).body;
-      if (body && typeof body === "object") {
-        applyAirTsaMandate(out, body as AirBody);
-      }
-    }
-
-    return out;
   }
   return {
     envelope_version: "unknown",

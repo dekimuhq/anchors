@@ -23,6 +23,8 @@
  *  11. Status-list reconciliation (advisory)         — verifyCredentialStatus
  *  12. TSA dispatch (advisory; MANDATORY level → hard fail unless verified)
  *  13. Profile dispatch (advisory; result surfaced in profile_state)
+ *  14. Composition walk (if the family declares one)
+ *  15. Body-keyed TSA mandate (if the family declares `body_tsa_mandate`)
  *
  * Advisory steps (11–13) never poison `signature_valid` on their own, EXCEPT:
  *   - TSA with tsaMandateLevel "mandatory" + any tsa_state other than
@@ -32,6 +34,10 @@
  *     block (malformed, foreign anchor, imprint mismatch, drift, …) MUST NOT
  *     satisfy the mandate. `tsa_state` keeps the real TSA reason (or
  *     "tsa_absent") so callers can see why.
+ *   - The same fail-closed rule for a body-keyed mandate (step 15): families
+ *     whose §2 mandate rides on the body (ABR `breach.detected`, AAR
+ *     issuance+qts, ANR art50) declare `body_tsa_mandate`, so it applies on
+ *     every verify path, not only in a package's top-level wrapper.
  *
  * Spec: https://github.com/dekimuhq/anchors-spec/tree/main/envelope
  * Phase A.2 Task 1.5.
@@ -361,6 +367,11 @@ export interface FamilyVerifyPredicates<BodyType = unknown> {
    * exceptions are caught and surfaced as `compose_threw:<msg>`.
    */
   compose?: ComposeCallback;
+  /**
+   * Optional body-keyed TSA mandate (`FamilyDefinition.body_tsa_mandate`).
+   * Applied as the final pipeline step on a still-valid result.
+   */
+  bodyTsaMandate?: (body: BodyType) => TsaMandateLevel | undefined;
 }
 
 // ── Internal status helper ───────────────────────────────────────────────────
@@ -433,6 +444,7 @@ export function buildVerifyReceipt<BodyType>(
     profileValidators,
     hasProfile,
     compose,
+    bodyTsaMandate,
   } = predicates;
 
   return async (receipt: unknown, opts: FamilyVerifyOptions): Promise<FamilyVerifyResult> => {
@@ -803,6 +815,34 @@ export function buildVerifyReceipt<BodyType>(
         out.signature_valid = false;
         out.reason = `compose_threw:${msg}`;
         return out;
+      }
+    }
+
+    // ── Step 15: body-keyed TSA mandate (if family declares one) ─────────────
+    // Same fail-closed rule as the profile-keyed mandate in step 12, keyed on
+    // the signed body instead of the caller's `opts.profile`. Runs last so the
+    // result matches the former per-package post-steps exactly (profile
+    // validators still see the raw `tsa_state`).
+    if (bodyTsaMandate !== undefined && out.signature_valid
+        && typeof e.body === "object" && e.body !== null) {
+      let level: TsaMandateLevel | undefined;
+      try {
+        level = bodyTsaMandate(e.body as BodyType);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        out.signature_valid = false;
+        out.reason = `tsa_mandate_threw:${msg}`;
+        return out;
+      }
+      if (level === "mandatory" && out.tsa_state !== "tsa_verified") {
+        const absent = out.tsa_state === undefined || out.tsa_state === "tsa_absent";
+        out.signature_valid = false;
+        out.reason = absent ? "tsa_required" : "tsa_unverified";
+        if (absent) out.tsa_state = "tsa_required";
+        return out;
+      }
+      if (level === "recommended" && out.tsa_state === "tsa_absent") {
+        out.tsa_state = "tsa_recommended";
       }
     }
 

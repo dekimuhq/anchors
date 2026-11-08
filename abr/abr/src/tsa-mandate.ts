@@ -10,8 +10,9 @@
  * weight rides on the event — `breach.detected` triggers GDPR Art. 33's
  * 72-hour clock regardless of which profile the receipt carries.
  *
- * The mandate runs AFTER the shared pipeline's `tsa` dispatch (as a post-step
- * in this package's top-level `verifyReceipt`). A MANDATORY level fails
+ * The mandate runs AFTER the shared pipeline's `tsa` dispatch, as the
+ * family's `body_tsa_mandate` hook (the pipeline's final step, so every
+ * verify path applies it). A MANDATORY level fails
  * closed: absent → `reason: "tsa_required"`; present but not `tsa_verified`
  * (e.g. `tsa_imprint_mismatch`) → `reason: "tsa_unverified"` with the real
  * TSA reason kept in `tsa_state`. For RECOMMENDED / OPTIONAL a real TSA

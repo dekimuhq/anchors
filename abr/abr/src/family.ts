@@ -31,9 +31,9 @@
  *     `breach.detected` MANDATORY per spec D10-ABR-2 / 72-hour clock; all
  *     other events RECOMMENDED), NOT on `body.profile`. The factory's
  *     profile-keyed matrix only enforces MANDATORY; the `recommended`
- *     entries here are pure declarative documentation — the wrapper restores
- *     the real event-keyed semantics by re-running `applyAbrTsaMandate`
- *     after the factory call. Same approach AIR adopted in `bb89aff`.
+ *     entries here are pure declarative documentation. The real event-keyed
+ *     matrix is `body_tsa_mandate` (`ABR_TSA_MANDATE`), which the shared
+ *     pipeline applies on every verify path (manifest, wrapper, CLI).
  *   - `body_schema` — pass-through adapter (see `body-validator.ts`). ABR
  *     body shape validation lives in `verifyAbrBody` (`verify-single.ts`)
  *     and is invoked separately by callers that hold a body in hand.
@@ -54,6 +54,7 @@ import {
   defineFamily,
   type FamilyManifest,
   type SubjectPresenceCheck,
+  type TsaMandateLevel,
 } from "@dekimuhq/anchors-envelope";
 import {
   BREACH_GDPR_ART33_PROFILE_ID,
@@ -70,6 +71,7 @@ import {
 import { abrBodyValidator } from "./body-validator.ts";
 import { composeAbr } from "./compose.ts";
 import { checkAbrSubjectPresence } from "./subject-presence.ts";
+import { ABR_TSA_MANDATE } from "./tsa-mandate.ts";
 import type { AbrBody } from "./types.ts";
 
 /**
@@ -136,6 +138,10 @@ export const abrFamily: FamilyManifest<AbrBody> = defineFamily<AbrBody>({
     [BREACH_DORA_ART19_PROFILE_ID]: "recommended",
     [BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID]: "recommended",
   },
+
+  // FAMILY-CONSISTENCY §2 event-keyed matrix (`breach.detected` MANDATORY).
+  body_tsa_mandate: (body) =>
+    ABR_TSA_MANDATE[body.event_type]?.toLowerCase() as TsaMandateLevel | undefined,
 
   continuity: true,
   compose: composeAbr,
