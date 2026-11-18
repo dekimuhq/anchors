@@ -427,6 +427,7 @@ test("composeAbr — Art 34 / DORA / US-AG profiles silently skip notification_o
   for (const profile of [
     "breach.gdpr.art34",
     "breach.dora.art19",
+    "breach.cra.art14",
     "breach.us_state.attorney_general",
   ]) {
     const detected: ChainStep = {

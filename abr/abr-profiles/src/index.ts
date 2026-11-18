@@ -12,4 +12,5 @@ export * from "./nis2-transport.ts";
 export * from "./nis2-health.ts";
 export * from "./nis2-digital-infrastructure.ts";
 export * from "./dora-art19.ts";
+export * from "./cra-art14.ts";
 export * from "./us-state-attorney-general.ts";

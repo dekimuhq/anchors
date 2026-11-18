@@ -61,7 +61,7 @@
  *     practical reference (`breach.detected` MUST carry TSA, so iat ~
  *     TSA.genTime within drift tolerance).
  *
- *     Other profiles (`breach.gdpr.art34`, `breach.dora.art19`,
+ *     Other profiles (`breach.gdpr.art34`, `breach.dora.art19`, `breach.cra.art14`,
  *     `breach.us_state.attorney_general`) have no compose-side deadline —
  *     Art. 34 has no hard window ("undue delay"); DORA Art. 19's 4h
  *     initial / 72h intermediate / 1mo final phasing is mapped through

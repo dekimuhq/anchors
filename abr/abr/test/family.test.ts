@@ -107,6 +107,7 @@ test("abrFamily.tsaMandateLevel — all five v1 profiles are recommended (event-
   assert.equal(abrFamily.tsaMandateLevel("breach.gdpr.art34"), "recommended");
   assert.equal(abrFamily.tsaMandateLevel("breach.nis2.art23"), "recommended");
   assert.equal(abrFamily.tsaMandateLevel("breach.dora.art19"), "recommended");
+  assert.equal(abrFamily.tsaMandateLevel("breach.cra.art14"), "recommended");
   assert.equal(
     abrFamily.tsaMandateLevel("breach.us_state.attorney_general"),
     "recommended",
@@ -118,19 +119,20 @@ test("abrFamily.tsaMandateLevel returns optional for unknown profile ids", () =>
   assert.equal(abrFamily.tsaMandateLevel(""), "optional");
 });
 
-test("abrFamily registers all 5 v1 profiles in spec order", () => {
+test("abrFamily registers all 6 v1 profiles in spec order", () => {
   assert.deepEqual([...abrFamily.profileIds], [
     "breach.gdpr.art33",
     "breach.gdpr.art34",
     "breach.nis2.art23",
     "breach.dora.art19",
+    "breach.cra.art14",
     "breach.us_state.attorney_general",
   ]);
   for (const id of abrFamily.profileIds) {
     assert.equal(abrFamily.hasProfile(id), true);
   }
   assert.equal(abrFamily.hasProfile("breach.unknown"), false);
-  assert.equal(abrFamily.profileValidators.length, 5);
+  assert.equal(abrFamily.profileValidators.length, 6);
   for (const v of abrFamily.profileValidators) {
     assert.equal(typeof v, "function");
   }

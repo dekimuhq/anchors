@@ -36,6 +36,7 @@ import {
 import {
   BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID,
 } from "../src/us-state-attorney-general.ts";
+import { validateBreachCraArt14, BREACH_CRA_ART14_PROFILE_ID } from "../src/cra-art14.ts";
 import {
   assessed,
   closed,
@@ -54,6 +55,7 @@ const PROFILES: readonly AbrProfile[] = [
   BREACH_NIS2_ART23_PROFILE_ID,
   BREACH_DORA_ART19_PROFILE_ID,
   BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID,
+  BREACH_CRA_ART14_PROFILE_ID,
 ];
 
 function validatorFor(p: AbrProfile) {
@@ -68,6 +70,8 @@ function validatorFor(p: AbrProfile) {
       return validateBreachDoraArt19;
     case BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID:
       return validateBreachUsStateAttorneyGeneral;
+    case BREACH_CRA_ART14_PROFILE_ID:
+      return validateBreachCraArt14;
     default:
       throw new Error(`unknown profile: ${String(p)}`);
   }
@@ -118,7 +122,7 @@ for (const p of PROFILES) {
     const body = dpaNotified(
       p,
       // NIS2 needs notification_phase; everyone else needs it null.
-      p === BREACH_NIS2_ART23_PROFILE_ID
+      p === BREACH_NIS2_ART23_PROFILE_ID || p === BREACH_CRA_ART14_PROFILE_ID
         ? { notification_phase: "full_notification" }
         : {},
     );
