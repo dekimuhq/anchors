@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/grounding",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Anchored Grounding Receipts (AGrR) v1 — verify (default) + issue (./issue). Citation-binding + grounding-support provenance for RAG answers. Binding authoritative, score advisory.",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,8 +51,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/grounding-profiles": "^0.1.2",
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/grounding-profiles": "^0.1.3",
     "@dekimuhq/grounding-check": "^0.1.1"
   },
   "devDependencies": {

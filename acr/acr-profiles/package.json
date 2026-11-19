@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/acr-profiles",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Regulation profiles for ACR v1 — gdpr.art7, aiact.art14, gdpr.train.",
   "license": "Apache-2.0",
   "type": "module",
@@ -60,7 +60,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-vc",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "W3C Verifiable Credential binding for the Anchored Receipts family — carries an anchored ar.* receipt verbatim inside a VC so VC-native consumers (A2A/AP2/MCP) can ingest it, while the embedded envelope stays the cryptographic root of trust. Additive, byte-equal, pure node:crypto.",
   "license": "Apache-2.0",
   "type": "module",
@@ -40,7 +40,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/anchors-envelope": "^0.27.0",
     "@dekimuhq/did-web-resolver": "^0.5.1"
   }
 }

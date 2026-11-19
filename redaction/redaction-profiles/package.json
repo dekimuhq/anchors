@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/redaction-profiles",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "APIIR (Anchored PII-Redaction Receipts) profile validators — redaction.prompt.",
   "license": "Apache-2.0",
   "type": "module",
@@ -44,7 +44,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

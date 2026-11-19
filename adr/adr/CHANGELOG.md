@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/adr-profiles@0.4.3
+
 ## 0.4.1
 
 ### Patch Changes

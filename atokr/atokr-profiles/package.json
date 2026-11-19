@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/atokr-profiles",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Regulation profile validators for ATokR v1: tokenization.gdpr.art32, tokenization.gdpr.art4_5, tokenization.pci.dss_v4, tokenization.eudi.wallet_arf, tokenization.sector.health.",
   "license": "Apache-2.0",
   "type": "module",
@@ -45,7 +45,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/acr",
-  "version": "0.7.2",
+  "version": "0.7.4",
   "description": "Anchored Consent Receipts (ACR) v1 — verify (default) + issue (./issue) for GDPR Art. 7 / AI Act Art. 14 consent receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,8 +51,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/acr-profiles": "^0.7.3"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/acr-profiles": "^0.7.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

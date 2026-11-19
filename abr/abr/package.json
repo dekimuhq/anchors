@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/abr",
-  "version": "0.6.4",
+  "version": "0.7.0",
   "description": "Anchored Breach Receipts (ABR) v1 — verify (default) + issue (./issue) for GDPR Art. 33/34, NIS2 Art. 23, DORA Art. 19 breach-notification receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -52,9 +52,9 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/abr-profiles": "^0.6.3",
+    "@dekimuhq/abr-profiles": "^0.7.0",
     "@dekimuhq/anchors-disclosure": "*",
-    "@dekimuhq/anchors-envelope": "^0.26.5"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

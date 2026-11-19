@@ -1,5 +1,13 @@
 # @dekimuhq/asr-verifier changelog
 
+## 0.6.4
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/asr-profiles@0.6.4
+
 ## 0.6.2
 
 ### Patch Changes

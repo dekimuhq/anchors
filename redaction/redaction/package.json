@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/redaction",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Anchored PII-Redaction Receipts (APIIR) v1 — verify (default) + issue (./issue). Redaction provenance, not a PII-free guarantee.",
   "license": "Apache-2.0",
   "type": "module",
@@ -50,8 +50,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/redaction-profiles": "^0.1.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/redaction-profiles": "^0.1.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

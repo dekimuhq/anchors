@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/atr",
-  "version": "0.3.2",
+  "version": "0.3.4",
   "description": "Anchored Transfer Receipts (ATR) v1 — verify (default) + issue (./issue) for GDPR Chapter V cross-border data transfer receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,8 +51,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/atr-profiles": "^0.3.3"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/atr-profiles": "^0.3.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

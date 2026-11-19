@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-disclosure",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Tier A selective field disclosure for the Anchored Receipts family — holder-produced ar.disclosure.v1 presentations over field_root, verified without the hidden body. Pure node:crypto.",
   "license": "Apache-2.0",
   "type": "module",
@@ -40,9 +40,9 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
-    "@dekimuhq/acr": "^0.7.1"
+    "@dekimuhq/acr": "^0.7.4"
   }
 }

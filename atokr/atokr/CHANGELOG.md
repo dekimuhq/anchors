@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.4
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/atokr-profiles@0.3.4
+
 ## 0.3.2
 
 ### Patch Changes

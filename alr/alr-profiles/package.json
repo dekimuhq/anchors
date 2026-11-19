@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/alr-profiles",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "description": "Regulation profile validators for ALR v1: gdpr.art13.transparency, aiact.art13.transparency, aiact.art53.gpai-training, c2pa.non-media, disclosure.recipients.",
   "license": "Apache-2.0",
   "type": "module",
@@ -48,7 +48,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

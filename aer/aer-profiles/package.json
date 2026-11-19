@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/aer-profiles",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Profile validators for Anchored Evaluation Receipts (AER) v1.",
   "license": "Apache-2.0",
   "type": "module",
@@ -44,7 +44,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

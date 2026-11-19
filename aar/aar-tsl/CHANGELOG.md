@@ -1,5 +1,13 @@
 # @dekimuhq/aar-tsl
 
+## 0.2.9
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/aar@0.4.5
+
 ## 0.2.8
 
 ### Patch Changes

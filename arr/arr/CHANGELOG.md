@@ -1,3 +1,13 @@
+## 0.9.5
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/acr@0.7.4
+  - @dekimuhq/arr-profiles@0.9.5
+  - @dekimuhq/anchors-disclosure@0.3.2
+
 ## 0.9.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/air-profiles",
-  "version": "0.7.3",
+  "version": "0.7.5",
   "description": "Regulation profile validators for AIR v1.",
   "license": "Apache-2.0",
   "type": "module",
@@ -42,7 +42,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

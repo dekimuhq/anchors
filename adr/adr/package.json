@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/adr",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Anchored Delegation Receipts (ADR) v1 — verify (default) + issue (./issue) for AI Act / GDPR delegation receipts (6-event state machine, scope subset, sub-delegation tree).",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,8 +51,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/adr-profiles": "^0.4.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/adr-profiles": "^0.4.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

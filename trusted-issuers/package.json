@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-trusted-issuers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Signed allowlist + hash-chain governance for the Anchored Receipts protocol family. Default TrustedIssuersSource implementation backed by ar.trusted_issuers.v1 standalone-attestation. Pure library, zero runtime npm dependencies.",
   "license": "Apache-2.0",
   "type": "module",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@dekimuhq/did-web-resolver": "^0.5.1",
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "typescript": "^6.0.3",
