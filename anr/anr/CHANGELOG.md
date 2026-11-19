@@ -1,5 +1,14 @@
 # @dekimuhq/anr-verifier changelog
 
+## 0.7.5
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/anr-profiles@0.7.5
+  - @dekimuhq/anchors-disclosure@0.3.2
+
 ## 0.7.4
 
 ### Patch Changes

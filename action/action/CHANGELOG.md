@@ -1,5 +1,17 @@
 # @dekimuhq/action
 
+## 0.7.0
+
+### Minor Changes
+
+- 4c233e0: `mintActionV2` now carries the `aiact_art12` overlay into the signed body (it was silently dropped), and refuses to sign a body that fails `verifyActionBody` or its profile's validator. A caller that relied on the mint signing an invalid body now gets a thrown error instead of a permanent invalid receipt.
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/action-profiles@0.7.0
+
 ## 0.6.3
 
 ### Patch Changes

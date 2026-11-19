@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/trace",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Anchored Agent-Trace Receipts (AgTR) v1 — verify (default) + issue (./issue). Execution provenance, not verified behavior.",
   "license": "Apache-2.0",
   "type": "module",
@@ -49,9 +49,9 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-disclosure": "^0.3.1",
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/trace-profiles": "^0.2.2"
+    "@dekimuhq/anchors-disclosure": "^0.3.2",
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/trace-profiles": "^0.2.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

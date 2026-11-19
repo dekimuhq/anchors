@@ -1,3 +1,38 @@
+## 0.12.4
+
+### Patch Changes
+
+- Updated dependencies [ca925a1]
+- Updated dependencies [0d50794]
+  - @dekimuhq/abr-profiles@0.7.0
+  - @dekimuhq/abr@0.7.0
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/aar@0.4.5
+  - @dekimuhq/aar-profiles@0.4.5
+  - @dekimuhq/acr@0.7.4
+  - @dekimuhq/acr-profiles@0.7.4
+  - @dekimuhq/adr@0.4.3
+  - @dekimuhq/adr-profiles@0.4.3
+  - @dekimuhq/aer@0.3.4
+  - @dekimuhq/aer-profiles@0.3.4
+  - @dekimuhq/air@0.7.5
+  - @dekimuhq/air-profiles@0.7.5
+  - @dekimuhq/alr@0.5.5
+  - @dekimuhq/alr-profiles@0.5.5
+  - @dekimuhq/anr@0.7.5
+  - @dekimuhq/anr-profiles@0.7.5
+  - @dekimuhq/apr@0.7.5
+  - @dekimuhq/apur@0.3.4
+  - @dekimuhq/apur-profiles@0.3.4
+  - @dekimuhq/arr@0.9.5
+  - @dekimuhq/arr-profiles@0.9.5
+  - @dekimuhq/asr@0.6.4
+  - @dekimuhq/asr-profiles@0.6.4
+  - @dekimuhq/atokr@0.3.4
+  - @dekimuhq/atokr-profiles@0.3.4
+  - @dekimuhq/atr@0.3.4
+  - @dekimuhq/atr-profiles@0.3.4
+
 ## 0.12.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @dekimuhq/trace
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+  - @dekimuhq/anchors-disclosure@0.3.2
+  - @dekimuhq/trace-profiles@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes

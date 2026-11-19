@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/trace-profiles",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Profile validators + body types for Anchored Agent-Trace Receipts (AgTR) v1.",
   "license": "Apache-2.0",
   "type": "module",
@@ -43,7 +43,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

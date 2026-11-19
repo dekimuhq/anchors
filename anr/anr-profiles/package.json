@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anr-profiles",
-  "version": "0.7.3",
+  "version": "0.7.5",
   "description": "Regulation profile validators for ANR v1: notice.art13.collected_direct, notice.art14.collected_indirect, notice.art26.joint_controller_essence, notice.layered_transparency, notice.aiact.art50_transparency.",
   "license": "Apache-2.0",
   "type": "module",
@@ -48,7 +48,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

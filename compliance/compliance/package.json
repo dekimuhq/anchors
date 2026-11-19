@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/compliance",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Anchored Compliance Bundle Receipts (ar.compliance.v1) — workspace-level Proof-of-Compliance: RoPA + DPIA + obligation-satisfaction references. References, not re-derivation.",
   "license": "Apache-2.0",
   "type": "module",
@@ -50,7 +50,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -1,3 +1,10 @@
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+
 ## 0.5.3
 
 ### Patch Changes

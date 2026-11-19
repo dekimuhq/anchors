@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/asr",
-  "version": "0.6.2",
+  "version": "0.6.4",
   "description": "Anchored Subject-Rights Receipts (ASR) v1 — verify (default) + issue (./issue) for GDPR Chapter III data-subject rights receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -50,8 +50,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/asr-profiles": "^0.6.3"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/asr-profiles": "^0.6.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

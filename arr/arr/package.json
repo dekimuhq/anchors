@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/arr",
-  "version": "0.9.2",
+  "version": "0.9.5",
   "description": "Anchored Retention Receipts (ARR) v1 — verify (default) + issue (./issue) for GDPR Art.17 / HIPAA / SOX retention receipts.",
   "license": "Apache-2.0",
   "type": "module",
@@ -51,10 +51,10 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/acr": "^0.7.2",
+    "@dekimuhq/acr": "^0.7.4",
     "@dekimuhq/anchors-disclosure": "*",
-    "@dekimuhq/anchors-envelope": "^0.26.2",
-    "@dekimuhq/arr-profiles": "^0.9.3"
+    "@dekimuhq/anchors-envelope": "^0.27.0",
+    "@dekimuhq/arr-profiles": "^0.9.5"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

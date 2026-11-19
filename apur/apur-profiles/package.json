@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/apur-profiles",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Regulation profile validators for APuR v1: purpose.gdpr.art5, purpose.gdpr.art6_4, purpose.hipaa.minimum_necessary, purpose.lgpd.art6.",
   "license": "Apache-2.0",
   "type": "module",
@@ -45,7 +45,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

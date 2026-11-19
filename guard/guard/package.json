@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/guard",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Anchored Guard Verdicts (AGR) v1 — verify (default) + issue (./issue). Input-screening provenance, not safety.",
   "license": "Apache-2.0",
   "type": "module",
@@ -49,7 +49,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2",
+    "@dekimuhq/anchors-envelope": "^0.27.0",
     "@dekimuhq/guard-profiles": "^0.1.1",
     "@dekimuhq/guard-detect": "^0.1.1"
   },

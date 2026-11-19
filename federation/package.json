@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors-federation",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Federated discovery for the Anchored Receipts protocol family. Fetch + verify per-issuer manifests (ar.issuer_manifest.v1), cross-issuer handshake orchestrator, and manifest caching. Pure library, zero runtime npm dependencies beyond @dekimuhq siblings.",
   "license": "Apache-2.0",
   "type": "module",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@dekimuhq/did-web-resolver": "^0.5.1",
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "typescript": "^6.0.3",

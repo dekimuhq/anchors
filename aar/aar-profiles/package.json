@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/aar-profiles",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "description": "Regulation profile validators for AAR v1: eidas.qes, eidas.qeseal, eidas.qts, eidas.qereg, eidas.qcert.natural, eidas.qcert.legal, eidas.qwallet, eidas.qattest.",
   "license": "Apache-2.0",
   "type": "module",
@@ -44,7 +44,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

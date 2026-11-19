@@ -1,5 +1,11 @@
 # Changelog — `@dekimuhq/anchors-envelope`
 
+## 0.27.0
+
+### Minor Changes
+
+- 0d50794: Add the `ar.screening.v1` (AScR, chip 22) claim type to the envelope. The new `@dekimuhq/screening` and `@dekimuhq/screening-profiles` packages (list-screening receipts) ship at 0.1.0.
+
 ## 0.26.5
 
 ### Patch Changes

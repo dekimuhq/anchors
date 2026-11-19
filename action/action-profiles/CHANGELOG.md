@@ -1,5 +1,12 @@
 # @dekimuhq/action-profiles
 
+## 0.7.0
+
+### Patch Changes
+
+- Updated dependencies [0d50794]
+  - @dekimuhq/anchors-envelope@0.27.0
+
 ## 0.6.4
 
 ### Patch Changes

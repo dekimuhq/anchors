@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/atr-profiles",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Regulation profile validators for ATR v1: gdpr.art45.adequacy, gdpr.art46.scc, gdpr.art46.bcr, gdpr.art46.idta, gdpr.art47.bcr_authorised, gdpr.art49.derogation, gdpr.dpf, schremsii.tia.",
   "license": "Apache-2.0",
   "type": "module",
@@ -44,7 +44,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@dekimuhq/anchors-envelope": "^0.26.2"
+    "@dekimuhq/anchors-envelope": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
