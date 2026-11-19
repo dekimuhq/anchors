@@ -23,7 +23,7 @@ export const baseInput = (): MintScreeningInput => ({
   signingKey: makeSigningKey(),
   anchor: makeAnchor(),
   screen_id: "01J9Z3K4M5N6P7Q8R9S0T1V2W3",
-  name: "  Acme Trading Ltd ",
+  subject_commit: "sha256:" + "c".repeat(64),
   list: { id: "eu-fsf", file_name: "20261119-FULL-1_1.xml", file_date: "2026-11-19T00:00:00.000Z", file_sha256: H, parsed_sha256: H, entry_count: 5123, fetched_at: "2026-11-19T03:00:04.000Z" },
   matcher: { name: "@dekimuhq/sanctions", version: "0.2.0", threshold: 0.85 },
   result: "none_at_threshold",

@@ -13,7 +13,7 @@ test("verifyScreeningBody: unknown profile", () => {
   assert.ok(r.errors.includes("screening.profile.unknown"));
 });
 test("verifyScreeningBody + validator accept a minted body", async () => {
-  const { receipt } = await mintScreeningV1(baseInput());
+  const receipt = await mintScreeningV1(baseInput());
   assert.equal(verifyScreeningBody(receipt.body).valid, true);
   assert.equal(screeningBodyValidator.validate(receipt.body).ok, true);
 });

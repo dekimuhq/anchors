@@ -1,11 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { commit, verifyCommitment } from "@dekimuhq/anchors-envelope";
-import { mintScreeningV1 } from "../src/issue/index.ts";
+import { mintScreeningV1, commitScreenedName } from "../src/issue/index.ts";
 import { verifyReceipt, matcherPolicyHash, screeningFamily } from "../src/index.ts";
 import { baseInput, resolveKey } from "./helpers.ts";
 
-const mint = (f?: (i: ReturnType<typeof baseInput>) => void) => { const i = baseInput(); f?.(i); return mintScreeningV1(i); };
+const NAME = "  Acme Trading Ltd ";
+const mint = async (f?: (i: ReturnType<typeof baseInput>) => void) => {
+  const c = commitScreenedName(NAME);
+  const i = { ...baseInput(), subject_commit: c.subject_commit };
+  f?.(i);
+  return { receipt: await mintScreeningV1(i), reveal: c.reveal };
+};
 const rejectsMint = (name: string, f: (i: ReturnType<typeof baseInput>) => void, re: RegExp) =>
   test(`mint refuses: ${name}`, async () => { await assert.rejects(() => mint(f), re); });
 
@@ -75,7 +81,7 @@ test("body carries field_root", async () => {
   assert.match((receipt.body as { field_root: string }).field_root, /^sha256:|^[0-9a-f]{64}$|./);
 });
 
-rejectsMint("empty name", (i) => { i.name = "   "; }, /name required/);
+test("commitScreenedName refuses an empty name", () => assert.throws(() => commitScreenedName("   "), /name required/));
 rejectsMint("no issuer", (i) => { i.issuer = ""; }, /issuer required/);
 rejectsMint("short key", (i) => { i.signingKey = { kid: "k", privateKey: new Uint8Array(5) }; }, /32 bytes/);
 rejectsMint("tsa without fetcher", (i) => { (i as { tsa?: unknown }).tsa = {}; }, /tsaFetcher/);

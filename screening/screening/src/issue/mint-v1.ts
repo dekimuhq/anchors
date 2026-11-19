@@ -1,11 +1,11 @@
 /**
  * AScR v=2 mint path. subject is null, prev is null (spec §2.1).
- * The caller passes the screened name; the kit draws a fresh per-screen salt,
- * commits to the trimmed name and returns the REVEAL alongside the receipt.
- * The reveal is the screened party's personal data: the caller stores it for the
- * receipt's lifetime, exports it to the owner, and erases it on erasure. It is
- * never put in the receipt. Refuses to sign a body that fails validation, so a
- * stale list, an empty list or an incoherent result never gets a signature.
+ * The caller computes `subject_commit` with `commitScreenedName(name)` and keeps
+ * the REVEAL it returns. The reveal is the screened party's personal data: the
+ * caller stores it for the receipt's lifetime, exports it to the owner, and
+ * erases it on erasure. It is never put in the receipt. Refuses to sign a body
+ * that fails validation, so a stale list, an empty list or an incoherent result
+ * never gets a signature.
  */
 import {
   generateReceiptId, keyObjectFromSeed, computeFieldRoot, signEnvelope, commit, randomSalt,
@@ -29,8 +29,8 @@ export interface MintScreeningInput {
   signingKey: SigningKey;
   anchor: AnchorProof;
   screen_id: string;
-  /** The screened string. Trimmed before commitment; never placed in the receipt. */
-  name: string;
+  /** From `commitScreenedName`. The name itself never enters the mint. */
+  subject_commit: string;
   list: ScreeningList;
   matcher: ScreeningMatcher;
   result: ScreeningResult;
@@ -42,28 +42,32 @@ export interface MintScreeningInput {
   tsaFetcher?: TsaFetcher;
 }
 
-export interface MintScreeningResult {
-  receipt: Envelope;
+export interface ScreenedNameCommitment {
+  subject_commit: string;
   /** Personal data of the screened party. Retain, export to the owner, erase on erasure. */
   reveal: { salt: string; name: string };
 }
 
-export async function mintScreeningV1(input: MintScreeningInput): Promise<MintScreeningResult> {
+/** Trim, draw a fresh per-screen 256-bit salt, commit. One call per screen; never reuse a salt. */
+export function commitScreenedName(name: string): ScreenedNameCommitment {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("commitScreenedName: name required");
+  const salt = randomSalt();
+  return { subject_commit: commit(salt, trimmed), reveal: { salt, name: trimmed } };
+}
+
+export async function mintScreeningV1(input: MintScreeningInput): Promise<Envelope> {
   if (!input.issuer) throw new Error("mintScreeningV1: issuer required");
   if (!input.signingKey?.kid) throw new Error("mintScreeningV1: signingKey.kid required");
   if (input.signingKey.privateKey.length !== 32) throw new Error("mintScreeningV1: signingKey.privateKey must be 32 bytes");
   if (!input.anchor) throw new Error("mintScreeningV1: anchor required");
   if (input.tsa !== undefined && input.tsaFetcher === undefined) throw new Error("mintScreeningV1: tsaFetcher required when tsa config is provided");
-  const name = input.name.trim();
-  if (!name) throw new Error("mintScreeningV1: name required");
-
-  const salt = randomSalt();
   const baseBody: ScreeningListBody = {
     profile: "screening.list",
     screen_id: input.screen_id,
     list: input.list,
     matcher: input.matcher,
-    subject_commit: commit(salt, name),
+    subject_commit: input.subject_commit,
     result: input.result,
     candidates: input.candidates,
     trigger: input.trigger,
@@ -103,5 +107,5 @@ export async function mintScreeningV1(input: MintScreeningInput): Promise<MintSc
   };
   const signed = await signEnvelope(preSign, privateKey);
   const receipt = input.tsa !== undefined ? await attachTsaBlock(signed, input.tsa, input.tsaFetcher!) : signed;
-  return { receipt, reveal: { salt, name } };
+  return receipt;
 }
