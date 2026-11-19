@@ -10,7 +10,7 @@
  */
 
 // ── ClaimType discriminator union ────────────────────────────────────────────
-// 10 shipped + 6 pre-canonical-specced + 4 closure-set + 1 ATokR + 1 AActR + 1 AQR + 1 AGR + 1 AGrR + 2 AgTR (v1 flat + v2 span-tree) + 1 APIIR + 1 ACBR = 29 active members (parked excluded until v1.1+ gates).
+// 10 shipped + 6 pre-canonical-specced + 4 closure-set + 1 ATokR + 1 AActR + 1 AQR + 1 AGR + 1 AGrR + 2 AgTR (v1 flat + v2 span-tree) + 1 APIIR + 1 ACBR + 1 AScR = 30 active members (parked excluded until v1.1+ gates).
 // Count corrected 2026-07-22: the tally had missed ar.trace.v2 and ar.compliance.v1. Comment only — the tuple below is unchanged and remains the single source of truth.
 
 export const CLAIM_TYPES = [
@@ -43,6 +43,7 @@ export const CLAIM_TYPES = [
   "ar.trace.v2",
   "ar.redaction.v1",
   "ar.compliance.v1",
+  "ar.screening.v1",
 ] as const satisfies readonly string[];
 
 /** All active claim_type discriminators. Parked members are excluded. */

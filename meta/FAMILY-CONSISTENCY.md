@@ -41,6 +41,7 @@ Canonical chip ordering. Each chip represents one family member's filter on the 
 | 19 | AgTR | `ar.trace.v2` | shipped | signed OTel-compatible span tree; spans[] + parent_span_id + Merkle spans_root (per-span selective disclosure); coexists with v1-flat. `@dekimuhq/trace` 0.2.0 + `trace-profiles` 0.2.0 + `@dekimuhq/trace-otel` 0.1.0. null-subject (must-be-null); Status-List non-consumer; TSA OPTIONAL (upgrade path `free`); single profile `agent.trace`. DISTINCT from AActR/AQR/AGR. |
 | 20 | APIIR | `ar.redaction.v1` | shipped (published 2026-06-21) | Anchored PII-Redaction Receipts — proves which PII-redaction pass ran over content before model send (provenance of redaction, NOT a PII-free guarantee). `@dekimuhq/redaction` 0.1.0 + `redaction-profiles` 0.1.0; null-subject (must-be-null); 1 profile (`redaction.prompt`); per-category counts + dual salted commits (input/output) + `ruleset_hash`; reversible map + salt are controller-only, NEVER anchored; reuses the `@dekimuhq/ai` `redactPII` detector (no own detection engine). Status-List non-consumer; TSA OPTIONAL (upgrade path `free`). DISTINCT from ATokR (`ar.tokenization.v1`, reversible vault token) and `ar.anonymization.v1` (irreversible). Spec: [2026-06-20-ar-redaction-v1-pii-redaction-receipt-design.md](https://github.com/dekimuhq/anchors-spec/tree/main/redaction) |
 | 21 | ACBR | `ar.compliance.v1` | shipped (published 2026-06-21) | Anchored Compliance Bundle Receipts — workspace-level Proof-of-Compliance bundle (RoPA + DPIA + obligation-satisfaction references). `@dekimuhq/compliance` 0.1.0; null-subject (must-be-null); single profile (`compliance.bundle`); Status-List non-consumer; TSA OPTIONAL (upgrade path `free`); continuity false. References constituents; does not re-derive compliance. Spec: [2026-06-20-b2-verifiable-proof-of-compliance-design.md](https://github.com/dekimuhq/anchors-spec/tree/main/compliance) |
+| 22 | AScR | `ar.screening.v1` | specced (2026-11-19, spec PR anchors-spec#31) | Anchored Screening Receipts — proves which hash-pinned list file a party was screened against, when, by which matcher (`@dekimuhq/sanctions` name+version+threshold, bound by envelope `policy_hash`) and with what result (`none_at_threshold \| candidate`; **provenance of a screen, NOT a sanctions determination**). `@dekimuhq/screening` + `screening-profiles`; null-subject (must-be-null) with a per-screen salted `subject_commit` (reveal kept by the issuer, never anchored); `prev` must-be-null; 1 profile (`screening.list`); freshness bound `list.fetched_at ≤ screened_at ≤ +48h`. Status-List non-consumer; TSA OPTIONAL (upgrade path `free`). DISTINCT from AActR (autonomous owner-rule actions) and AGR (content screening, unsalted commit). Spec: [screening/v1.md](https://github.com/dekimuhq/anchors-spec/tree/main/screening) |
 
 > **Audit fix H4 (2026-05-17):** ANR/ABR/ASR/AIR specs had previously claimed chip positions 6/7/8/9, which collided with AER (positions 4–9 unassigned). This table replaces all per-spec chip-position claims. Member specs SHOULD NOT redeclare chip position; they reference this table instead.
 >
@@ -103,6 +104,7 @@ Per-event TSA (eIDAS RFC 3161 trusted timestamp) requirement. The v1.1 envelope 
 | AgTR (`ar.trace.v2`) | (any) | OPTIONAL | Span-tree trace; no regulatory clock; trusted timestamp is opt-in (upgrade path `free`). |
 | APIIR | (any) | OPTIONAL | No regulatory clock starts on a redaction pass; trusted timestamp is opt-in (upgrade path `free`). |
 | ACBR | (any) | OPTIONAL | No regulatory clock starts on a compliance bundle receipt; trusted timestamp is opt-in (upgrade path `free`). |
+| AScR | (any) | OPTIONAL | A list screen starts no regulatory clock; trusted timestamp is opt-in (upgrade path `free`). |
 
 > **Audit fix H7 (2026-05-17):** prior to this table, TSA mandate language varied across closure specs (ABR mandated on `breach.detected`, ASR recommended on `request.received`, AIR recommended on `dpia.completed` — without a principled rule). This table applies a single rule (regulatory-clock-start ⇒ MANDATORY; deadline-checks ⇒ RECOMMENDED; else OPTIONAL). Member specs reference this table; per-spec mandate language MUST match.
 
@@ -143,6 +145,7 @@ Each family member declares whether the `subject` envelope field is `null`, popu
 | AgTR (`ar.trace.v2`) | (every receipt) | `null` (must-be-null) | Span-tree trace is about an execution run, not a data subject; per-span detail is bound via the Merkle `spans_root`, never the envelope subject |
 | APIIR | (every receipt) | `null` (must-be-null) | Redaction is about a prompt/content blob, not a data subject; the redacted content is bound via salted body commits, never the envelope subject |
 | ACBR | (every receipt) | `null` (must-be-null) | Compliance bundle is workspace-level; constituents reference data subjects by hash in their own receipts |
+| AScR | (every receipt) | `null` (must-be-null) | The screened party is bound only by a salted `subject_commit` in the body; the reveal is issuer-held personal data and never anchored |
 
 > **Audit fix H10 (2026-05-17):** consolidates subject-presence rules. Member-spec D10 deltas SHOULD reference this table rather than re-declaring rules. Subject-parity invariants between specs (e.g. ASR↔ARR Art. 17) cross-check this table's salted-commit form (`"sha256:<hex>"`).
 
@@ -183,6 +186,8 @@ AgTR also does NOT consume Status List 2021 (`status_list_slot: null`) — an ag
 APIIR also does NOT consume Status List 2021 (`status_list_slot: null`) — a redaction receipt is a point-in-time provenance fact; supersede with a newer receipt, never revoke.
 
 ACBR also does NOT consume Status List 2021 (`status_list_slot: null`) — a compliance bundle receipt is a point-in-time provenance snapshot; supersede with a newer receipt to reflect updated compliance state, never revoke.
+
+AScR also does NOT consume Status List 2021 (`status_list_slot: null`) — a screen is a point-in-time provenance fact; a later screen is a new receipt, never a revocation of an earlier one.
 
 > **Audit fix H5 (2026-05-17):** consolidates per-spec ordering claims that conflicted (multiple specs claimed "Nth"). This table is the canonical sequence; member specs reference it instead of declaring their own ordinal.
 
@@ -240,6 +245,7 @@ Every member spec's anchor flow §7 and verifier package SHOULD reference these 
 | AgTR (`ar.trace.v2`) | shipped | see `trace`/`trace-profiles` 0.2.0 + `trace-otel` 0.1.0 test suites (v2 span-tree + OTel exporter) | ~0.5 eng-eq | built-to-ready on `feat/ar-trace-v2` |
 | APIIR | shipped | 91 (redaction 58 [verify-single 36 + mint-v1 22] + redaction-profiles 33) | ~0.5 eng-eq | published 2026-06-21 |
 | ACBR | shipped | 196 (compliance 196; no profiles pkg) | ~0.5 eng-eq | published 2026-06-21; floor re-applied 2026-09-07 (was 9, exemption lifted) |
+| AScR | specced | ≥99 (screening 37 + screening-profiles 80 at spec time) | ~0.5 eng-eq | publish → verify deploy → InvoiceUp mint |
 
 **Total unimplemented: 0 — all 21 members built AND published (AActR added 2026-06-08; AQR added 2026-06-19; AGR + AGrR + AgTR added 2026-06-20; APIIR + ACBR added 2026-06-21 and published the same day).**
 
