@@ -38,14 +38,15 @@ test("package exports expected symbols", async () => {
 // Updated from 24 → 26 by AGrR (ar.grounding.v1, chip 18) + AgTR (ar.trace.v1, chip 19) registration.
 // Updated from 26 → 27 by APIIR registration (ar.redaction.v1, chip 20).
 // Updated from 27 → 28 by ACBR registration (ar.compliance.v1, chip 21).
+// Updated from 29 → 30 by AScR registration (ar.screening.v1, chip 22).
 // Updated from 28 → 29 by AgTR v2 registration (ar.trace.v2, chip 19 — OTel span tree).
 
-test("CLAIM_TYPES const has exactly 29 members", async () => {
+test("CLAIM_TYPES const has exactly 30 members", async () => {
   const { CLAIM_TYPES } = await import("../src/index.ts");
   assert.strictEqual(
     CLAIM_TYPES.length,
-    29,
-    `Expected 29 ClaimType literals, got ${CLAIM_TYPES.length}`,
+    30,
+    `Expected 30 ClaimType literals, got ${CLAIM_TYPES.length}`,
   );
 });
 
@@ -243,9 +244,9 @@ test("CLAIM_TYPES includes the 4 closure-set discriminators", async () => {
   for (const t of closure) assert.ok((CLAIM_TYPES as readonly string[]).includes(t), `${t} missing`);
 });
 
-test("CLAIM_TYPES length is 29 (10 shipped + 6 pre-canonical-specced + 4 closure + 1 ATokR + 1 AActR + 1 AQR + 1 AGR + 1 AGrR + 1 AgTR + 1 AgTR v2 + 1 APIIR + 1 ACBR)", async () => {
+test("CLAIM_TYPES length is 30 (10 shipped + 6 pre-canonical-specced + 4 closure + 1 ATokR + 1 AActR + 1 AQR + 1 AGR + 1 AGrR + 1 AgTR + 1 AgTR v2 + 1 APIIR + 1 ACBR + 1 AScR)", async () => {
   const { CLAIM_TYPES } = await import("../src/index.ts");
-  assert.equal(CLAIM_TYPES.length, 29);
+  assert.equal(CLAIM_TYPES.length, 30);
 });
 
 // ── v1.2 envelope amendment tests ────────────────────────────────────────────

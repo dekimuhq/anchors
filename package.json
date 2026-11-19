@@ -47,6 +47,8 @@
     "guard/guard",
     "guard/guard-detect",
     "guard/guard-profiles",
+    "screening/screening",
+    "screening/screening-profiles",
     "grounding/grounding",
     "grounding/grounding-check",
     "grounding/grounding-profiles",

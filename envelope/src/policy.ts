@@ -126,6 +126,10 @@ const POLICY_APR: ClaimType = "ar.provenance.v1";
  * artifacts (RoPA hash, DPIA receipts, obligation reports) via body BundleRefs.
  * Envelope-level policy fields are permitted passthrough but NOT required.
  * Optional per ACBR spec §4 (chip 21).
+ *
+ * AScR (`ar.screening.v1`) — screening receipts bind the matcher via `policy_hash`
+ * (sha256 of JCS {package, version, threshold}); the AScR verifier enforces the
+ * binding itself, so the envelope-level rule is optional (chip 22).
  */
 const POLICY_OPTIONAL: ReadonlySet<ClaimType> = new Set<ClaimType>([
   "ar.evaluation.v1",
@@ -138,6 +142,8 @@ const POLICY_OPTIONAL: ReadonlySet<ClaimType> = new Set<ClaimType>([
   "ar.redaction.v1",
   // ACBR (ar.compliance.v1) — compliance bundle; envelope policy optional.
   "ar.compliance.v1",
+  // AScR (ar.screening.v1) — matcher binding enforced by the AScR verifier.
+  "ar.screening.v1",
 ]);
 
 export { POLICY_BOUND, POLICY_OPTIONAL };

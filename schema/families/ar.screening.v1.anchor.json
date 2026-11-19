@@ -1,0 +1,78 @@
+{
+  "$schema": "../meta-schema.v1.json",
+  "id": "ar.screening.v1",
+  "acronym": "AScR",
+  "name": "Anchored Screening Receipts",
+  "claim_types": ["ar.screening.v1"],
+  "envelope": "v2",
+  "sign": "ed25519",
+  "canonicalize": "jcs",
+  "chip": 22,
+  "status_list_slot": null,
+  "subject_presence": "must-be-null",
+  "tsa_upgrade_path": "free",
+  "tsa_mandate": {
+    "*": "optional"
+  },
+  "body": {
+    "profile": {
+      "type": "enum",
+      "enum_values": ["screening.list"],
+      "description": "Discriminator. screening.list records one screen of one party against one hash-pinned list file."
+    },
+    "screen_id": { "type": "string", "description": "ULID, one per screen (never per party)." },
+    "list": {
+      "type": "object",
+      "description": "Provenance of the list file the screen ran against.",
+      "fields": {
+        "id": { "type": "string", "description": "Stable list identifier, e.g. eu-fsf." },
+        "file_name": { "type": "string" },
+        "file_date": { "type": "iso8601" },
+        "file_sha256": { "type": "sha256", "description": "sha256 of the file bytes exactly as served." },
+        "parsed_sha256": { "type": "sha256", "description": "sha256 over the canonical parsed entries." },
+        "entry_count": { "type": "integer", "description": "Integer >= 1." },
+        "fetched_at": { "type": "iso8601" }
+      }
+    },
+    "matcher": {
+      "type": "object",
+      "description": "Matcher identity, read from the installed package; bound by envelope policy_hash.",
+      "fields": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "threshold": { "type": "number", "description": "In (0, 1]." }
+      }
+    },
+    "subject_commit": { "type": "sha256", "description": "Salted commit to the trimmed screened name; fresh salt per screen, never in the receipt." },
+    "result": {
+      "type": "enum",
+      "enum_values": ["none_at_threshold", "candidate"],
+      "description": "Never 'clear' or 'not sanctioned'."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "entry_ref": { "type": "string", "description": "The list's own public entity id." },
+          "score": { "type": "number" }
+        }
+      },
+      "description": "Empty iff result is none_at_threshold; max 50, descending score."
+    },
+    "trigger": { "type": "enum", "enum_values": ["manual", "scheduled"] },
+    "screened_at": { "type": "iso8601", "description": "list.fetched_at <= screened_at <= list.fetched_at + 48h." }
+  },
+  "profiles": [
+    { "id": "screening.list", "regulation": "Dekimu Screening — per-screen list-screening receipt (provenance of screening, NOT a sanctions determination)" }
+  ],
+  "continuity": false,
+  "status_list": false,
+  "suspension": false,
+  "spec_path": "https://github.com/dekimuhq/anchors-spec/tree/main/screening",
+  "packages": {
+    "verifier": "@dekimuhq/screening",
+    "issuer_kit": "@dekimuhq/screening/issue",
+    "profiles": "@dekimuhq/screening-profiles"
+  }
+}
