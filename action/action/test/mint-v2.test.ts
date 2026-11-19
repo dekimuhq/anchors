@@ -246,12 +246,17 @@ test("M36: aiact.art12 overlay is carried into the signed body and verifies", as
   assert.equal(r.signature_valid, true, r.reason ?? "ok");
 });
 
-test("M37: the overlay is bound by field_root (dropping it changes the root)", async () => {
-  const withOverlay = await mintActionV2({ ...baseInput(), profile: "aiact.art12", aiact_art12: ART12 });
-  const without = await mintActionV2({ ...baseInput(), profile: "hub.automation" });
+test("M37: the overlay is bound by field_root (a different overlay changes the root)", async () => {
+  // Same profile both times, so only the overlay can move the root.
+  const a = await mintActionV2({ ...baseInput(), profile: "aiact.art12", aiact_art12: ART12 });
+  const b = await mintActionV2({
+    ...baseInput(),
+    profile: "aiact.art12",
+    aiact_art12: { ...ART12, system_version: "2026.11.2" },
+  });
   assert.notEqual(
-    (withOverlay.body as { field_root: string }).field_root,
-    (without.body as { field_root: string }).field_root,
+    (a.body as { field_root: string }).field_root,
+    (b.body as { field_root: string }).field_root,
   );
 });
 
