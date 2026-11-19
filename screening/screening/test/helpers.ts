@@ -18,16 +18,17 @@ export const resolveKey = async (envelope: unknown): Promise<Uint8Array> => {
   return new Uint8Array(Buffer.concat([SPKI, Buffer.from(raw)]));
 };
 const H = "sha256:" + "b".repeat(64);
+const iso = (offMs: number) => new Date(Date.now() + offMs).toISOString();
 export const baseInput = (): MintScreeningInput => ({
   issuer: "did:web:invoiceup.app",
   signingKey: makeSigningKey(),
   anchor: makeAnchor(),
   screen_id: "01J9Z3K4M5N6P7Q8R9S0T1V2W3",
   subject_commit: "sha256:" + "c".repeat(64),
-  list: { id: "eu-fsf", file_name: "20261119-FULL-1_1.xml", file_date: "2026-11-19T00:00:00.000Z", file_sha256: H, parsed_sha256: H, entry_count: 5123, fetched_at: "2026-11-19T03:00:04.000Z" },
+  list: { id: "eu-fsf", file_name: "20261119-FULL-1_1.xml", file_date: iso(-3 * 3600_000), file_sha256: H, parsed_sha256: H, entry_count: 5123, fetched_at: iso(-2 * 3600_000) },
   matcher: { name: "@dekimuhq/sanctions", version: "0.2.0", threshold: 0.85 },
   result: "none_at_threshold",
   candidates: [],
   trigger: "manual",
-  screened_at: "2026-11-19T10:00:00.000Z",
+  screened_at: iso(-60_000),
 });

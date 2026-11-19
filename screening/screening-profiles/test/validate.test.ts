@@ -56,7 +56,7 @@ for (const id of ["", "not-a-ulid", "01J9Z3K4M5N6P7Q8R9S0T1V2W", "01J9Z3K4M5N6P7
 }
 test("rejects missing screen_id", () => assert.ok(run((b) => { delete (b as Partial<B>).screen_id; }).errors.includes("screening.screen_id.malformed")));
 test("rejects missing list", () => assert.ok(run((b) => { delete (b as Partial<B>).list; }).errors.includes("screening.list.missing")));
-rejects("empty list id", "screening.list.id_missing", (b) => { b.list.id = ""; });
+rejects("empty list id", "screening.list.id_unknown", (b) => { b.list.id = ""; });
 rejects("empty file name", "screening.list.file_name_missing", (b) => { b.list.file_name = ""; });
 rejects("bad file_date", "screening.list.file_date_malformed", (b) => { b.list.file_date = "yesterday"; });
 rejects("bad fetched_at", "screening.list.fetched_at_malformed", (b) => { b.list.fetched_at = "2026-11-19"; });
@@ -94,4 +94,23 @@ test("reports multiple errors at once, deduplicated", () => {
   const r = run((b) => { b.list.file_sha256 = "x"; b.list.parsed_sha256 = "y"; b.trigger = "z"; });
   assert.equal(r.errors.filter((x) => x === "screening.list.hash_malformed").length, 1);
   assert.ok(r.errors.includes("screening.trigger.invalid"));
+});
+
+test("accepts field_root alongside the body keys", () => assert.equal(run((b) => { (b as { field_root?: string }).field_root = "x"; }).ok, true));
+rejects("plaintext name field", "screening.body.unknown_field", (b) => { (b as { screened_name?: string }).screened_name = "Jane Doe"; });
+rejects("unknown list key", "screening.body.unknown_field", (b) => { (b.list as { owner?: string }).owner = "x"; });
+rejects("unknown matcher key", "screening.body.unknown_field", (b) => { (b.matcher as { note?: string }).note = "x"; });
+rejects("unknown candidate key", "screening.body.unknown_field", (b) => { b.result = "candidate"; b.candidates = [{ entry_ref: "a", score: 0.9, name: "Jane" } as never]; });
+rejects("entry_ref carrying free text", "screening.candidates.malformed", (b) => { b.result = "candidate"; b.candidates = [{ entry_ref: "Jane Doe, DOB 1970-01-01", score: 0.9 }]; });
+rejects("entry_ref too long", "screening.candidates.malformed", (b) => { b.result = "candidate"; b.candidates = [{ entry_ref: "a".repeat(65), score: 0.9 }]; });
+rejects("unknown list id", "screening.list.id_unknown", (b) => { b.list.id = "all-global-sanctions-lists"; });
+rejects("file_date after fetched_at", "screening.list.file_date_after_fetch", (b) => { b.list.file_date = "2030-01-01T00:00:00.000Z"; });
+rejects("whitespace-only file name", "screening.list.file_name_missing", (b) => { b.list.file_name = "  "; });
+rejects("ULID first char above 7", "screening.screen_id.malformed", (b) => { b.screen_id = "81J9Z3K4M5N6P7Q8R9S0T1V2W3"; });
+test("rejects array-coerced strings", () => {
+  for (const f of [
+    (b: B) => { (b as { subject_commit: unknown }).subject_commit = [H]; },
+    (b: B) => { (b as { screen_id: unknown }).screen_id = ["01J9Z3K4M5N6P7Q8R9S0T1V2W3"]; },
+    (b: B) => { (b.list as { file_sha256: unknown }).file_sha256 = [H]; },
+  ]) assert.equal(run(f).ok, false);
 });

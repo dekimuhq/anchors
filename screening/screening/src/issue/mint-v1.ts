@@ -76,8 +76,12 @@ export async function mintScreeningV1(input: MintScreeningInput): Promise<Envelo
   const v = validateScreeningList(baseBody);
   if (!v.ok) throw new Error("mintScreeningV1: screening body invalid: " + v.errors.join("; "));
 
-  const id = generateReceiptId();
   const iat = new Date().toISOString();
+  // A receipt for a screen that has not happened yet is refused (spec §3.3). 5 min clock-skew allowance.
+  if (Date.parse(baseBody.screened_at) > Date.parse(iat) + 5 * 60 * 1000) {
+    throw new Error("mintScreeningV1: screening.screened_at.in_future");
+  }
+  const id = generateReceiptId();
   const { privateKey, issKey } = keyObjectFromSeed(input.signingKey.privateKey);
   const bodyOut = { ...baseBody, field_root: computeFieldRoot(baseBody) };
 
@@ -92,7 +96,7 @@ export async function mintScreeningV1(input: MintScreeningInput): Promise<Envelo
     subject: null as unknown as string,
     exp: input.exp ?? null,
     prev: null,
-    policy_uri: `https://www.npmjs.com/package/${input.matcher.name}/v/${input.matcher.version}`,
+    policy_uri: null,
     policy_hash: matcherPolicyHash(input.matcher),
     policy_version: input.matcher.version,
     kind: "decision",

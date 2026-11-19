@@ -78,15 +78,15 @@ test("scheduled trigger round-trips", async () => {
 });
 test("body carries field_root", async () => {
   const { receipt } = await mint();
-  assert.match((receipt.body as { field_root: string }).field_root, /^sha256:|^[0-9a-f]{64}$|./);
+  assert.equal(typeof (receipt.body as { field_root: unknown }).field_root, "string");
 });
 
 test("commitScreenedName refuses an empty name", () => assert.throws(() => commitScreenedName("   "), /name required/));
 rejectsMint("no issuer", (i) => { i.issuer = ""; }, /issuer required/);
 rejectsMint("short key", (i) => { i.signingKey = { kid: "k", privateKey: new Uint8Array(5) }; }, /32 bytes/);
 rejectsMint("tsa without fetcher", (i) => { (i as { tsa?: unknown }).tsa = {}; }, /tsaFetcher/);
-rejectsMint("stale list (screened > fetched + 48h)", (i) => { i.screened_at = "2026-11-22T00:00:00.000Z"; }, /screening\.list\.stale/);
-rejectsMint("screen before fetch", (i) => { i.screened_at = "2026-11-19T00:00:00.000Z"; }, /screening\.list\.stale/);
+rejectsMint("stale list (screened > fetched + 48h)", (i) => { i.list.fetched_at = new Date(Date.now() - 72 * 3600_000).toISOString(); i.list.file_date = i.list.fetched_at; }, /screening\.list\.stale/);
+rejectsMint("screen before fetch", (i) => { i.screened_at = new Date(Date.now() - 3 * 3600_000).toISOString(); }, /screening\.list\.stale/);
 rejectsMint("empty list", (i) => { i.list.entry_count = 0; }, /screening\.list\.empty/);
 rejectsMint("none_at_threshold with candidates", (i) => { i.candidates = [{ entry_ref: "a", score: 0.9 }]; }, /result\.incoherent/);
 rejectsMint("candidate without candidates", (i) => { i.result = "candidate"; }, /result\.incoherent/);
@@ -117,19 +117,63 @@ for (const [name, f] of [
     assert.equal(r.signature_valid, false);
   });
 }
-test("a wrong policy_hash is reported as binding mismatch (re-signing aside)", async () => {
-  const { receipt } = await mint();
-  const r = await verifyReceipt({ ...receipt, policy_hash: "sha256:" + "0".repeat(64) }, { resolveKey });
+import { signEnvelope, keyObjectFromSeed } from "@dekimuhq/anchors-envelope";
+
+/** Re-sign a modified envelope with the same key, so only the AScR-specific rules can reject it. */
+async function resign(i: ReturnType<typeof baseInput>, patch: Record<string, unknown>) {
+  const receipt = await mintScreeningV1(i);
+  const { privateKey } = keyObjectFromSeed(i.signingKey.privateKey);
+  return signEnvelope({ ...receipt, ...patch, sig: "" } as never, privateKey);
+}
+const okInput = () => ({ ...baseInput(), subject_commit: commitScreenedName("Acme").subject_commit });
+
+test("re-signed receipt with a wrong policy_hash is rejected", async () => {
+  const r = await verifyReceipt(await resign(okInput(), { policy_hash: "sha256:" + "0".repeat(64) }), { resolveKey });
   assert.equal(r.signature_valid, false);
+  assert.equal((r as { reason: string }).reason, "screening.policy_hash.mismatch");
   assert.equal((r as { policy_binding: string }).policy_binding, "mismatch");
 });
-test("a null policy_hash is a binding mismatch", async () => {
-  const { receipt } = await mint();
-  const r = await verifyReceipt({ ...receipt, policy_hash: null }, { resolveKey });
-  assert.equal((r as { policy_binding: string }).policy_binding, "mismatch");
+test("re-signed receipt with a null policy_hash is rejected", async () => {
+  const r = await verifyReceipt(await resign(okInput(), { policy_hash: null }), { resolveKey });
+  assert.equal(r.signature_valid, false);
+  assert.equal((r as { reason: string }).reason, "screening.policy_hash.mismatch");
+});
+test("re-signed receipt with a non-null prev is rejected", async () => {
+  const r = await verifyReceipt(await resign(okInput(), { prev: "ar.screening.v1:01J9Z3K4M5N6P7Q8R9S0T1V2W3" }), { resolveKey });
+  assert.equal(r.signature_valid, false);
+  assert.equal((r as { reason: string }).reason, "screening.prev.not_null");
+});
+test("re-signed receipt with a non-decision kind is rejected", async () => {
+  const r = await verifyReceipt(await resign(okInput(), { kind: "observation" }), { resolveKey });
+  assert.equal(r.signature_valid, false);
+  assert.equal((r as { reason: string }).reason, "screening.kind.not_decision");
+});
+test("re-signed receipt whose screen postdates iat is rejected", async () => {
+  const i = okInput();
+  const receipt = await mintScreeningV1(i);
+  const body = { ...(receipt.body as object), screened_at: "2999-01-01T00:00:00.000Z" };
+  const { privateKey } = keyObjectFromSeed(i.signingKey.privateKey);
+  const re = await signEnvelope({ ...receipt, body, sig: "" } as never, privateKey);
+  const r = await verifyReceipt(re, { resolveKey });
+  assert.equal(r.signature_valid, false);
+});
+test("verifyReceipt does not throw on a malformed matcher", async () => {
+  for (const matcher of [{ name: "x" }, null, 5, { name: 1, version: 2, threshold: "a" }]) {
+    const r = await verifyReceipt({ v: 2, body: { matcher } }, { resolveKey });
+    assert.equal(r.signature_valid, false);
+  }
+});
+test("matcherPolicyHash rejects an incomplete matcher", () => {
+  assert.throws(() => matcherPolicyHash({ name: "x" } as never), /matcher must be/);
+  assert.throws(() => matcherPolicyHash({ name: "x", version: "1", threshold: NaN }), /matcher must be/);
+});
+test("mint refuses a screen that postdates now", async () => {
+  await assert.rejects(() => mintScreeningV1({ ...okInput(), list: { ...okInput().list, fetched_at: "2999-01-01T00:00:00.000Z", file_date: "2999-01-01T00:00:00.000Z" }, screened_at: "2999-01-01T01:00:00.000Z" }), /in_future/);
+});
+test("policy_uri is null (policy_hash binds the matcher JSON, not a document)", async () => {
+  assert.equal((await mintScreeningV1(okInput())).policy_uri, null);
 });
 test("a non-null subject is rejected", async () => {
-  const { receipt } = await mint();
-  const r = await verifyReceipt({ ...receipt, subject: "sha256:" + "e".repeat(64) }, { resolveKey });
+  const r = await verifyReceipt(await resign(okInput(), { subject: "sha256:" + "e".repeat(64) }), { resolveKey });
   assert.equal(r.signature_valid, false);
 });
