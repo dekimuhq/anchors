@@ -33,6 +33,31 @@ export interface TslServiceEntry {
   status_starting_time: string;
   /** X.509 certificate fingerprint(s) — SHA-256 hex of DER-encoded cert. */
   certificate_hashes: string[];
+  /**
+   * `AdditionalServiceInformation` URIs of the CURRENT state. For a CA/QC service these say which kind of qualified
+   * certificate it issues: `.../SvcInfoExt/ForeSignatures`, `ForeSeals`, `ForWebSiteAuthentication`. A QWAC-only CA
+   * carries only the last, so without this a website-certificate CA is indistinguishable from a signature CA.
+   */
+  additional_service_info: string[];
+  /** `Qualifications` qualifier URIs of the CURRENT state (`NotQualified`, `QCQSCDManagedOnBehalf`, ...). Criteria are not kept. */
+  qualifiers: string[];
+  /** Earlier states, in the order the list gives them. Needed to ask "was this service listed (and for what) at time T". */
+  status_history: TslServiceState[];
+}
+
+/**
+ * One historical state of a trust service (ETSI TS 119 612 `ServiceHistoryInstance`): what the service was from
+ * `starting_time` until the next state began. The current state is the entry's own fields.
+ */
+export interface TslServiceState {
+  /** Status URI in effect from `starting_time`. */
+  status: string;
+  /** Status start date (ISO 8601). */
+  starting_time: string;
+  /** `AdditionalServiceInformation` URIs in that state (e.g. `.../SvcInfoExt/ForeSeals`). */
+  additional_service_info: string[];
+  /** `Qualifications` qualifier URIs in that state (e.g. `.../SvcInfoExt/NotQualified`). */
+  qualifiers: string[];
 }
 
 // ── Merkle leaf ──────────────────────────────────────────────────────────────
