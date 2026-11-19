@@ -13,6 +13,9 @@ describe("canonicalize", () => {
     status: "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted",
     status_starting_time: "2025-01-01T00:00:00Z",
     certificate_hashes: ["abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234"],
+    additional_service_info: [],
+    qualifiers: [],
+    status_history: [],
   };
 
   it("returns sha256-prefixed hash", () => {
@@ -29,6 +32,9 @@ describe("canonicalize", () => {
     const reordered: TslServiceEntry = {
       status_starting_time: entry.status_starting_time,
       certificate_hashes: entry.certificate_hashes,
+      additional_service_info: entry.additional_service_info,
+      qualifiers: entry.qualifiers,
+      status_history: entry.status_history,
       country: entry.country,
       service_type: entry.service_type,
       service_name: entry.service_name,

@@ -7,7 +7,7 @@
 
 import * as crypto from "node:crypto";
 import { XMLParser } from "fast-xml-parser";
-import type { TslServiceEntry } from "./types.ts";
+import type { TslServiceEntry, TslServiceState } from "./types.ts";
 import { SERVICE_TYPE_URI_MAP } from "./types.ts";
 
 const parser = new XMLParser({
@@ -20,6 +20,10 @@ const parser = new XMLParser({
       "TSPService",
       "DigitalId",
       "Name",
+      "Extension",
+      "QualificationElement",
+      "Qualifier",
+      "ServiceHistoryInstance",
     ]);
     return arrayTags.has(name);
   },
@@ -58,6 +62,44 @@ function certHash(b64: string): string {
 function toArray<T>(v: T | T[] | undefined | null): T[] {
   if (v === undefined || v === null) return [];
   return Array.isArray(v) ? v : [v];
+}
+
+/** Text of a node that is either a bare string or `{ "#text": ..., "@_xml:lang": ... }`. */
+function textOf(v: unknown): string {
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "object" && v !== null) {
+    const t = (v as Record<string, unknown>)["#text"];
+    if (typeof t === "string") return t.trim();
+  }
+  return "";
+}
+
+/**
+ * Read a `ServiceInformationExtensions` block: the `AdditionalServiceInformation` URIs and the `Qualifications`
+ * qualifier URIs. Other extensions (and the qualification criteria) are ignored.
+ */
+function extractExtensions(ext: unknown): { additional_service_info: string[]; qualifiers: string[] } {
+  const asi: string[] = [];
+  const qualifiers: string[] = [];
+  const list = toArray((ext as Record<string, unknown> | undefined)?.Extension);
+  for (const e of list) {
+    if (typeof e !== "object" || e === null) continue;
+    const x = e as Record<string, unknown>;
+    const info = x.AdditionalServiceInformation as Record<string, unknown> | undefined;
+    for (const u of toArray(info?.URI)) {
+      const t = textOf(u);
+      if (t) asi.push(t);
+    }
+    const quals = x.Qualifications as Record<string, unknown> | undefined;
+    for (const el of toArray(quals?.QualificationElement)) {
+      const qs = (el as Record<string, unknown> | undefined)?.Qualifiers as Record<string, unknown> | undefined;
+      for (const q of toArray(qs?.Qualifier)) {
+        const uri = (q as Record<string, unknown> | undefined)?.["@_uri"];
+        if (typeof uri === "string" && uri) qualifiers.push(uri);
+      }
+    }
+  }
+  return { additional_service_info: asi, qualifiers };
 }
 
 /**
@@ -103,6 +145,13 @@ export function parseTsl(xml: string, country: string): TslServiceEntry[] {
         }
       }
 
+      const now = extractExtensions(info.ServiceInformationExtensions);
+      const history: TslServiceState[] = toArray(svc?.ServiceHistory?.ServiceHistoryInstance).map((h) => {
+        const hi = h as Record<string, unknown>;
+        const x = extractExtensions(hi.ServiceInformationExtensions);
+        return { status: String(hi.ServiceStatus ?? ""), starting_time: String(hi.StatusStartingTime ?? ""), ...x };
+      });
+
       entries.push({
         country,
         provider_name: providerName,
@@ -112,6 +161,9 @@ export function parseTsl(xml: string, country: string): TslServiceEntry[] {
         status,
         status_starting_time: statusStart,
         certificate_hashes: hashes,
+        additional_service_info: now.additional_service_info,
+        qualifiers: now.qualifiers,
+        status_history: history,
       });
     }
   }

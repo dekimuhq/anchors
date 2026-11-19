@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TrustServiceStatusList xmlns="http://uri.etsi.org/02231/v2#" xmlns:ns4="http://uri.etsi.org/01903/v1.3.2#" xmlns:ns5="http://uri.etsi.org/TrstSvc/SvcInfoExt/eSigDir-1999-93-EC-TrustedList/#">
+  <TrustServiceProviderList>
+    <!-- Shape copied from the live Spanish list (tsl.digital.gob.es), certificates replaced by dummy bytes. -->
+    <TrustServiceProvider>
+      <TSPInformation><TSPName><Name xml:lang="en">Test QTSP</Name></TSPName></TSPInformation>
+      <TSPServices>
+        <!-- A: signatures AND seals now; seals only since 2023. -->
+        <TSPService>
+          <ServiceInformation>
+            <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</ServiceTypeIdentifier>
+            <ServiceName><Name xml:lang="en">CA A</Name></ServiceName>
+            <ServiceDigitalIdentity><DigitalId><X509Certificate>QUFBQQ==</X509Certificate></DigitalId><DigitalId><X509SubjectName>CN=CA A</X509SubjectName></DigitalId></ServiceDigitalIdentity>
+            <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+            <StatusStartingTime>2023-02-06T00:00:00Z</StatusStartingTime>
+            <ServiceInformationExtensions>
+              <Extension Critical="true"><AdditionalServiceInformation><URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures</URI></AdditionalServiceInformation></Extension>
+              <Extension Critical="true"><AdditionalServiceInformation><URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSeals</URI></AdditionalServiceInformation></Extension>
+            </ServiceInformationExtensions>
+          </ServiceInformation>
+          <ServiceHistory>
+            <ServiceHistoryInstance>
+              <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</ServiceTypeIdentifier>
+              <ServiceName><Name xml:lang="en">CA A</Name></ServiceName>
+              <ServiceDigitalIdentity><DigitalId><X509SubjectName>CN=CA A</X509SubjectName></DigitalId></ServiceDigitalIdentity>
+              <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+              <StatusStartingTime>2016-06-30T22:00:00Z</StatusStartingTime>
+              <ServiceInformationExtensions>
+                <Extension Critical="true"><AdditionalServiceInformation><URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures</URI></AdditionalServiceInformation></Extension>
+              </ServiceInformationExtensions>
+            </ServiceHistoryInstance>
+          </ServiceHistory>
+        </TSPService>
+        <!-- B: website certificates only (QWAC) -->
+        <TSPService>
+          <ServiceInformation>
+            <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</ServiceTypeIdentifier>
+            <ServiceName><Name xml:lang="en">CA B (web)</Name></ServiceName>
+            <ServiceDigitalIdentity><DigitalId><X509Certificate>QkJCQg==</X509Certificate></DigitalId></ServiceDigitalIdentity>
+            <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+            <StatusStartingTime>2020-01-01T00:00:00Z</StatusStartingTime>
+            <ServiceInformationExtensions>
+              <Extension Critical="true"><AdditionalServiceInformation><URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForWebSiteAuthentication</URI></AdditionalServiceInformation></Extension>
+            </ServiceInformationExtensions>
+          </ServiceInformation>
+        </TSPService>
+        <!-- C: seals, with a NotQualified qualification and a QSCD qualifier -->
+        <TSPService>
+          <ServiceInformation>
+            <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</ServiceTypeIdentifier>
+            <ServiceName><Name xml:lang="en">CA C</Name></ServiceName>
+            <ServiceDigitalIdentity><DigitalId><X509Certificate>Q0NDQw==</X509Certificate></DigitalId></ServiceDigitalIdentity>
+            <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+            <StatusStartingTime>2021-01-01T00:00:00Z</StatusStartingTime>
+            <ServiceInformationExtensions>
+              <Extension Critical="true">
+                <ns5:Qualifications>
+                  <ns5:QualificationElement>
+                    <ns5:Qualifiers><ns5:Qualifier uri="http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/NotQualified"/></ns5:Qualifiers>
+                    <ns5:CriteriaList assert="atLeastOne"><ns5:PolicySet><ns5:PolicyIdentifier><ns4:Identifier Qualifier="OIDAsURN">urn:oid:1.2.3.4</ns4:Identifier></ns5:PolicyIdentifier></ns5:PolicySet></ns5:CriteriaList>
+                  </ns5:QualificationElement>
+                  <ns5:QualificationElement>
+                    <ns5:Qualifiers><ns5:Qualifier uri="http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/QCQSCDManagedOnBehalf"/></ns5:Qualifiers>
+                    <ns5:CriteriaList assert="atLeastOne"><ns5:PolicySet><ns5:PolicyIdentifier><ns4:Identifier Qualifier="OIDAsURN">urn:oid:1.2.3.5</ns4:Identifier></ns5:PolicyIdentifier></ns5:PolicySet></ns5:CriteriaList>
+                  </ns5:QualificationElement>
+                </ns5:Qualifications>
+              </Extension>
+              <Extension Critical="true"><AdditionalServiceInformation><URI xml:lang="en">http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSeals</URI></AdditionalServiceInformation></Extension>
+            </ServiceInformationExtensions>
+          </ServiceInformation>
+        </TSPService>
+        <!-- D: no extensions, no history -->
+        <TSPService>
+          <ServiceInformation>
+            <ServiceTypeIdentifier>http://uri.etsi.org/TrstSvc/Svctype/CA/QC</ServiceTypeIdentifier>
+            <ServiceName><Name xml:lang="en">CA D</Name></ServiceName>
+            <ServiceDigitalIdentity><DigitalId><X509Certificate>RERERA==</X509Certificate></DigitalId></ServiceDigitalIdentity>
+            <ServiceStatus>http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted</ServiceStatus>
+            <StatusStartingTime>2019-01-01T00:00:00Z</StatusStartingTime>
+          </ServiceInformation>
+        </TSPService>
+      </TSPServices>
+    </TrustServiceProvider>
+  </TrustServiceProviderList>
+</TrustServiceStatusList>

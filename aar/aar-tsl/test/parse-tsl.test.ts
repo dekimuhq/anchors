@@ -81,3 +81,36 @@ describe("parseTsl", () => {
     assert.equal(unknown.service_type, null);
   });
 });
+
+describe("parseTsl — service extensions and history", () => {
+  const FIX = readFileSync(new URL("./fixtures/national-tsl-es-qualifications.xml", import.meta.url), "utf8");
+  const by = (name: string) => parseTsl(FIX, "ES").find((e) => e.service_name === name)!;
+  const SI = "http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/";
+
+  it("reads the kinds of certificate a CA/QC service issues, so a website-only CA is distinguishable", () => {
+    assert.deepEqual(by("CA A").additional_service_info, [SI + "ForeSignatures", SI + "ForeSeals"]);
+    assert.deepEqual(by("CA B (web)").additional_service_info, [SI + "ForWebSiteAuthentication"]);
+    assert.deepEqual(by("CA D").additional_service_info, []);
+  });
+
+  it("reads Qualifications qualifier URIs from every qualification element", () => {
+    assert.deepEqual(by("CA C").qualifiers, [SI + "NotQualified", SI + "QCQSCDManagedOnBehalf"]);
+    assert.deepEqual(by("CA C").additional_service_info, [SI + "ForeSeals"]);
+    assert.deepEqual(by("CA A").qualifiers, []);
+  });
+
+  it("keeps service history with its own extensions (seals were added later)", () => {
+    const h = by("CA A").status_history;
+    assert.equal(h.length, 1);
+    assert.equal(h[0]!.starting_time, "2016-06-30T22:00:00Z");
+    assert.equal(h[0]!.status, "http://uri.etsi.org/TrstSvc/TrustedList/Svcstatus/granted");
+    assert.deepEqual(h[0]!.additional_service_info, [SI + "ForeSignatures"]);
+    assert.deepEqual(by("CA B (web)").status_history, []);
+  });
+
+  it("the original fixture (no extensions at all) yields empty arrays, never undefined", () => {
+    for (const e of parseTsl(FIXTURE, "ES")) {
+      assert.deepEqual([e.additional_service_info, e.qualifiers, e.status_history], [[], [], []]);
+    }
+  });
+});
