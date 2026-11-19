@@ -229,3 +229,58 @@ test("M35: iat and iat_ms are consistent", async () => {
   const env = await mintActionV2(baseInput());
   assert.equal(Date.parse(env.iat), env.iat_ms);
 });
+
+// ── Overlays are signed, and nothing invalid is signed ───────────────────────
+
+const ART12 = {
+  system_id: "hub-automations",
+  system_version: "2026.11.1",
+  period_start: "2026-06-01T00:00:00.000Z",
+};
+
+test("M36: aiact.art12 overlay is carried into the signed body and verifies", async () => {
+  const env = await mintActionV2({ ...baseInput(), profile: "aiact.art12", aiact_art12: ART12 });
+  const body = env.body as Record<string, unknown>;
+  assert.deepEqual(body.aiact_art12, ART12);
+  const r = await verifyReceipt(env, { resolveKey: makeResolveKey() });
+  assert.equal(r.signature_valid, true, r.reason ?? "ok");
+});
+
+test("M37: the overlay is bound by field_root (a different overlay changes the root)", async () => {
+  // Same profile both times, so only the overlay can move the root.
+  const a = await mintActionV2({ ...baseInput(), profile: "aiact.art12", aiact_art12: ART12 });
+  const b = await mintActionV2({
+    ...baseInput(),
+    profile: "aiact.art12",
+    aiact_art12: { ...ART12, system_version: "2026.11.2" },
+  });
+  assert.notEqual(
+    (a.body as { field_root: string }).field_root,
+    (b.body as { field_root: string }).field_root,
+  );
+});
+
+test("M38: refuses to sign aiact.art12 without its overlay", async () => {
+  await assert.rejects(
+    () => mintActionV2({ ...baseInput(), profile: "aiact.art12" }),
+    /refusing to sign.*aiact\.art12\.field_missing/,
+  );
+});
+
+test("M39: refuses to sign a malformed verb", async () => {
+  await assert.rejects(
+    () => mintActionV2({ ...baseInput(), verb: "Not A Verb" }),
+    /refusing to sign.*verb_malformed/,
+  );
+});
+
+test("M40: refuses to sign an unknown profile", async () => {
+  await assert.rejects(
+    () =>
+      mintActionV2({
+        ...baseInput(),
+        profile: "sanctions.screen" as unknown as "hub.automation",
+      }),
+    /refusing to sign.*profile\.invalid/,
+  );
+});

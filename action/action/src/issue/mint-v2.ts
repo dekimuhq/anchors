@@ -42,8 +42,11 @@ import type {
   AActRProfile,
   AActRCaveatsConsumed,
   AActRDelegationChain,
+  AActRArt12,
 } from "../types.ts";
+import { validateAiactArt12, validateHubAutomation } from "@dekimuhq/action-profiles";
 import { actionFamily } from "../family.ts";
+import { verifyActionBody } from "../verify-single.ts";
 
 const ACTION_CLAIM_TYPE = actionFamily.meta.claim_types[0]!;
 
@@ -100,6 +103,11 @@ export interface MintActionV2Input {
    * mandate). Provide iff `credential_id` is provided AND the mandate carried an agentId.
    */
   agent_id?: string;
+  /**
+   * OPTIONAL: the EU AI Act Article 12 record-keeping overlay. Required when
+   * `profile === "aiact.art12"` (the mint refuses that profile without it).
+   */
+  aiact_art12?: AActRArt12;
 
   /** Envelope-level policy URI (the automations surface). */
   policy_uri: string;
@@ -145,7 +153,37 @@ function buildBody(input: MintActionV2Input): AActRBody {
       ? { delegation_chain: input.delegation_chain }
       : {}),
     ...(input.agent_id !== undefined ? { agent_id: input.agent_id } : {}),
+    ...(input.aiact_art12 !== undefined
+      ? { aiact_art12: input.aiact_art12 }
+      : {}),
   };
+}
+
+const PROFILE_VALIDATORS: Record<
+  AActRProfile,
+  (body: AActRBody) => { errors: string[] }
+> = {
+  "hub.automation": validateHubAutomation,
+  "aiact.art12": validateAiactArt12,
+};
+
+/**
+ * A receipt is permanent and non-revocable, so the issuer refuses to sign a
+ * body its own verifier would reject: the base body check, then the
+ * profile's validator.
+ */
+function assertBodyValid(body: AActRBody): void {
+  const base = verifyActionBody(body);
+  const profile = PROFILE_VALIDATORS[body.profile];
+  const errors = [
+    ...base.errors,
+    ...(profile ? profile(body).errors : []),
+  ];
+  if (errors.length > 0) {
+    throw new Error(
+      `mintActionV2: body fails verification, refusing to sign (${errors.join(", ")})`
+    );
+  }
 }
 
 // ── mintActionV2 ────────────────────────────────────────────────────────────────
@@ -185,6 +223,7 @@ export async function mintActionV2(
   const { privateKey, issKey } = keyObjectFromSeed(input.signingKey.privateKey);
 
   const baseBody = buildBody(input);
+  assertBodyValid(baseBody);
   const field_root = computeFieldRoot(baseBody);
   const bodyOut: ActionV2BodyOut = { ...baseBody, field_root };
 
