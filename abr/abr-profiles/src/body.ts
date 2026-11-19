@@ -73,6 +73,7 @@ export type AbrProfile =
   | "breach.nis2.annex1.health"
   | "breach.nis2.annex1.digital_infrastructure"
   | "breach.dora.art19"
+  | "breach.cra.art14"
   | "breach.us_state.attorney_general";
 
 // ── Closed enums (body sub-fields) ────────────────────────────────────────────

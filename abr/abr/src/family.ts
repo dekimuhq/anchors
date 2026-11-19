@@ -61,11 +61,13 @@ import {
   BREACH_GDPR_ART34_PROFILE_ID,
   BREACH_NIS2_ART23_PROFILE_ID,
   BREACH_DORA_ART19_PROFILE_ID,
+  BREACH_CRA_ART14_PROFILE_ID,
   BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID,
   validateBreachGdprArt33Profile,
   validateBreachGdprArt34Profile,
   validateBreachNis2Art23Profile,
   validateBreachDoraArt19Profile,
+  validateBreachCraArt14Profile,
   validateBreachUsStateAttorneyGeneralProfile,
 } from "@dekimuhq/abr-profiles";
 import { abrBodyValidator } from "./body-validator.ts";
@@ -127,6 +129,7 @@ export const abrFamily: FamilyManifest<AbrBody> = defineFamily<AbrBody>({
     [BREACH_GDPR_ART34_PROFILE_ID]: validateBreachGdprArt34Profile,
     [BREACH_NIS2_ART23_PROFILE_ID]: validateBreachNis2Art23Profile,
     [BREACH_DORA_ART19_PROFILE_ID]: validateBreachDoraArt19Profile,
+    [BREACH_CRA_ART14_PROFILE_ID]: validateBreachCraArt14Profile,
     [BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID]:
       validateBreachUsStateAttorneyGeneralProfile,
   },
@@ -136,6 +139,7 @@ export const abrFamily: FamilyManifest<AbrBody> = defineFamily<AbrBody>({
     [BREACH_GDPR_ART34_PROFILE_ID]: "recommended",
     [BREACH_NIS2_ART23_PROFILE_ID]: "recommended",
     [BREACH_DORA_ART19_PROFILE_ID]: "recommended",
+    [BREACH_CRA_ART14_PROFILE_ID]: "recommended",
     [BREACH_US_STATE_ATTORNEY_GENERAL_PROFILE_ID]: "recommended",
   },
 

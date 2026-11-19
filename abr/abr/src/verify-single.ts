@@ -470,6 +470,7 @@ const ABR_PROFILES = new Set<string>([
   "breach.gdpr.art34",
   "breach.nis2.art23",
   "breach.dora.art19",
+  "breach.cra.art14",
   "breach.us_state.attorney_general",
 ]);
 
