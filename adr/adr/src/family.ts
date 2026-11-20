@@ -41,6 +41,7 @@ import {
   validateGdprArt28ProcessorProfile,
   validateGdprDsrAuthorisedAgentProfile,
   validateCorporateOfficerProfile,
+  validateWorkspaceDepartmentAccessProfile,
 } from "@dekimuhq/adr-profiles";
 import { AdrBodySchema } from "./body-schema.ts";
 import { composeAdr } from "./compose.ts";
@@ -68,7 +69,7 @@ const subjectPresenceCheck: SubjectPresenceCheck = ({ subject }) => {
 /**
  * Frozen ADR family manifest. Chip 4, status_list_slot 8, claim_type
  * `ar.delegation.v1`. Universal must-be-present subject rule (no per-event
- * split). All 6 v1 profiles registered; TSA mandate empty (all OPTIONAL).
+ * split). All 7 v1 profiles registered; TSA mandate empty (all OPTIONAL).
  * Continuity enabled. Compose slot wired (no-op — chain/tree walking is
  * direct in ADR).
  */
@@ -94,6 +95,7 @@ export const adrFamily: FamilyManifest<AdrBody> = defineFamily<AdrBody>({
     "gdpr.art28.processor": validateGdprArt28ProcessorProfile,
     "gdpr.dsr.authorised-agent": validateGdprDsrAuthorisedAgentProfile,
     "corporate.officer": validateCorporateOfficerProfile,
+    "workspace.department-access": validateWorkspaceDepartmentAccessProfile,
   },
 
   tsa_mandate: {},

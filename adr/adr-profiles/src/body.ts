@@ -43,7 +43,8 @@ export type AdrProfile =
   | "agentops.scoped-delegation"
   | "gdpr.art28.processor"
   | "gdpr.dsr.authorised-agent"
-  | "corporate.officer";
+  | "corporate.officer"
+  | "workspace.department-access";
 
 // ── Scope (spec §4.2 + §7.3, D13-ADR) ──────────────────────────────────────
 

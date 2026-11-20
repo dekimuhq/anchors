@@ -28,6 +28,7 @@ export const ADR_PROFILES: readonly AdrProfile[] = [
   "gdpr.art28.processor",
   "gdpr.dsr.authorised-agent",
   "corporate.officer",
+  "workspace.department-access",
 ] as const;
 
 // ── State machine (spec §7.1) ───────────────────────────────────────────────

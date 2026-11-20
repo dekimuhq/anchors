@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mintAdrV2 } from "../src/issue/mint-v2.ts";
-import { adrFamily } from "../src/index.ts";
+import { adrFamily, ADR_PROFILES } from "../src/index.ts";
 import {
   anchor,
   baseCommon,
@@ -257,4 +257,54 @@ test("T_QTS: non-null qts_attestation_hash round-trips through verifier", async 
   assert.equal(body.qts_attestation_hash, QTS);
   const r = await adrFamily.verifyReceipt(env, { resolveKey: makeResolveKey() });
   assert.equal(r.signature_valid, true, r.reason ?? "ok");
+});
+
+// ── WDA: workspace.department-access round-trips through the family ──────────
+
+test("WDA: workspace.department-access grant mints, registers and verifies", async () => {
+  const constraints = {
+    workspace_id: "ws_1",
+    department_key: "legal",
+    delegator_id: "usr_admin_1",
+    delegator_role: "admin",
+    delegate_role: "member",
+    previous_level: "none",
+    new_level: "write",
+    reason: "set",
+    effective_at: "2026-11-20T10:15:30Z",
+  };
+  const mint = (c: Record<string, unknown>) =>
+    mintAdrV2({
+      ...baseCommon,
+      profile: "workspace.department-access",
+      signingKey: makeSigningKey(),
+      event: "grant",
+      agent: { agent_id: "usr_member_1", agent_pubkey: null, agent_descriptor: null },
+      scope: {
+        actions: [`department-access.${String(c["new_level"])}`],
+        resources: ["department:legal"],
+        constraints: c,
+      },
+      delegable: false,
+      expiry: null,
+      rationale_uri: "https://app.dekimu.com/docs/department-access",
+      rationale_hash: "sha256:" + "f".repeat(64),
+    });
+
+  assert.ok(ADR_PROFILES.includes("workspace.department-access"));
+
+  const opts = { resolveKey: makeResolveKey(), profile: "workspace.department-access" };
+  const ok = await adrFamily.verifyReceipt(await mint(constraints), opts);
+  assert.equal(ok.signature_valid, true, ok.reason ?? "ok");
+  const entry = ok.profile_state?.find((p) => p.profile_id === "workspace.department-access");
+  assert.equal(entry?.ok, true);
+
+  // Negative control: a viewer above its ceiling is signed fine but fails the profile.
+  const bad = await adrFamily.verifyReceipt(
+    await mint({ ...constraints, new_level: "write", delegate_role: "viewer" }),
+    opts,
+  );
+  const badEntry = bad.profile_state?.find((p) => p.profile_id === "workspace.department-access");
+  assert.equal(badEntry?.ok, false);
+  assert.equal(badEntry?.reason, "workspace.department-access.level_exceeds_role_ceiling");
 });
