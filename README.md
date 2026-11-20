@@ -77,6 +77,8 @@ Each family package exposes its verifier on the package root (`.`) and its issue
 | `@dekimuhq/compliance` | [`compliance/compliance`](compliance/compliance) | 0.1.2 |
 | `@dekimuhq/redaction` | [`redaction/redaction`](redaction/redaction) | 0.1.2 |
 | `@dekimuhq/redaction-profiles` | [`redaction/redaction-profiles`](redaction/redaction-profiles) | 0.1.2 |
+| `@dekimuhq/screening` | [`screening/screening`](screening/screening) | 0.1.1 |
+| `@dekimuhq/screening-profiles` | [`screening/screening-profiles`](screening/screening-profiles) | 0.1.0 |
 | `@dekimuhq/did-web-resolver` | [`did-web-resolver`](did-web-resolver) | 0.5.1 |
 | `@dekimuhq/anchors-trusted-issuers` | [`trusted-issuers`](trusted-issuers) | 1.0.1 |
 | `@dekimuhq/anchors-federation` | [`federation`](federation) | 0.1.6 |
