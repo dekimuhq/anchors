@@ -25,7 +25,7 @@
     "@dekimuhq/asr-profiles": "^0.6.4",
     "@dekimuhq/air": "^0.7.5",
     "@dekimuhq/air-profiles": "^0.7.5",
-    "@dekimuhq/anchors": "^0.12.4",
+    "@dekimuhq/anchors": "^0.12.5",
     "@dekimuhq/anchors-federation": "^0.1.7"
   },
   "devDependencies": {
