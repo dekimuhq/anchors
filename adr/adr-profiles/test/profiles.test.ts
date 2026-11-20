@@ -25,6 +25,9 @@ import {
   CORPORATE_OFFICER_PROFILE_ID,
   validateCorporateOfficer,
   validateCorporateOfficerProfile,
+  WORKSPACE_DEPARTMENT_ACCESS_PROFILE_ID,
+  validateWorkspaceDepartmentAccess,
+  validateWorkspaceDepartmentAccessProfile,
 } from "../src/index.ts";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -694,4 +697,229 @@ test("agentops.scoped-delegation: valid grant still passes WITH authorizing_cred
   );
   // The external-mandate reference is orthogonal to profile validation.
   assert.deepEqual(withField.errors, withoutField.errors);
+});
+
+// ── workspace.department-access ──────────────────────────────────────────────
+
+const WDA = "workspace.department-access";
+
+function makeDeptGrant(
+  constraintOverrides?: Record<string, unknown>,
+  overrides?: Record<string, unknown>,
+): AdrBody {
+  const constraints: Record<string, unknown> = {
+    workspace_id: "ws_1",
+    department_key: "legal",
+    delegator_id: "0b6f3c1e-1111-4222-8333-444455556666",
+    delegator_role: "admin",
+    delegate_role: "member",
+    previous_level: "none",
+    new_level: "write",
+    reason: "set",
+    effective_at: "2026-11-20T10:15:30Z",
+    ...constraintOverrides,
+  };
+  const nl = constraints["new_level"];
+  const dk = constraints["department_key"];
+  return {
+    event: "grant",
+    profile: WDA,
+    agent: {
+      agent_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      agent_pubkey: null,
+      agent_descriptor: null,
+    },
+    scope: {
+      actions: [`department-access.${String(nl)}`],
+      resources: [`department:${String(dk)}`],
+      constraints,
+    },
+    delegable: false,
+    expiry: null,
+    rationale_uri: "https://example.com/department-access",
+    rationale_hash: "sha256:" + "a".repeat(64),
+    qts_attestation_hash: null,
+    ...overrides,
+  } as AdrBody;
+}
+
+function deptConstraints(): Record<string, unknown> {
+  return (makeDeptGrant() as unknown as { scope: { constraints: Record<string, unknown> } }).scope.constraints;
+}
+
+function wdaErrors(c?: Record<string, unknown>, o?: Record<string, unknown>): string[] {
+  return validateWorkspaceDepartmentAccess(makeDeptGrant(c, o)).errors;
+}
+
+test("workspace.department-access: valid grant passes", () => {
+  assert.deepEqual(wdaErrors(), []);
+});
+
+test("workspace.department-access: every level pairing in the model passes", () => {
+  assert.deepEqual(wdaErrors({ previous_level: "write", new_level: "none", delegate_role: "member" }), []);
+  assert.deepEqual(wdaErrors({ previous_level: "none", new_level: "admin", delegator_role: "owner" }), []);
+  assert.deepEqual(wdaErrors({ previous_level: "none", new_level: "read", delegate_role: "viewer" }), []);
+  assert.deepEqual(
+    wdaErrors({ previous_level: "write", new_level: "read", delegate_role: "viewer", reason: "role-changed", delegator_id: "system", delegator_role: "system" }),
+    [],
+  );
+  // Promotion to admin clears per-department levels.
+  assert.deepEqual(
+    wdaErrors({ previous_level: "read", new_level: "none", delegate_role: "admin", reason: "role-changed" }),
+    [],
+  );
+});
+
+test("workspace.department-access: removal with unknown role and system actor passes", () => {
+  assert.deepEqual(
+    wdaErrors({
+      previous_level: "write",
+      new_level: "none",
+      delegate_role: null,
+      reason: "member-removed",
+      delegator_id: "system",
+      delegator_role: "system",
+    }),
+    [],
+  );
+});
+
+test("workspace.department-access: department key is an open slug, not an enum", () => {
+  assert.deepEqual(wdaErrors({ department_key: "customer-success-2" }), []);
+});
+
+test("workspace.department-access: bad department keys produce error", () => {
+  for (const k of ["Legal", "legal ", "a_b", "-x", "x-", "a--b", "", "x".repeat(65), 5]) {
+    assert.ok(wdaErrors({ department_key: k }).includes(`${WDA}.department_key_invalid`), String(k));
+  }
+});
+
+test("workspace.department-access: non-grant event is rejected", () => {
+  const out = validateWorkspaceDepartmentAccess({
+    event: "revoke",
+    profile: WDA,
+    qts_attestation_hash: null,
+  } as AdrBody);
+  assert.deepEqual(out.errors, [`${WDA}.event_must_be_grant`]);
+});
+
+test("workspace.department-access: delegable / expiry / agent shape", () => {
+  assert.ok(wdaErrors({}, { delegable: true }).includes(`${WDA}.delegable_must_be_false`));
+  assert.ok(wdaErrors({}, { expiry: 1893456000 }).includes(`${WDA}.expiry_must_be_null`));
+  const agent = (a: Record<string, unknown>) => ({ agent: { agent_id: "m1", agent_pubkey: null, agent_descriptor: null, ...a } });
+  assert.ok(wdaErrors({}, agent({ agent_pubkey: "abc" })).includes(`${WDA}.agent_pubkey_must_be_null`));
+  assert.ok(
+    wdaErrors({}, agent({ agent_descriptor: { model: "m", model_version: "1", tool_set_hash: "sha256:x" } })).includes(
+      `${WDA}.agent_descriptor_must_be_null`,
+    ),
+  );
+});
+
+test("workspace.department-access: ids reject emails, names with spaces and dots", () => {
+  for (const bad of ["jane@example.com", "Jane Doe", "jane.doe", "", ".x", "x".repeat(129)]) {
+    assert.ok(wdaErrors({ workspace_id: bad }).includes(`${WDA}.workspace_id_invalid`), bad);
+    assert.ok(wdaErrors({ delegator_id: bad }).includes(`${WDA}.delegator_id_invalid`), bad);
+    assert.ok(
+      wdaErrors({}, { agent: { agent_id: bad, agent_pubkey: null, agent_descriptor: null } }).includes(`${WDA}.delegate_id_invalid`),
+      bad,
+    );
+  }
+});
+
+test("workspace.department-access: constraints is a closed key set", () => {
+  assert.ok(wdaErrors({ delegate_email: "jane@example.com" }).includes(`${WDA}.constraints_unknown_key`));
+  assert.ok(wdaErrors({ delegate_name: "Jane" }).includes(`${WDA}.constraints_unknown_key`));
+});
+
+test("workspace.department-access: missing constraints produce error", () => {
+  const out = validateWorkspaceDepartmentAccess(
+    makeDeptGrant({}, { scope: { actions: ["x"], resources: ["y"] } }),
+  );
+  assert.deepEqual(out.errors.filter((e) => e.endsWith("constraints_missing")), [`${WDA}.constraints_missing`]);
+});
+
+test("workspace.department-access: enum fields reject unknown values", () => {
+  assert.ok(wdaErrors({ previous_level: "owner" }).includes(`${WDA}.previous_level_invalid`));
+  assert.ok(wdaErrors({ new_level: "superuser" }).includes(`${WDA}.new_level_invalid`));
+  assert.ok(wdaErrors({ reason: "because" }).includes(`${WDA}.reason_invalid`));
+  assert.ok(wdaErrors({ delegator_role: "viewer" }).includes(`${WDA}.delegator_role_invalid`));
+  assert.ok(wdaErrors({ delegate_role: "guest" }).includes(`${WDA}.delegate_role_invalid`));
+});
+
+test("workspace.department-access: delegate_role null only on member-removed", () => {
+  assert.ok(wdaErrors({ delegate_role: null }).includes(`${WDA}.delegate_role_required`));
+});
+
+test("workspace.department-access: effective_at must be a real UTC instant", () => {
+  for (const bad of ["2026-11-20", "2026-11-20T10:15:30", "2026-11-20T10:15:30+01:00", "2026-02-30T10:15:30Z", "2026-13-01T00:00:00Z", "2026-11-20T24:00:00Z", 1763633730]) {
+    assert.ok(wdaErrors({ effective_at: bad }).includes(`${WDA}.effective_at_invalid`), String(bad));
+  }
+  assert.deepEqual(wdaErrors({ effective_at: "2026-11-20T10:15:30.123Z" }), []);
+});
+
+test("workspace.department-access: actions and resources must restate the constraints", () => {
+  assert.ok(
+    wdaErrors({}, { scope: { actions: ["department-access.read"], resources: ["department:legal"], constraints: deptConstraints() } }).includes(
+      `${WDA}.actions_mismatch`,
+    ),
+  );
+  assert.ok(
+    wdaErrors({}, { scope: { actions: ["department-access.write"], resources: ["department:hr"], constraints: deptConstraints() } }).includes(
+      `${WDA}.resources_mismatch`,
+    ),
+  );
+});
+
+test("workspace.department-access: unchanged level produces error", () => {
+  assert.ok(wdaErrors({ previous_level: "write", new_level: "write" }).includes(`${WDA}.level_unchanged`));
+});
+
+test("workspace.department-access: owner/admin delegate cannot carry a level", () => {
+  for (const role of ["owner", "admin"]) {
+    assert.ok(wdaErrors({ delegate_role: role, new_level: "read" }).includes(`${WDA}.full_access_role_has_no_level`), role);
+  }
+});
+
+test("workspace.department-access: viewer is capped at read", () => {
+  for (const lvl of ["write", "admin"]) {
+    assert.ok(wdaErrors({ delegate_role: "viewer", new_level: lvl }).includes(`${WDA}.level_exceeds_role_ceiling`), lvl);
+  }
+});
+
+test("workspace.department-access: removal must end at none", () => {
+  assert.ok(
+    wdaErrors({ reason: "member-removed", delegate_role: null, new_level: "read" }).includes(`${WDA}.removal_must_end_at_none`),
+  );
+});
+
+test("workspace.department-access: reason set needs a person; system id/role agree", () => {
+  assert.ok(
+    wdaErrors({ delegator_id: "system", delegator_role: "system" }).includes(`${WDA}.set_requires_person_delegator`),
+  );
+  assert.ok(
+    wdaErrors({ reason: "role-changed", delegator_role: "system" }).includes(`${WDA}.system_delegator_inconsistent`),
+  );
+  assert.ok(
+    wdaErrors({ reason: "role-changed", delegator_id: "system", delegator_role: "admin" }).includes(`${WDA}.system_delegator_inconsistent`),
+  );
+});
+
+test("workspace.department-access: department admin cannot grant admin", () => {
+  assert.ok(
+    wdaErrors({ delegator_role: "member", new_level: "admin" }).includes(`${WDA}.department_admin_cannot_grant_admin`),
+  );
+  assert.deepEqual(wdaErrors({ delegator_role: "member", new_level: "write" }), []);
+});
+
+test("workspace.department-access adapter: ok=true on valid grant", () => {
+  const out = validateWorkspaceDepartmentAccessProfile({} as never, makeDeptGrant(), {});
+  assert.equal(out.profile_id, WORKSPACE_DEPARTMENT_ACCESS_PROFILE_ID);
+  assert.equal(out.ok, true);
+  assert.equal(out.reason, undefined);
+});
+
+test("workspace.department-access adapter: ok=false with stable first reason", () => {
+  const out = validateWorkspaceDepartmentAccessProfile({} as never, makeDeptGrant({ reason: "nope" }), {});
+  assert.equal(out.ok, false);
+  assert.equal(out.reason, `${WDA}.reason_invalid`);
 });

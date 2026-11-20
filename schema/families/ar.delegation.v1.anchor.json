@@ -16,7 +16,7 @@
   },
   "body": {
     "event": { "type": "enum", "enum_values": ["grant", "revoke", "narrow", "renew", "suspend", "resume"] },
-    "profile": { "type": "enum", "enum_values": ["aiact.art26.deployer", "aiact.art14.oversight", "agentops.scoped-delegation", "gdpr.art28.processor", "corporate.officer"] },
+    "profile": { "type": "enum", "enum_values": ["aiact.art26.deployer", "aiact.art14.oversight", "agentops.scoped-delegation", "gdpr.art28.processor", "gdpr.dsr.authorised-agent", "corporate.officer", "workspace.department-access"] },
     "agent": {
       "type": "object",
       "fields": {
@@ -53,7 +53,9 @@
     { "id": "aiact.art14.oversight", "regulation": "AI Act Art. 14" },
     { "id": "agentops.scoped-delegation", "regulation": "Agent Operations" },
     { "id": "gdpr.art28.processor", "regulation": "GDPR Art. 28" },
-    { "id": "corporate.officer", "regulation": "Corporate Governance" }
+    { "id": "gdpr.dsr.authorised-agent", "regulation": "GDPR Arts. 12, 15-21" },
+    { "id": "corporate.officer", "regulation": "Corporate Governance" },
+    { "id": "workspace.department-access", "regulation": "Workspace access control (not a regulation)" }
   ],
   "compose": {
     "chain_predecessor": true

@@ -17,7 +17,7 @@ export interface ProfileValidationResult {
 }
 
 /**
- * Discriminator over the 6 v1 profile ids. Re-exported from the verifier so
+ * Discriminator over the 7 v1 profile ids. Re-exported from the verifier so
  * downstream packages can pin the ID set without importing both packages.
  */
 export type { AdrProfile };

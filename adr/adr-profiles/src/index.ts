@@ -1,4 +1,4 @@
-// @dekimuhq/adr-profiles — public surface for the 6 ADR v1 profile validators
+// @dekimuhq/adr-profiles — public surface for the 7 ADR v1 profile validators
 // (spec section 5).
 
 export * from "./body.ts";
@@ -9,3 +9,4 @@ export * from "./agentops-scoped-delegation.ts";
 export * from "./gdpr-art28-processor.ts";
 export * from "./gdpr-dsr-authorised-agent.ts";
 export * from "./corporate-officer.ts";
+export * from "./workspace-department-access.ts";

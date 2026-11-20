@@ -1,7 +1,7 @@
 {
   "name": "@dekimuhq/adr-profiles",
   "version": "0.4.3",
-  "description": "Regulation profile validators for ADR v1: aiact.art26.deployer, aiact.art14.oversight, agentops.scoped-delegation, gdpr.art28.processor, corporate.officer.",
+  "description": "Regulation profile validators for ADR v1: aiact.art26.deployer, aiact.art14.oversight, agentops.scoped-delegation, gdpr.art28.processor, gdpr.dsr.authorised-agent, corporate.officer, workspace.department-access.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
