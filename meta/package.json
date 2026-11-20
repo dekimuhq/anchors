@@ -1,6 +1,6 @@
 {
   "name": "@dekimuhq/anchors",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "description": "Meta-package re-exporting the Anchored Receipts family: APR + ACR + ARR + ALR + ANR + ABR + ASR + AIR + ATokR + AAR + ADR + APuR + AER + ATR.",
   "license": "Apache-2.0",
   "type": "module",
@@ -201,8 +201,8 @@
     "@dekimuhq/apur-profiles": "^0.3.4",
     "@dekimuhq/aar": "^0.4.5",
     "@dekimuhq/aar-profiles": "^0.4.5",
-    "@dekimuhq/adr-profiles": "^0.4.3",
-    "@dekimuhq/adr": "^0.4.3",
+    "@dekimuhq/adr-profiles": "^0.5.0",
+    "@dekimuhq/adr": "^0.5.0",
     "@dekimuhq/aer-profiles": "^0.3.4",
     "@dekimuhq/aer": "^0.3.4",
     "@dekimuhq/atr": "^0.3.4",

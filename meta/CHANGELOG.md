@@ -1,3 +1,11 @@
+## 0.12.5
+
+### Patch Changes
+
+- Updated dependencies [63a5970]
+  - @dekimuhq/adr@0.5.0
+  - @dekimuhq/adr-profiles@0.5.0
+
 ## 0.12.4
 
 ### Patch Changes
