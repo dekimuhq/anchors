@@ -105,3 +105,24 @@ describe("snapshot", () => {
     });
   });
 });
+
+describe("buildTslSnapshot resilience", () => {
+  it("survives a national TSL that is not parseable XML", async () => {
+    const { buildTslSnapshot } = await import("../src/snapshot.ts");
+    const lotl = readFileSync(new URL("./fixtures/lotl.xml", import.meta.url), "utf8");
+    const es = TSL_ES;
+    const real = globalThis.fetch;
+    globalThis.fetch = (async (input: unknown) => {
+      const u = String(input);
+      if (u.includes("eu-lotl.xml")) return new Response(lotl);
+      if (u.includes("minetur")) return new Response(es);
+      return new Response("%PDF-1.7 <</Type/Sig", { status: 200 }); // DE, IT: junk
+    }) as typeof fetch;
+    try {
+      const snap = await buildTslSnapshot();
+      assert.equal(snap.tree_size, 3);
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+});

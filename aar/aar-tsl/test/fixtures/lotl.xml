@@ -11,6 +11,17 @@
         </AdditionalInformation>
       </OtherTSLPointer>
       <OtherTSLPointer>
+        <TSLLocation>https://tsl.digital.gob.es/TSL.pdf</TSLLocation>
+        <AdditionalInformation>
+          <OtherInformation>
+            <SchemeTerritory>ES</SchemeTerritory>
+          </OtherInformation>
+          <OtherInformation>
+            <MimeType>application/pdf</MimeType>
+          </OtherInformation>
+        </AdditionalInformation>
+      </OtherTSLPointer>
+      <OtherTSLPointer>
         <TSLLocation>https://www.bnetza.de/tsl/DE-TSL.xml</TSLLocation>
         <AdditionalInformation>
           <OtherInformation>
