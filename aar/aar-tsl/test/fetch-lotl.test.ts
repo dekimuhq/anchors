@@ -26,6 +26,12 @@ describe("parseLotl", () => {
     assert.ok(es.url.includes("sede.minetur.gob.es"));
   });
 
+  it("skips PDF pointers listed beside the XML pointer", () => {
+    const pointers = parseLotl(FIXTURE);
+    assert.ok(pointers.every((p) => !p.url.endsWith(".pdf")));
+    assert.equal(pointers.filter((p) => p.country === "ES").length, 1);
+  });
+
   it("returns empty array for XML with no pointers", () => {
     const empty = `<?xml version="1.0"?><TrustServiceStatusList xmlns="http://uri.etsi.org/02231/v2#"><SchemeInformation/></TrustServiceStatusList>`;
     const pointers = parseLotl(empty);

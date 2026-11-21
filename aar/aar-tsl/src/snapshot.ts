@@ -89,7 +89,7 @@ export function getProofBundle(
 /**
  * Full pipeline: fetch LOTL + all national TSLs → parse → build snapshot.
  *
- * Skips national TSLs that fail to fetch (logs warning, continues).
+ * Skips national TSLs that fail to fetch or parse (continues with the rest).
  * This is the main entry point for cron jobs and self-hosted mirrors.
  */
 export async function buildTslSnapshot(): Promise<TslSnapshot> {
@@ -110,8 +110,11 @@ export async function buildTslSnapshot(): Promise<TslSnapshot> {
 
   for (const result of results) {
     if (result) {
-      const entries = parseTsl(result.xml, result.country);
-      allEntries.push(...entries);
+      try {
+        allEntries.push(...parseTsl(result.xml, result.country));
+      } catch {
+        // One unparseable national TSL must not sink the whole snapshot.
+      }
     }
   }
 

@@ -46,15 +46,22 @@ export function parseLotl(xml: string): NationalTslPointer[] {
     // Extract SchemeTerritory from AdditionalInformation → OtherInformation
     const otherInfos = toArray(ptr?.AdditionalInformation?.OtherInformation);
     let country = "";
+    let mime = "";
     for (const oi of otherInfos) {
       if (typeof oi === "object" && oi !== null) {
         const obj = oi as Record<string, unknown>;
-        if (typeof obj.SchemeTerritory === "string") {
+        if (!country && typeof obj.SchemeTerritory === "string") {
           country = obj.SchemeTerritory;
-          break;
+        }
+        if (!mime && typeof obj.MimeType === "string") {
+          mime = obj.MimeType.trim().toLowerCase();
         }
       }
     }
+
+    // The LOTL lists a human-readable PDF pointer beside the XML one for some
+    // countries. Only machine-readable pointers are TSLs we can parse.
+    if (mime && !mime.includes("xml")) continue;
 
     if (country && url.startsWith("http")) {
       result.push({ country, url });
