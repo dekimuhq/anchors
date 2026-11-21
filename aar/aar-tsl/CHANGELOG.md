@@ -1,5 +1,11 @@
 # @dekimuhq/aar-tsl
 
+## 0.3.1
+
+### Patch Changes
+
+- 8190d2d: Skip PDF pointers in the LOTL (only machine-readable TSLs are parsed) and isolate per-country parse failures, so one national list can no longer fail the whole snapshot. Before this, `buildTslSnapshot()` threw on the human-readable PDF pointers the LOTL lists beside the XML ones for 11 countries.
+
 ## 0.3.0
 
 ### Minor Changes
