@@ -40,6 +40,8 @@ export interface SignedListOpts {
   bitstringLengthBits?: number;
   /** validFrom embedded in the credential — "2026-05-01T00:00:00Z" by default. */
   validFrom?: string;
+  /** Override the encodedList string (e.g. a validly-signed but undecodable list). */
+  encodedList?: string;
   /** Reuse a signing keypair (so two lists verify under one rootKey). */
   keypair?: { publicKey: KeyObject; privateKey: KeyObject };
 }
@@ -67,7 +69,7 @@ export function makeSignedStatusList(opts: SignedListOpts): SignedListResult {
     const bitOff = 7 - (opts.bitIndex & 7); // MSB-first
     bits[byteIdx] = (bits[byteIdx] ?? 0) | (1 << bitOff);
   }
-  const encodedList = encodedListFromBitstring(bits);
+  const encodedList = opts.encodedList ?? encodedListFromBitstring(bits);
 
   const { publicKey, privateKey } = opts.keypair ?? generateKeyPairSync("ed25519");
   const publicKeyDer = publicKey.export({ format: "der", type: "spki" });

@@ -176,8 +176,10 @@ export interface FamilyVerifyOptions {
   statusListMinValidFrom?: string | Date;
   /**
    * F3 — reject a status list whose `validFrom` is more than this many seconds
-   * old. Optional; additive. Only a freshness bound if the list publisher signs
-   * `validFrom` = signing time (strictly increasing per re-sign); see README. Rollback across calls is detected automatically
+   * old. Optional; additive. Bounds time since the publisher's last signing,
+   * NOT liveness (a publisher that re-signs only on bit flips would be rejected
+   * after a long quiet period); set above its max no-flip interval or leave
+   * unset. Needs `validFrom` = signing time; see README. Rollback across calls is detected automatically
    * when `statusCacheConfig.storage` is supplied (the cache remembers the
    * newest verified `validFrom`).
    */

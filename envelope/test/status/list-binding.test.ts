@@ -264,3 +264,31 @@ test("F3b: suspension lists may legitimately clear a bit at equal validFrom (no 
   assert.equal((await verifySuspensionStatus(e, o(s.credential))).state, "suspended");
   assert.equal((await verifySuspensionStatus(e, o(u.credential))).state, "not_suspended");
 });
+
+test("F3d: a signed but UNDECODABLE list never becomes the known set (cannot disable the equal-validFrom rollback check)", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const VF = "2026-11-01T00:00:00Z";
+  const pre = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: VF });
+  const post = makeSignedStatusList({ bitIndex: 5, bitValue: 1, credentialUrl: URL_A, keypair, validFrom: VF });
+  const junk = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: VF, encodedList: "AAAA-not-gzip" });
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: pre.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(post.credential))).state, "revoked");
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(junk.credential))).state, "list_mismatch");
+  const replay = await verifyCredentialStatus(env(URL_A), o(pre.credential));
+  assert.equal(replay.state, "list_mismatch", "pre-revocation replay must still be rejected");
+  if (replay.state === "list_mismatch") assert.equal(replay.reason, "list_rollback");
+});
+
+test("F3d: a signed list with the wrong statusPurpose does not advance the high-water mark", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const wrong = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: "2026-12-31T00:00:00Z", statusPurpose: "suspension" });
+  const genuine = makeSignedStatusList({ bitIndex: 5, bitValue: 1, credentialUrl: URL_A, keypair, validFrom: "2026-11-01T00:00:00Z" });
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: wrong.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(genuine.credential))).state, "revoked");
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(wrong.credential))).state, "list_mismatch");
+  // had the wrong-purpose list advanced hw to 2026-12-31, the genuine list would now read as a rollback
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(genuine.credential))).state, "revoked");
+});

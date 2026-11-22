@@ -48,8 +48,13 @@ publisher MUST sign `validFrom` = the signing time of each re-sign, strictly
 increasing per re-sign — never a constant such as the start of a time bucket.
 Rollback defence depends on it: with a persistent `cacheConfig.storage` the
 verifier remembers the newest verified `validFrom` and rejects older lists
-(`list_mismatch`/`list_rollback`), and `maxListAgeSec` / `minListValidFrom`
-measure real freshness. If `validFrom` is constant, the only residual signal is
+(`list_mismatch`/`list_rollback`). `maxListAgeSec` / `minListValidFrom` bound
+the time since the publisher's LAST SIGNING, not liveness: a publisher that
+re-signs only when bits change has `validFrom` = last flip, so a genuine list
+with no flips for longer than the bound is rejected. Set `maxListAgeSec` above
+the publisher's maximum no-flip interval, or leave it unset and rely on the
+cache high-water mark. If consumers want a real freshness bound, the publisher
+MAY need to re-sign periodically even with unchanged bits. If `validFrom` is constant, the only residual signal is
 for `revocation` lists: at an equal `validFrom`, a list that clears a bit the
 cache already saw set is rejected as `list_rollback` (revocation is permanent);
 this works only after the cache has seen the post-revocation list. The list

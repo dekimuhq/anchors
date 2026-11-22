@@ -17,7 +17,8 @@
  * SIGNING time of each re-sign, strictly increasing per re-sign (never the
  * start of a time bucket). Only then does:
  *   - `validFrom < high-water`  detect replay of an older snapshot, and
- *   - `maxListAgeSec`           measure freshness rather than bucket age.
+ *   - `maxListAgeSec`           bound the time since the publisher's last
+ *                               signing (see below — NOT liveness).
  * If a publisher re-signs with a constant `validFrom`, replay of a
  * pre-revocation snapshot is indistinguishable from the genuine list EXCEPT for
  * one signal we can still use: for `revocation` lists (`monotoneRevocation`),
@@ -40,10 +41,13 @@ export interface ListFreshnessBounds {
    */
   minListValidFrom?: string | Date;
   /**
-   * Reject a list whose `validFrom` is more than this many seconds old.
-   * Measures FRESHNESS only if the publisher signs `validFrom` = signing time;
-   * against a publisher that signs a bucket start it measures bucket age and
-   * would reject genuine late-bucket lists — leave unset for such publishers.
+   * Reject a list whose `validFrom` is more than this many seconds old. This
+   * bounds the time since the publisher's LAST SIGNING, not liveness: a
+   * publisher that re-signs only when bits change has `validFrom` = last flip,
+   * so a genuine list in a period with no flips is rejected once it is older
+   * than the bound. Set it above the publisher's maximum no-flip interval, or
+   * leave it unset and rely on the cache high-water mark. A real freshness bound
+   * needs the publisher to re-sign periodically even when no bit changed.
    */
   maxListAgeSec?: number;
 }
@@ -118,15 +122,37 @@ export async function checkListBinding(args: {
     return reject("list_rollback");
   }
 
-  // Accepted: advance the verified high-water mark (monotonic).
+  // Accepted so far. The cache is NOT written here: the caller must first
+  // confirm the list's statusPurpose and that it decodes, then call
+  // `commitVerifiedList` — an undecodable/wrong-purpose list must never become
+  // the stored high-water mark or known set.
+  return null;
+}
+
+/**
+ * Advance the verified high-water mark + known set (monotonic). Call ONLY after
+ * `checkListBinding` returned `null` AND the list's statusPurpose matched AND
+ * its `encodedList` decoded.
+ */
+export async function commitVerifiedList(args: {
+  body: { validFrom?: unknown; credentialSubject?: { encodedList?: unknown } };
+  url: string;
+  storage: StatusCacheStorage;
+  prev: StatusListEntry | undefined;
+  entry: StatusListEntry;
+}): Promise<void> {
+  const { body, url, storage, prev, entry } = args;
+  const validFrom = parseValidFrom(body.validFrom);
+  if (validFrom === undefined) return; // nothing orderable to remember
+  const hw = prev?.verified_valid_from;
   const next: StatusListEntry = {
     ...entry,
     verified_valid_from: hw === undefined ? validFrom : Math.max(hw, validFrom),
   };
+  const encoded = body.credentialSubject?.encodedList;
   if (typeof encoded === "string") next.verified_encoded_list = encoded;
   else delete next.verified_encoded_list;
   await storage.set(url, next);
-  return null;
 }
 
 /**
@@ -151,7 +177,7 @@ function clearsKnownRevokedBit(known: string, next: string): boolean {
     a = decodeEncodedList(known);
     b = decodeEncodedList(next);
   } catch {
-    return false; // a malformed new list is rejected by the caller's decode step
+    return true; // fail CLOSED: an undecodable list cannot prove it keeps known bits
   }
   for (let i = 0; i < a.length; i++) {
     if (((a[i] ?? 0) & ~(b[i] ?? 0) & 0xff) !== 0) return true;

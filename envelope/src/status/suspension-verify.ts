@@ -13,7 +13,7 @@ import { fetchStatusListCredential } from "./fetch.ts";
 import { verifyStatusListCredentialSignature } from "./verify.ts";
 import { decodeEncodedList, readBitAt } from "./decode.ts";
 import { InMemoryStatusCache } from "./cache.ts";
-import { checkListBinding, restorePrev } from "./list-binding.ts";
+import { checkListBinding, commitVerifiedList, restorePrev } from "./list-binding.ts";
 import type { ListFreshnessBounds } from "./list-binding.ts";
 import type { Envelope } from "../envelope-types.ts";
 import type {
@@ -109,6 +109,7 @@ export async function verifySuspensionStatus(
     !body?.credentialSubject?.statusPurpose ||
     body.credentialSubject.statusPurpose !== "suspension"
   ) {
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_mismatch", reason: "statusPurpose_mismatch" };
   }
 
@@ -116,6 +117,14 @@ export async function verifySuspensionStatus(
   let bit: 0 | 1;
   try {
     bits = decodeEncodedList(body.credentialSubject.encodedList);
+  } catch (err) {
+    await restorePrev(storage, statusListId, prev);
+    const reason = err instanceof Error ? err.message : String(err);
+    return { state: "list_mismatch", reason };
+  }
+  // Statuspurpose matched and the list decodes: only now remember it (F3).
+  await commitVerifiedList({ body, url: statusListId, storage, prev, entry });
+  try {
     const idx = parseInt(envelope.suspensionStatus.statusListIndex, 10);
     if (!Number.isSafeInteger(idx) || idx >= bits.length * 8) {
       return { state: "list_mismatch", reason: "statusListIndex_out_of_range" };
