@@ -201,6 +201,16 @@ export function isSupportedSigAlg(sigAlg: string | undefined): boolean {
 }
 
 /**
+ * Algorithm prefix of an `<alg>:<key>` reference, or `null` when there is no
+ * ':' separator. (`slice(0, indexOf(":"))` with indexOf === -1 would drop the
+ * last character and let "ed25519X" read as prefix "ed25519".)
+ */
+function keyRefAlgPrefix(ref: string): string | null {
+  const idx = ref.indexOf(":");
+  return idx <= 0 ? null : ref.slice(0, idx);
+}
+
+/**
  * Verify the issuer signature on an envelope against a DER-encoded public key,
  * dispatching on `sig_alg` (§L8). Absent `sig_alg` ≡ `"ed25519"`.
  *
@@ -227,8 +237,7 @@ export function verifyEnvelopeSignature(
     // an algorithm-substitution / agility-downgrade primitive once more than one
     // scheme is registered. `iss_key` is `<alg>:<base64url>`; reject a mismatch.
     if (e.iss_key) {
-      const prefix = e.iss_key.slice(0, e.iss_key.indexOf(":"));
-      if (prefix !== alg) return false;
+      if (keyRefAlgPrefix(e.iss_key) !== alg) return false;
     }
 
     const verify = resolveVerifier(alg);
@@ -331,8 +340,7 @@ export function verifyEnvelopeSig2(
     // §L6 binding for the sig2 slot: the sig2_key algorithm prefix MUST equal
     // sig2_alg, or an attacker could advertise a key under one algorithm while
     // the verifier validates the signature under another. Both are signed-in.
-    const prefix = e.sig2_key.slice(0, e.sig2_key.indexOf(":"));
-    if (prefix !== alg) return false;
+    if (keyRefAlgPrefix(e.sig2_key) !== alg) return false;
 
     const verify = resolveVerifier(alg);
     if (!verify) return false;

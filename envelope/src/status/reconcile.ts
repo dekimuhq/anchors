@@ -27,6 +27,8 @@ import { fetchStatusListCredential } from "./fetch.ts";
 import { verifyStatusListCredentialSignature } from "./verify.ts";
 import { decodeEncodedList, readBitAt } from "./decode.ts";
 import { InMemoryStatusCache } from "./cache.ts";
+import { checkListBinding } from "./list-binding.ts";
+import type { ListFreshnessBounds } from "./list-binding.ts";
 import type { Envelope } from "../envelope-types.ts";
 import type {
   StatusCheck,
@@ -35,7 +37,7 @@ import type {
   StatusListCredential,
 } from "./types.ts";
 
-export interface ReconcileOpts {
+export interface ReconcileOpts extends ListFreshnessBounds {
   /**
    * Root key for verifying the Status List Credential signature. Required for
    * a real check. If absent (undefined), returns `{ state: "not_attempted" }`.
@@ -92,6 +94,8 @@ export async function verifyCredentialStatus(
     freshTtlSec: cacheConfig.freshTtlSec,
     staleTtlSec: cacheConfig.staleTtlSec,
   };
+  // Verified high-water mark from any earlier check (rollback defence).
+  const prev = await storage.get(statusListId);
   const fetched = await fetchStatusListCredential(
     statusListId,
     opts._testFetch !== undefined
@@ -114,6 +118,23 @@ export async function verifyCredentialStatus(
 
   // Narrow the credential body for statusPurpose + encodedList.
   const body = entry.body as StatusListCredential;
+
+  // F3: bind the signed list to the requested URL and to a point in time.
+  const bindingBounds: ListFreshnessBounds = {};
+  if (opts.minListValidFrom !== undefined) bindingBounds.minListValidFrom = opts.minListValidFrom;
+  if (opts.maxListAgeSec !== undefined) bindingBounds.maxListAgeSec = opts.maxListAgeSec;
+  const bindingReason = await checkListBinding({
+    body,
+    url: statusListId,
+    storage,
+    prev,
+    entry,
+    bounds: bindingBounds,
+  });
+  if (bindingReason !== null) {
+    return { state: "list_mismatch", reason: bindingReason };
+  }
+
   if (
     !body?.credentialSubject?.statusPurpose ||
     body.credentialSubject.statusPurpose !== envelope.credentialStatus.statusPurpose

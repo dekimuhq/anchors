@@ -26,7 +26,10 @@
  *  14. Composition walk (if the family declares one)
  *  15. Body-keyed TSA mandate (if the family declares `body_tsa_mandate`)
  *
- * Advisory steps (11–13) never poison `signature_valid` on their own, EXCEPT:
+ * Advisory steps (11–13) never poison `signature_valid` on their own — but step
+ * 11 sets `status_blocking` (true when revoked / status unverifiable); consumers
+ * that must refuse revoked receipts gate on `signature_valid && !status_blocking`.
+ * EXCEPT:
  *   - TSA with tsaMandateLevel "mandatory" + any tsa_state other than
  *     "tsa_verified" → signature_valid: false. Absent → reason
  *     "tsa_required"; present but unverified → reason "tsa_unverified". This
@@ -113,11 +116,13 @@ export interface FamilyVerifyOptions {
    * symmetric to `resolveKey` but for `sig2_key`. Returns the public-key bytes
    * the `sig2_alg` scheme expects (SPKI DER for ed25519, raw 1952-byte for
    * ml-dsa-65). When omitted, the pipeline SELF-CERTIFIES the `sig2_key`
-   * embedded in the receipt (decodes the fingerprint directly) — the honest
-   * default, since the per-receipt downgrade defense (§C-2) only needs a VALID
-   * PQC signature over the bytes, not a trusted second key (issuer identity is
-   * established by the primary `sig`). Supply this only to bind `sig2` to a
-   * trusted key store as well. A thrown exception is caught and the `sig2` check
+   * embedded in the receipt (decodes the fingerprint directly) — adequate for
+   * the per-receipt `sig_min_alg` posture (§C-2), but NOT for an issuer-level
+   * PQC mandate: a self-certified `sig2` never counts toward `verifyIssuerPqc`
+   * (an attacker who forged `sig` can attach their own ML-DSA key), so a
+   * `pqc_mandatory` issuer's hybrid receipt is rejected
+   * (`issuer_pqc_mandatory:<alg>`) unless this resolver binds `sig2` to the
+   * issuer-published key. Supply it to bind `sig2` to a trusted key store. A thrown exception is caught and the `sig2` check
    * is treated as failed (the `sig_min_alg` posture then decides the verdict).
    */
   resolveSig2Key?: (envelope: unknown) => Promise<Uint8Array | null | undefined> | Uint8Array | null | undefined;
@@ -159,6 +164,18 @@ export interface FamilyVerifyOptions {
   statusListRootKey?: RootKeyMaterial;
   /** Status-list cache and freshness configuration. */
   statusCacheConfig?: StatusCacheConfig;
+  /**
+   * F3 — reject a status list whose `validFrom` is earlier than this instant
+   * (`list_mismatch`/`list_too_old`). Optional; additive.
+   */
+  statusListMinValidFrom?: string | Date;
+  /**
+   * F3 — reject a status list whose `validFrom` is more than this many seconds
+   * old. Optional; additive. Rollback across calls is detected automatically
+   * when `statusCacheConfig.storage` is supplied (the cache remembers the
+   * newest verified `validFrom`).
+   */
+  statusListMaxAgeSec?: number;
   /** Chain-successor resolver (ACR/ARR — return true if a successor exists). */
   chainResolver?: (id: string) => Promise<boolean>;
 
@@ -316,6 +333,20 @@ export interface FamilyVerifyResult {
 
   // ── Status-list fields ──
   status_state?: StatusCheck["state"];
+  /**
+   * F4 — single boolean consumers should gate on. `true` when the status check
+   * found the receipt REVOKED (`revoked`, `revoked_stale`, `revoked_by_chain`)
+   * or could not establish its status (`list_signature_invalid`, `list_mismatch`
+   * incl. a wrong-url / rolled-back / too-old list, `unreachable`,
+   * `invalid_pointer`). `false` when the status was established as not revoked
+   * (`active*`) OR when no check ran (`not_attempted` / `no_status_pointer` —
+   * supply `statusListRootKey` to get a real answer).
+   *
+   * Additive: Step 11 stays advisory and `signature_valid` keeps its meaning
+   * (the signature + hard checks verified). A consumer that must refuse revoked
+   * receipts MUST check `signature_valid && !status_blocking`.
+   */
+  status_blocking?: boolean;
   status_list_id?: string | null;
   warnings?: string[];
   status_fresh_until?: number;
@@ -376,8 +407,20 @@ export interface FamilyVerifyPredicates<BodyType = unknown> {
 
 // ── Internal status helper ───────────────────────────────────────────────────
 
+/** States that revoke the receipt or leave its status unestablished (F4). */
+const STATUS_BLOCKING: ReadonlySet<StatusCheck["state"]> = new Set([
+  "revoked",
+  "revoked_stale",
+  "revoked_by_chain",
+  "list_signature_invalid",
+  "list_mismatch",
+  "unreachable",
+  "invalid_pointer",
+]);
+
 function applyStatusCheck(out: FamilyVerifyResult, s: StatusCheck): void {
   out.status_state = s.state;
+  out.status_blocking = STATUS_BLOCKING.has(s.state);
   switch (s.state) {
     case "not_attempted":
     case "no_status_pointer":
@@ -606,8 +649,19 @@ export function buildVerifyReceipt<BodyType>(
       // is forgeable post-CRQC. `validAlgs` is non-empty here (hybrid.ok ⟹
       // primaryOk), but the guard keeps it fail-safe if that ever changes.
       if (opts.verifyIssuerPqc !== undefined && trustR.matched_record !== null) {
+        // F2: a `sig2` verified against a key the receipt itself supplied
+        // (no `resolveSig2Key`) proves only self-consistency — an attacker who
+        // forged the classical signature can attach their own ML-DSA key. It
+        // therefore MUST NOT count toward the issuer's PQC mandate; only a
+        // `sig2` checked against a verifier-bound key (issuer-published
+        // material) does. `validAlgs` is [primary, sig2?] (primary verified,
+        // since hybrid.ok), so an unbound sig2 is dropped by keeping slot 0.
+        const evidenceAlgs =
+          opts.resolveSig2Key !== undefined
+            ? hybrid.validAlgs
+            : hybrid.validAlgs.slice(0, 1);
         let receiptSigAlg: SigAlg | undefined;
-        for (const a of hybrid.validAlgs) {
+        for (const a of evidenceAlgs) {
           if (receiptSigAlg === undefined || SIG_ALG_RANK[a] > SIG_ALG_RANK[receiptSigAlg]) {
             receiptSigAlg = a;
           }
@@ -709,6 +763,8 @@ export function buildVerifyReceipt<BodyType>(
         rootKey: RootKeyMaterial;
         cacheConfig?: StatusCacheConfig;
         chainSuccessorExists?: (id: string) => Promise<boolean>;
+        minListValidFrom?: string | Date;
+        maxListAgeSec?: number;
       } = { rootKey: opts.statusListRootKey };
       if (opts.statusCacheConfig !== undefined) {
         statusBaseOpts.cacheConfig = opts.statusCacheConfig;
@@ -716,10 +772,17 @@ export function buildVerifyReceipt<BodyType>(
       if (opts.chainResolver !== undefined) {
         statusBaseOpts.chainSuccessorExists = opts.chainResolver;
       }
+      if (opts.statusListMinValidFrom !== undefined) {
+        statusBaseOpts.minListValidFrom = opts.statusListMinValidFrom;
+      }
+      if (opts.statusListMaxAgeSec !== undefined) {
+        statusBaseOpts.maxListAgeSec = opts.statusListMaxAgeSec;
+      }
       const statusR = await verifyCredentialStatus(e, statusBaseOpts);
       applyStatusCheck(out, statusR);
     } else {
       out.status_state = "not_attempted";
+      out.status_blocking = false;
     }
 
     // ── Step 12: TSA dispatch (advisory; MANDATORY → hard fail unless verified)

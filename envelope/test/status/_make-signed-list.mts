@@ -16,7 +16,7 @@
  * NEVER imports the on-disk fixtures. NEVER writes to disk.
  */
 
-import { generateKeyPairSync, sign as edSign } from "node:crypto";
+import { generateKeyPairSync, sign as edSign, type KeyObject } from "node:crypto";
 import { canonicalize } from "../../src/index.ts";
 import { base64UrlEncode } from "../../src/base64url.ts";
 import { encodedListFromBitstring } from "../../src/status/decode.ts";
@@ -38,6 +38,10 @@ export interface SignedListOpts {
   statusPurpose?: string;
   /** Bitstring length in bits — 131072 (W3C minimum) by default. */
   bitstringLengthBits?: number;
+  /** validFrom embedded in the credential — "2026-05-01T00:00:00Z" by default. */
+  validFrom?: string;
+  /** Reuse a signing keypair (so two lists verify under one rootKey). */
+  keypair?: { publicKey: KeyObject; privateKey: KeyObject };
 }
 
 export interface SignedListResult {
@@ -65,7 +69,7 @@ export function makeSignedStatusList(opts: SignedListOpts): SignedListResult {
   }
   const encodedList = encodedListFromBitstring(bits);
 
-  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  const { publicKey, privateKey } = opts.keypair ?? generateKeyPairSync("ed25519");
   const publicKeyDer = publicKey.export({ format: "der", type: "spki" });
   const publicKeyDerB64u = base64UrlEncode(new Uint8Array(publicKeyDer));
 
@@ -81,7 +85,7 @@ export function makeSignedStatusList(opts: SignedListOpts): SignedListResult {
     id: credentialUrl,
     type: ["VerifiableCredential", "StatusList2021Credential"],
     issuer: "did:web:verify.dekimu.com",
-    validFrom: "2026-05-01T00:00:00Z",
+    validFrom: opts.validFrom ?? "2026-05-01T00:00:00Z",
     credentialSubject: {
       id: `${credentialUrl}#list`,
       type: "StatusList2021" as const,
