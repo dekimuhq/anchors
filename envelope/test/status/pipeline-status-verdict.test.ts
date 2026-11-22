@@ -138,3 +138,13 @@ test("F4: no statusListRootKey → not_attempted, status_blocking false (caller 
   assert.equal(r.status_state, "not_attempted");
   assert.equal(r.status_blocking, false);
 });
+
+test("F4: blocking is an ALLOWLIST — an unknown/future state fails closed", async () => {
+  const { isStatusBlocking } = await import("../../src/family-verify-pipeline.ts");
+  for (const ok of ["active", "active_stale", "not_attempted", "no_status_pointer"]) {
+    assert.equal(isStatusBlocking(ok as never), false, ok);
+  }
+  for (const bad of ["revoked", "revoked_stale", "revoked_by_chain", "list_signature_invalid", "list_mismatch", "unreachable", "invalid_pointer", "some_future_state"]) {
+    assert.equal(isStatusBlocking(bad as never), true, bad);
+  }
+});

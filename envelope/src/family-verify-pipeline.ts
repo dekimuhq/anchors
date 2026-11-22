@@ -122,7 +122,12 @@ export interface FamilyVerifyOptions {
    * (an attacker who forged `sig` can attach their own ML-DSA key), so a
    * `pqc_mandatory` issuer's hybrid receipt is rejected
    * (`issuer_pqc_mandatory:<alg>`) unless this resolver binds `sig2` to the
-   * issuer-published key. Supply it to bind `sig2` to a trusted key store. A thrown exception is caught and the `sig2` check
+   * issuer-published key. Supply it to bind `sig2` to a trusted key store.
+   *
+   * WARNING: the resolver MUST source the key from the issuer's PUBLISHED
+   * material (key store / did document / trusted-issuer record), never from the
+   * receipt. `resolveSig2Key: (e) => keyBytesFromKeyRef(e.sig2_key)` is the
+   * self-certifying default in disguise and reopens the PQC downgrade (F2). A thrown exception is caught and the `sig2` check
    * is treated as failed (the `sig_min_alg` posture then decides the verdict).
    */
   resolveSig2Key?: (envelope: unknown) => Promise<Uint8Array | null | undefined> | Uint8Array | null | undefined;
@@ -171,7 +176,8 @@ export interface FamilyVerifyOptions {
   statusListMinValidFrom?: string | Date;
   /**
    * F3 — reject a status list whose `validFrom` is more than this many seconds
-   * old. Optional; additive. Rollback across calls is detected automatically
+   * old. Optional; additive. Only a freshness bound if the list publisher signs
+   * `validFrom` = signing time (strictly increasing per re-sign); see README. Rollback across calls is detected automatically
    * when `statusCacheConfig.storage` is supplied (the cache remembers the
    * newest verified `validFrom`).
    */
@@ -407,20 +413,26 @@ export interface FamilyVerifyPredicates<BodyType = unknown> {
 
 // ── Internal status helper ───────────────────────────────────────────────────
 
-/** States that revoke the receipt or leave its status unestablished (F4). */
-const STATUS_BLOCKING: ReadonlySet<StatusCheck["state"]> = new Set([
-  "revoked",
-  "revoked_stale",
-  "revoked_by_chain",
-  "list_signature_invalid",
-  "list_mismatch",
-  "unreachable",
-  "invalid_pointer",
+/**
+ * States in which the status was established as NOT revoked, or no check was
+ * requested. Everything else — including any state added in future — is
+ * blocking (fail closed; allowlist, mirroring anchor-contracts/match.ts).
+ */
+const STATUS_NON_BLOCKING: ReadonlySet<StatusCheck["state"]> = new Set([
+  "active",
+  "active_stale",
+  "not_attempted",
+  "no_status_pointer",
 ]);
+
+/** F4 — whether a status-check state blocks acceptance. Unknown states block. */
+export function isStatusBlocking(state: StatusCheck["state"]): boolean {
+  return !STATUS_NON_BLOCKING.has(state);
+}
 
 function applyStatusCheck(out: FamilyVerifyResult, s: StatusCheck): void {
   out.status_state = s.state;
-  out.status_blocking = STATUS_BLOCKING.has(s.state);
+  out.status_blocking = isStatusBlocking(s.state);
   switch (s.state) {
     case "not_attempted":
     case "no_status_pointer":

@@ -9,15 +9,42 @@
  *
  * `checkListBinding` runs AFTER the signature verifies and returns a
  * `list_mismatch` reason, or `null` when the list may be used.
+ *
+ * ## What the rollback defence actually requires (PUBLISHER CONTRACT)
+ *
+ * The signed body has no sequence number; `validFrom` is the only signed
+ * ordering signal. A list publisher MUST therefore sign `validFrom` = the
+ * SIGNING time of each re-sign, strictly increasing per re-sign (never the
+ * start of a time bucket). Only then does:
+ *   - `validFrom < high-water`  detect replay of an older snapshot, and
+ *   - `maxListAgeSec`           measure freshness rather than bucket age.
+ * If a publisher re-signs with a constant `validFrom`, replay of a
+ * pre-revocation snapshot is indistinguishable from the genuine list EXCEPT for
+ * one signal we can still use: for `revocation` lists (`monotoneRevocation`),
+ * revocation is permanent, so at an EQUAL `validFrom` a list that clears a bit
+ * the cache already knows is set is rejected as `list_rollback`. That catches
+ * replay only after this cache has seen the post-revocation list; it cannot
+ * help a verifier that never saw it. Suspension lists legitimately clear bits,
+ * so they get no such rule.
  */
 
+import { decodeEncodedList } from "./decode.ts";
 import type { StatusCacheStorage, StatusListEntry } from "./types.ts";
 
 /** Caller-supplied freshness bounds. All optional; absent = no bound. */
 export interface ListFreshnessBounds {
-  /** Reject a list whose `validFrom` is earlier than this instant. */
+  /**
+   * Reject a list whose `validFrom` is earlier than this instant. Meaningful
+   * only if the publisher signs `validFrom` = signing time (see the publisher
+   * contract above); a bucket-start `validFrom` makes this a bucket-age bound.
+   */
   minListValidFrom?: string | Date;
-  /** Reject a list whose `validFrom` is more than this many seconds old. */
+  /**
+   * Reject a list whose `validFrom` is more than this many seconds old.
+   * Measures FRESHNESS only if the publisher signs `validFrom` = signing time;
+   * against a publisher that signs a bucket start it measures bucket age and
+   * would reject genuine late-bucket lists — leave unset for such publishers.
+   */
   maxListAgeSec?: number;
 }
 
@@ -37,13 +64,15 @@ export async function checkListBinding(args: {
   prev: StatusListEntry | undefined;
   entry: StatusListEntry;
   bounds: ListFreshnessBounds;
+  /** Revocation lists only: a set bit may never clear at an equal `validFrom`. */
+  monotoneRevocation?: boolean;
 }): Promise<string | null> {
   const { body, url, storage, prev, entry, bounds } = args;
   const hw = prev?.verified_valid_from;
 
   const reject = async (reason: string): Promise<string> => {
     // Do not let a rejected list overwrite the remembered high-water mark.
-    if (prev !== undefined && hw !== undefined) await storage.set(url, prev);
+    await restorePrev(storage, url, prev);
     return reason;
   };
 
@@ -76,10 +105,56 @@ export async function checkListBinding(args: {
   }
   if (hw !== undefined && validFrom < hw) return reject("list_rollback");
 
+  const encoded = (body as { credentialSubject?: { encodedList?: unknown } })
+    .credentialSubject?.encodedList;
+  if (
+    args.monotoneRevocation === true &&
+    hw !== undefined &&
+    validFrom === hw &&
+    prev?.verified_encoded_list !== undefined &&
+    typeof encoded === "string" &&
+    clearsKnownRevokedBit(prev.verified_encoded_list, encoded)
+  ) {
+    return reject("list_rollback");
+  }
+
   // Accepted: advance the verified high-water mark (monotonic).
-  await storage.set(url, {
+  const next: StatusListEntry = {
     ...entry,
     verified_valid_from: hw === undefined ? validFrom : Math.max(hw, validFrom),
-  });
+  };
+  if (typeof encoded === "string") next.verified_encoded_list = encoded;
+  else delete next.verified_encoded_list;
+  await storage.set(url, next);
   return null;
+}
+
+/**
+ * Put the pre-fetch cache entry back. `fetchStatusListCredential` writes the
+ * fetched body to the cache BEFORE its signature is checked, so any rejection
+ * after the fetch must restore `prev` or an unverified/garbage/old body would
+ * replace the entry that carries the verified high-water mark.
+ */
+export async function restorePrev(
+  storage: StatusCacheStorage,
+  url: string,
+  prev: StatusListEntry | undefined,
+): Promise<void> {
+  if (prev !== undefined) await storage.set(url, prev);
+}
+
+/** True when `next` clears (or truncates away) any bit that `known` has set. */
+function clearsKnownRevokedBit(known: string, next: string): boolean {
+  let a: Uint8Array;
+  let b: Uint8Array;
+  try {
+    a = decodeEncodedList(known);
+    b = decodeEncodedList(next);
+  } catch {
+    return false; // a malformed new list is rejected by the caller's decode step
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (((a[i] ?? 0) & ~(b[i] ?? 0) & 0xff) !== 0) return true;
+  }
+  return false;
 }

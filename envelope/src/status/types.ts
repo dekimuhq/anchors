@@ -34,6 +34,12 @@ export interface StatusListEntry {
    * written by older versions — treated as "no history".
    */
   verified_valid_from?: number;
+  /**
+   * `credentialSubject.encodedList` of the last signature-verified list (set by
+   * the verifiers, never the fetcher). Used to reject un-revoking a known
+   * revoked index when `validFrom` does not advance. Additive/optional.
+   */
+  verified_encoded_list?: string;
 }
 
 /**

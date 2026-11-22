@@ -74,7 +74,7 @@ export async function verifyTrustedIssuersList(
   // grows a verify branch for it, this fails closed (distinct outcome,
   // unsupported ≠ invalid signature) rather than resolving-and-mis-verifying it
   // under the wrong scheme.
-  const keyAlg = doc.publisher_key.slice(0, doc.publisher_key.indexOf(":"));
+  const keyAlg = doc.publisher_key.slice(0, Math.max(doc.publisher_key.indexOf(":"), 0));
   if (!SUPPORTED_LIST_SIG_ALGS.has(keyAlg)) {
     return {
       ok: false,

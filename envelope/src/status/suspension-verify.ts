@@ -13,7 +13,7 @@ import { fetchStatusListCredential } from "./fetch.ts";
 import { verifyStatusListCredentialSignature } from "./verify.ts";
 import { decodeEncodedList, readBitAt } from "./decode.ts";
 import { InMemoryStatusCache } from "./cache.ts";
-import { checkListBinding } from "./list-binding.ts";
+import { checkListBinding, restorePrev } from "./list-binding.ts";
 import type { ListFreshnessBounds } from "./list-binding.ts";
 import type { Envelope } from "../envelope-types.ts";
 import type {
@@ -80,6 +80,9 @@ export async function verifySuspensionStatus(
 
   const sigOk = await verifyStatusListCredentialSignature(entry.body, opts.rootKey);
   if (!sigOk) {
+    // The fetcher already cached this unverified body; never let it replace the
+    // entry holding the verified high-water mark.
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_signature_invalid" };
   }
 
@@ -96,6 +99,7 @@ export async function verifySuspensionStatus(
     prev,
     entry,
     bounds: bindingBounds,
+    monotoneRevocation: false,
   });
   if (bindingReason !== null) {
     return { state: "list_mismatch", reason: bindingReason };

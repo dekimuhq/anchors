@@ -181,3 +181,86 @@ test("F3: suspension verifier has the same url binding", async () => {
   const r = await verifySuspensionStatus(e, { rootKey, cacheConfig: cfg(), _testFetch: serve(credential) });
   assert.equal(r.state, "list_mismatch");
 });
+
+// ── Review round 2 ───────────────────────────────────────────────────────────
+
+test("F3b: same-validFrom replay (publisher signs the BUCKET START) — pre-revocation snapshot is rejected once the cache saw the revoked bit", async () => {
+  // Real publisher behaviour: validFrom is constant across re-signs inside a bucket,
+  // so `validFrom < high-water` can never fire. The only signal left is the bitstring.
+  const keypair = generateKeyPairSync("ed25519");
+  const VF = "2026-11-01T00:00:00Z";
+  const pre = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: VF });
+  const post = makeSignedStatusList({ bitIndex: 5, bitValue: 1, credentialUrl: URL_A, keypair, validFrom: VF });
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: pre.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(post.credential))).state, "revoked");
+  const replay = await verifyCredentialStatus(env(URL_A), o(pre.credential));
+  assert.equal(replay.state, "list_mismatch", "un-revoking a known-revoked index at equal validFrom is a rollback");
+  if (replay.state === "list_mismatch") assert.equal(replay.reason, "list_rollback");
+  // Sticky: the replay did not erase what the cache knew.
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(pre.credential))).state, "list_mismatch");
+  // The genuine list is still accepted.
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(post.credential))).state, "revoked");
+});
+
+test("F3b: same-validFrom, pre-revocation seen FIRST then post-revocation → accepted (monotone growth of the revoked set)", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const VF = "2026-11-01T00:00:00Z";
+  const pre = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: VF });
+  const post = makeSignedStatusList({ bitIndex: 5, bitValue: 1, credentialUrl: URL_A, keypair, validFrom: VF });
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: pre.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(pre.credential))).state, "active");
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(post.credential))).state, "revoked");
+});
+
+test("F3c: a garbage 200 (bad signature) does not erase the high-water mark", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const current = makeSignedStatusList({ bitIndex: 5, bitValue: 1, credentialUrl: URL_A, keypair, validFrom: "2026-11-20T00:00:00Z" });
+  const older = makeSignedStatusList({ bitIndex: 5, bitValue: 0, credentialUrl: URL_A, keypair, validFrom: "2026-01-01T00:00:00Z" });
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: current.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+
+  assert.equal((await verifyCredentialStatus(env(URL_A), o(current.credential))).state, "revoked");
+  assert.equal((await verifyCredentialStatus(env(URL_A), o({ garbage: true }))).state, "list_signature_invalid");
+  const replay = await verifyCredentialStatus(env(URL_A), o(older.credential));
+  assert.equal(replay.state, "list_mismatch", "older list must still be rejected after a garbage fetch");
+});
+
+test("F3c: suspension verifier — garbage 200 does not erase the high-water mark", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const mk = (vf: string, bit: 0 | 1) =>
+    makeSignedStatusList({ bitIndex: 5, bitValue: bit, credentialUrl: URL_A, statusPurpose: "suspension", keypair, validFrom: vf });
+  const current = mk("2026-11-20T00:00:00Z", 1);
+  const older = mk("2026-01-01T00:00:00Z", 0);
+  const e = env(URL_A);
+  (e as unknown as { credentialStatus: null }).credentialStatus = null;
+  (e as unknown as Record<string, unknown>).suspensionStatus = {
+    id: `${URL_A}#5`, type: "StatusList2021Entry", statusPurpose: "suspension",
+    statusListIndex: "5", statusListCredential: URL_A,
+  };
+  const storage = new InMemoryStatusCache(8);
+  const o = (c: unknown) => ({ rootKey: current.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+  assert.equal((await verifySuspensionStatus(e, o(current.credential))).state, "suspended");
+  assert.equal((await verifySuspensionStatus(e, o({ garbage: true }))).state, "list_signature_invalid");
+  assert.equal((await verifySuspensionStatus(e, o(older.credential))).state, "list_mismatch");
+});
+
+test("F3b: suspension lists may legitimately clear a bit at equal validFrom (no revocation-stickiness)", async () => {
+  const keypair = generateKeyPairSync("ed25519");
+  const VF = "2026-11-01T00:00:00Z";
+  const mk = (bit: 0 | 1) =>
+    makeSignedStatusList({ bitIndex: 5, bitValue: bit, credentialUrl: URL_A, statusPurpose: "suspension", keypair, validFrom: VF });
+  const e = env(URL_A);
+  (e as unknown as { credentialStatus: null }).credentialStatus = null;
+  (e as unknown as Record<string, unknown>).suspensionStatus = {
+    id: `${URL_A}#5`, type: "StatusList2021Entry", statusPurpose: "suspension",
+    statusListIndex: "5", statusListCredential: URL_A,
+  };
+  const storage = new InMemoryStatusCache(8);
+  const s = mk(1), u = mk(0);
+  const o = (c: unknown) => ({ rootKey: s.rootKey, cacheConfig: cfg(storage), _testFetch: serve(c) });
+  assert.equal((await verifySuspensionStatus(e, o(s.credential))).state, "suspended");
+  assert.equal((await verifySuspensionStatus(e, o(u.credential))).state, "not_suspended");
+});
