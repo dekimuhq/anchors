@@ -44,6 +44,7 @@ export {
 } from "./decode.ts";
 export { verifyStatusListCredentialSignature } from "./verify.ts";
 export { verifyCredentialStatus } from "./reconcile.ts";
+export type { ListFreshnessBounds } from "./list-binding.ts";
 export type { ReconcileOpts } from "./reconcile.ts";
 export { attachCredentialStatus, MAX_STATUS_INDEX } from "./attach.ts";
 export type { StatusListConfig } from "./attach.ts";

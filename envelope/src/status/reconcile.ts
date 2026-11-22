@@ -27,6 +27,8 @@ import { fetchStatusListCredential } from "./fetch.ts";
 import { verifyStatusListCredentialSignature } from "./verify.ts";
 import { decodeEncodedList, readBitAt } from "./decode.ts";
 import { InMemoryStatusCache } from "./cache.ts";
+import { checkListBinding, commitVerifiedList, restorePrev } from "./list-binding.ts";
+import type { ListFreshnessBounds } from "./list-binding.ts";
 import type { Envelope } from "../envelope-types.ts";
 import type {
   StatusCheck,
@@ -35,7 +37,7 @@ import type {
   StatusListCredential,
 } from "./types.ts";
 
-export interface ReconcileOpts {
+export interface ReconcileOpts extends ListFreshnessBounds {
   /**
    * Root key for verifying the Status List Credential signature. Required for
    * a real check. If absent (undefined), returns `{ state: "not_attempted" }`.
@@ -92,6 +94,8 @@ export async function verifyCredentialStatus(
     freshTtlSec: cacheConfig.freshTtlSec,
     staleTtlSec: cacheConfig.staleTtlSec,
   };
+  // Verified high-water mark from any earlier check (rollback defence).
+  const prev = await storage.get(statusListId);
   const fetched = await fetchStatusListCredential(
     statusListId,
     opts._testFetch !== undefined
@@ -109,15 +113,37 @@ export async function verifyCredentialStatus(
 
   const sigOk = await verifyStatusListCredentialSignature(entry.body, opts.rootKey);
   if (!sigOk) {
+    // The fetcher already cached this unverified body; never let it replace the
+    // entry holding the verified high-water mark.
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_signature_invalid" };
   }
 
   // Narrow the credential body for statusPurpose + encodedList.
   const body = entry.body as StatusListCredential;
+
+  // F3: bind the signed list to the requested URL and to a point in time.
+  const bindingBounds: ListFreshnessBounds = {};
+  if (opts.minListValidFrom !== undefined) bindingBounds.minListValidFrom = opts.minListValidFrom;
+  if (opts.maxListAgeSec !== undefined) bindingBounds.maxListAgeSec = opts.maxListAgeSec;
+  const bindingReason = await checkListBinding({
+    body,
+    url: statusListId,
+    storage,
+    prev,
+    entry,
+    bounds: bindingBounds,
+    monotoneRevocation: true,
+  });
+  if (bindingReason !== null) {
+    return { state: "list_mismatch", reason: bindingReason };
+  }
+
   if (
     !body?.credentialSubject?.statusPurpose ||
     body.credentialSubject.statusPurpose !== envelope.credentialStatus.statusPurpose
   ) {
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_mismatch", reason: "statusPurpose_mismatch" };
   }
 
@@ -125,6 +151,14 @@ export async function verifyCredentialStatus(
   let bit: 0 | 1;
   try {
     bits = decodeEncodedList(body.credentialSubject.encodedList);
+  } catch (err) {
+    await restorePrev(storage, statusListId, prev);
+    const reason = err instanceof Error ? err.message : String(err);
+    return { state: "list_mismatch", reason };
+  }
+  // Statuspurpose matched and the list decodes: only now remember it (F3).
+  await commitVerifiedList({ body, url: statusListId, storage, prev, entry });
+  try {
     const idx = parseInt(envelope.credentialStatus.statusListIndex, 10);
     // Guard against indices that overflow safe-integer or exceed the bitstring.
     // `readBitAt` internally does `index >>> 3` (ToUint32 modulo 2^32), so a

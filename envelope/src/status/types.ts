@@ -27,6 +27,19 @@ export interface StatusListEntry {
   fresh_until: number;
   body: unknown;
   etag?: string;
+  /**
+   * High-water mark (unix-ms) of the newest `validFrom` seen on a list whose
+   * signature VERIFIED, maintained by the verifiers (never by the fetcher).
+   * Lets a verifier reject a rolled-back (older) list. Absent on entries
+   * written by older versions — treated as "no history".
+   */
+  verified_valid_from?: number;
+  /**
+   * `credentialSubject.encodedList` of the last signature-verified list (set by
+   * the verifiers, never the fetcher). Used to reject un-revoking a known
+   * revoked index when `validFrom` does not advance. Additive/optional.
+   */
+  verified_encoded_list?: string;
 }
 
 /**

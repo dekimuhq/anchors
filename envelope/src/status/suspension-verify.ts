@@ -13,6 +13,8 @@ import { fetchStatusListCredential } from "./fetch.ts";
 import { verifyStatusListCredentialSignature } from "./verify.ts";
 import { decodeEncodedList, readBitAt } from "./decode.ts";
 import { InMemoryStatusCache } from "./cache.ts";
+import { checkListBinding, commitVerifiedList, restorePrev } from "./list-binding.ts";
+import type { ListFreshnessBounds } from "./list-binding.ts";
 import type { Envelope } from "../envelope-types.ts";
 import type {
   StatusCacheConfig,
@@ -21,7 +23,7 @@ import type {
 } from "./types.ts";
 import type { SuspensionCheck } from "./suspension-types.ts";
 
-export interface SuspensionVerifyOpts {
+export interface SuspensionVerifyOpts extends ListFreshnessBounds {
   rootKey?: RootKeyMaterial;
   cacheConfig?: StatusCacheConfig;
   _testFetch?: typeof fetch;
@@ -60,6 +62,7 @@ export async function verifySuspensionStatus(
     freshTtlSec: cacheConfig.freshTtlSec,
     staleTtlSec: cacheConfig.staleTtlSec,
   };
+  const prev = await storage.get(statusListId);
   const fetched = await fetchStatusListCredential(
     statusListId,
     opts._testFetch !== undefined
@@ -77,14 +80,36 @@ export async function verifySuspensionStatus(
 
   const sigOk = await verifyStatusListCredentialSignature(entry.body, opts.rootKey);
   if (!sigOk) {
+    // The fetcher already cached this unverified body; never let it replace the
+    // entry holding the verified high-water mark.
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_signature_invalid" };
   }
 
   const body = entry.body as StatusListCredential;
+
+  // F3: bind the signed list to the requested URL and to a point in time.
+  const bindingBounds: ListFreshnessBounds = {};
+  if (opts.minListValidFrom !== undefined) bindingBounds.minListValidFrom = opts.minListValidFrom;
+  if (opts.maxListAgeSec !== undefined) bindingBounds.maxListAgeSec = opts.maxListAgeSec;
+  const bindingReason = await checkListBinding({
+    body,
+    url: statusListId,
+    storage,
+    prev,
+    entry,
+    bounds: bindingBounds,
+    monotoneRevocation: false,
+  });
+  if (bindingReason !== null) {
+    return { state: "list_mismatch", reason: bindingReason };
+  }
+
   if (
     !body?.credentialSubject?.statusPurpose ||
     body.credentialSubject.statusPurpose !== "suspension"
   ) {
+    await restorePrev(storage, statusListId, prev);
     return { state: "list_mismatch", reason: "statusPurpose_mismatch" };
   }
 
@@ -92,6 +117,14 @@ export async function verifySuspensionStatus(
   let bit: 0 | 1;
   try {
     bits = decodeEncodedList(body.credentialSubject.encodedList);
+  } catch (err) {
+    await restorePrev(storage, statusListId, prev);
+    const reason = err instanceof Error ? err.message : String(err);
+    return { state: "list_mismatch", reason };
+  }
+  // Statuspurpose matched and the list decodes: only now remember it (F3).
+  await commitVerifiedList({ body, url: statusListId, storage, prev, entry });
+  try {
     const idx = parseInt(envelope.suspensionStatus.statusListIndex, 10);
     if (!Number.isSafeInteger(idx) || idx >= bits.length * 8) {
       return { state: "list_mismatch", reason: "statusListIndex_out_of_range" };
