@@ -5,7 +5,7 @@ TypeScript reference implementation of the **Anchored Receipts** family: signed 
 A receipt is signed by its issuer over a canonical (RFC 8785) serialization. It can be anchored to a Merkle root and an RFC 3161 timestamp, and revoked through a W3C status list. Receipts are tamper-evident by construction, and a third party can check a receipt's signature offline, with no account.
 
 - **Specs (CC0):** [`dekimuhq/anchors-spec`](https://github.com/dekimuhq/anchors-spec)
-- **Code (Apache-2.0):** this repository: 53 packages under the `@dekimuhq` npm scope.
+- **Code (Apache-2.0):** this repository's packages, published under the `@dekimuhq` npm scope.
 - **Wire format:** every receipt carries a `claim_type` of the form `ar.<noun>.v<N>`. New fields are optional and additive. A breaking change gets a new `v<N+1>` discriminator.
 - **Cross-family invariants:** [`meta/FAMILY-CONSISTENCY.md`](meta/FAMILY-CONSISTENCY.md) · **Registry:** [`meta/REGISTRY.md`](meta/REGISTRY.md)
 
